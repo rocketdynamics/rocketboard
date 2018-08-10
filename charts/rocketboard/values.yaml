@@ -11,6 +11,9 @@ ingress:
 oauth2-proxy:
   replicaCount: 1
 
+  image:
+    tag: "2.2.1-alpha"
+
   service:
     port: 4180
 
@@ -28,10 +31,11 @@ oauth2-proxy:
     clientSecret: ***REMOVED***
     cookieSecret: ***REMOVED***
     htpasswdFile: |
-      ***REMOVED***:***REMOVED***
+      qaportal:***REMOVED***
 
   extraArgs:
-    email-domain: "arachnys.com"
+    oidc-issuer-url: "https://oauth.k8s-dev.arachnys.com"
+    provider: "oidc"
     upstream: "http://rocketboard"
     http-address: "0.0.0.0:4180"
 
