@@ -2,22 +2,26 @@
 
 
 [[projects]]
-  name = "github.com/gorilla/context"
-  packages = ["."]
-  revision = "08b5f424b9271eedf6f9f0ce86cb9396ed337a42"
-  version = "v1.1.1"
+  name = "github.com/99designs/gqlgen"
+  packages = [
+    "graphql",
+    "graphql/introspection",
+    "handler"
+  ]
+  revision = "3575c289486fce174c941b63749b9bbb88c3ca90"
+  version = "0.4.3"
 
 [[projects]]
-  name = "github.com/gorilla/handlers"
+  branch = "master"
+  name = "github.com/agnivade/levenshtein"
   packages = ["."]
-  revision = "7e0847f9db758cdebd26c149d0ae9d5d0b9c98ce"
-  version = "v1.4.0"
+  revision = "3d21ba515fe27b856f230847e856431ae1724adc"
 
 [[projects]]
-  name = "github.com/gorilla/mux"
+  name = "github.com/gorilla/websocket"
   packages = ["."]
-  revision = "e3702bed27f0d39777b0b37b664b6280e8ef8fbf"
-  version = "v1.6.2"
+  revision = "ea4d1f681babbce9545c9c5f3d5194a789c89f5b"
+  version = "v1.2.0"
 
 [[projects]]
   name = "github.com/oklog/ulid"
@@ -31,9 +35,23 @@
   revision = "645ef00459ed84a119197bfb8d8205042c6df63d"
   version = "v0.8.0"
 
+[[projects]]
+  branch = "master"
+  name = "github.com/vektah/gqlparser"
+  packages = [
+    ".",
+    "ast",
+    "gqlerror",
+    "lexer",
+    "parser",
+    "validator",
+    "validator/rules"
+  ]
+  revision = "c063da4fdb845f11bd524096452558e8759103b6"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "82131afaa9c0ce103ef0f8111dbfcc17de9784fc73bf0c1f31acd8487cf4dfa7"
+  inputs-digest = "706c2c498ea37ad2b36c95dcc2e1cfcdfaaf55d8331d34f6b972d865fe77f3f0"
   solver-name = "gps-cdcl"
   solver-version = 1
