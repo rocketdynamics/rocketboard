@@ -30,7 +30,13 @@ func main() {
 
 	r.PathPrefix("/").Handler(http.FileServer(http.Dir("./public/")))
 
-	loggedRouter := handlers.LoggingHandler(os.Stdout, r)
+	allowedHeaders := handlers.AllowedHeaders([]string{"Accept", "Authorization", "Content-Type", "Content-Length", "Accept-Encoding"})
+	allowedOrigins := handlers.AllowedOrigins([]string{"*"})
+	allowedMethods := handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "DELETE", "OPTIONS"})
+
+	corsRouter := handlers.CORS(allowedHeaders, allowedOrigins, allowedMethods)(r)
+	loggedRouter := handlers.LoggingHandler(os.Stdout, corsRouter)
+
 	fmt.Println("Listening on port 5000")
 	log.Fatal(http.ListenAndServe(":5000", loggedRouter))
 }

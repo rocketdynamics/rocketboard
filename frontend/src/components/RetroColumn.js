@@ -5,20 +5,7 @@ import { Droppable, Draggable } from 'react-beautiful-dnd';
 
 class RetroColumn extends Component {
   render() {
-    const data = [
-      {
-        id: 1,
-        message: "Retro message",
-        index: 1,
-      },
-      {
-        id: 2,
-        message: "Retro message",
-        index: 2,
-      }
-    ]
-
-    const { title, colour, grid, cardWidth } = this.props;
+    const { cards, title, colour, grid, cardWidth } = this.props;
 
     return (
       <Droppable droppableId={title}>
@@ -30,9 +17,9 @@ class RetroColumn extends Component {
             <List
               header={<h2>{title}</h2>}
               grid={grid}
-              dataSource={data}
+              dataSource={cards}
               renderItem={item => (
-                <Draggable key={`${title}-${item.id}`} draggableId={`${title}-${item.id}`} index={item.index}>
+                <Draggable key={`${title}-${item.Id}`} draggableId={`${title}-${item.Id}`} index={item.Id}>
                   {(provided, snapshot) => (
                     <div
                       ref={provided.innerRef}
@@ -43,8 +30,8 @@ class RetroColumn extends Component {
                         <Card
                             style={{ width: (cardWidth || "100%"), backgroundColor: colour }}>
                           <p>
-                            {item.message}
-                            {item.id}
+                            {item.Message}
+                            {item.Id}
                           </p>
                         </Card>
                       </List.Item>

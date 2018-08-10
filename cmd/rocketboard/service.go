@@ -64,7 +64,6 @@ func (s *rocketboardService) AddCardToRetrospective(retrospectiveId string, mess
 }
 
 func newUlid() string {
-	t := time.Unix(1000000, 0)
-	entropy := rand.New(rand.NewSource(t.UnixNano()))
-	return ulid.MustNew(ulid.Timestamp(t), entropy).String()
+	entropy := rand.New(rand.NewSource(time.Now().UnixNano()))
+	return ulid.MustNew(ulid.Now(), entropy).String()
 }
