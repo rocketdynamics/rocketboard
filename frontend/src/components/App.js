@@ -20,6 +20,11 @@ import * as R from "ramda";
 
 const byColumn = R.pipe(R.values, R.groupBy(R.prop("Column")));
 
+let BASE_API_URL = 'http://localhost:5000';
+if (process.env.NODE_ENV === "production") {
+  BASE_API_URL = 'https://rocketboard.arachnys.com';
+}
+
 class retrospective extends Component {
   render() {
     const { retrospectiveFetch } = this.props;
@@ -60,7 +65,7 @@ const Retrospective = withRouter(connect(props => {
   const { match } = props;
   return {
     retrospectiveFetch: {
-      url: `http://localhost:5000/retrospective/${match.params.id}/`,
+      url: `${BASE_API_URL}/retrospective/${match.params.id}/`,
       refreshInterval: 5000,
     },
   };
