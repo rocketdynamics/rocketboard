@@ -11,11 +11,7 @@ RUN yarn install
 ADD /frontend/public ./public
 ADD /frontend/src ./src
 
-# Remove local dev placeholder endpoints
-RUN rm -r ./public/api
-
 RUN yarn build
-
 
 FROM golang:1.10 as backend-builder
 

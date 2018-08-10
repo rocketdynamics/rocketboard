@@ -1,12 +1,10 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
-import { Tabs, Alert } from 'antd';
+import RetroColumn from './RetroColumn';
 
 import './App.css'
 import "antd/dist/antd.css";
-
-const TabPane = Tabs.TabPane;
 
 class App extends Component {
 
@@ -18,6 +16,13 @@ class App extends Component {
     return (
   <div className="App">
     <h1>Retrospective</h1>
+
+    <RetroColumn title="Actions" colour="Red" layout="vertical" cardWidth="200px"/>
+    <div style={{display: "flex"}}>
+      <RetroColumn title="Positive" colour="lime"/>
+      <RetroColumn title="Mixed" colour="orange"/>
+      <RetroColumn title="Negative" colour="maroon"/>
+    </div>
   </div>
 )
   }
