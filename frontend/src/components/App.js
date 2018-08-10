@@ -13,7 +13,7 @@ class App extends Component {
     <h1>Retrospective</h1>
 
     <DragDropContext>
-      <RetroColumn title="Actions" colour="Red" layout="vertical" cardWidth="200px"/>
+      <RetroColumn title="Actions" colour="Red" grid={{ gutter: 16, xs: 1, sm: 2, md: 4, lg: 4, xl: 6, xxl: 3 }} cardWidth="200px"/>
     </DragDropContext>
     <div style={{display: "flex"}}>
       <DragDropContext>

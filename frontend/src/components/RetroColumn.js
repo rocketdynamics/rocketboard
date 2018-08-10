@@ -18,7 +18,7 @@ class RetroColumn extends Component {
       }
     ]
 
-    const { title, colour, layout, cardWidth } = this.props;
+    const { title, colour, grid, cardWidth } = this.props;
 
     return (
       <Droppable droppableId={title}>
@@ -29,7 +29,7 @@ class RetroColumn extends Component {
           >
             <List
               header={<h2>{title}</h2>}
-              itemLayout={layout || "horizontal"}
+              grid={grid}
               dataSource={data}
               renderItem={item => (
                 <Draggable key={`${title}-${item.id}`} draggableId={`${title}-${item.id}`} index={item.index}>
