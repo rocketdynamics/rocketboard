@@ -19,9 +19,21 @@
   revision = "e3702bed27f0d39777b0b37b664b6280e8ef8fbf"
   version = "v1.6.2"
 
+[[projects]]
+  name = "github.com/oklog/ulid"
+  packages = ["."]
+  revision = "8356aea91ceecc7d00ef87508040d1031adb2953"
+  version = "v1.0.0"
+
+[[projects]]
+  name = "github.com/pkg/errors"
+  packages = ["."]
+  revision = "645ef00459ed84a119197bfb8d8205042c6df63d"
+  version = "v0.8.0"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "6c1ddba2e882eef3b85f3db4410410445e8cdb6d0bf9dc764194ed492add742a"
+  inputs-digest = "82131afaa9c0ce103ef0f8111dbfcc17de9784fc73bf0c1f31acd8487cf4dfa7"
   solver-name = "gps-cdcl"
   solver-version = 1
