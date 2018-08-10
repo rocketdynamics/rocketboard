@@ -1,0 +1,38 @@
+replicaCount: 1
+
+image:
+  repository: docker.arachnys.com/rocketboard
+  tag: stable
+  pullPolicy: IfNotPresent
+
+ingress:
+  enabled: false
+
+oauth2-proxy:
+  replicaCount: 1
+
+  service:
+    port: 4180
+
+  ingress:
+    enabled: true
+    hosts:
+      - rocketboard.arachnys.com
+    tls:
+      - secretName: arachnys-wildcard-tls
+        hosts:
+          - rocketboard.arachnys.com
+
+  config:
+    clientID: ***REMOVED***
+    clientSecret: ***REMOVED***
+    cookieSecret: ***REMOVED***
+    htpasswdFile: |
+      ***REMOVED***:***REMOVED***
+
+  extraArgs:
+    email-domain: "arachnys.com"
+    upstream: "http://rocketboard"
+    http-address: "0.0.0.0:4180"
+
+resources: {}

@@ -1,0 +1,6 @@
+dependencies:
+- name: oauth2-proxy
+  repository: https://chartmuseum:***REMOVED***@chartmuseum.k8s-dev.arachnys.com/
+  version: 0.5.0
+digest: sha256:7cfbf0cb3f4b5ecafcd8c40e24f1b37745beb6a1e35ccc06636abde48e492e1d
+generated: 2018-08-10T16:55:14.237209937+01:00

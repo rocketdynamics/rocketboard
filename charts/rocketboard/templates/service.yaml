@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "rocketboard.fullname" . }}
+  labels:
+    app: {{ template "rocketboard.name" . }}
+    chart: {{ template "rocketboard.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app: {{ template "rocketboard.name" . }}
+    release: {{ .Release.Name }}
