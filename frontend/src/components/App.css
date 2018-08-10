@@ -1,0 +1,14 @@
+.App {
+
+}
+
+.App h1 {
+  margin-top: 2em;
+  width: 100%;
+  text-align: center;
+}
+
+.AppTabs .pt-tab-list {
+  align-items: center;
+  justify-content: center;
+}
