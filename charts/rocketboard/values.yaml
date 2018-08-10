@@ -31,7 +31,7 @@ oauth2-proxy:
     clientSecret: ***REMOVED***
     cookieSecret: ***REMOVED***
     htpasswdFile: |
-      rocketboard:$apr1$kUWp6h.t$SgInL0uHkbKfkuur2afHV1
+      rocketboard:***REMOVED***
 
   extraArgs:
     oidc-issuer-url: "https://oauth.k8s-dev.arachnys.com"
