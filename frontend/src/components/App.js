@@ -1,17 +1,11 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import { connect } from 'react-redux'
 import RetroColumn from './RetroColumn';
 
 import './App.css'
 import "antd/dist/antd.css";
 
 class App extends Component {
-
-  constructor(props) {
-    super(props)
-  }
-
   render() {
     return (
   <div className="App">
@@ -28,14 +22,7 @@ class App extends Component {
   }
 }
 
-const mapStateToProps = state => {
-  // const { _ } = state
-  return {
-  }
-}
-
 App.propTypes = {
 }
 
-
-export default connect(mapStateToProps)(App)
+export default App
