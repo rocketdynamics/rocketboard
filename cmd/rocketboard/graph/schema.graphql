@@ -4,16 +4,16 @@ schema {
 }
 
 type RootQuery {
-    retrospectiveById(id: String): Retrospective
+    retrospectiveById(id: ID!): Retrospective
 }
 
 type RootMutation {
     startRetrospective(name: String): String!
-    addCardToRetrospective(id: String, column: String, message: String): String!
+    addCardToRetrospective(id: ID!, column: String, message: String): Card!
 }
 
 type Retrospective {
-    id: String
+    id: ID!
     created: Time
     updated: Time
     name: String
@@ -27,7 +27,7 @@ type Column {
 }
 
 type Card {
-    id: String
+    id: ID!
     created: Time
     updated: Time
     message: String

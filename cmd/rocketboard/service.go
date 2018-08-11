@@ -70,6 +70,10 @@ func (s *rocketboardService) AddCardToRetrospective(rId string, column string, m
 	return id, nil
 }
 
+func (s *rocketboardService) GetCardById(id string) (*model.Card, error) {
+	return s.db.GetCardById(id)
+}
+
 func (s *rocketboardService) GetCardsForRetrospective(rId string) ([]*model.Card, error) {
 	return s.db.GetCardsByRetrospectiveId(rId)
 }

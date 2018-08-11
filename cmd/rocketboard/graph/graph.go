@@ -10,6 +10,7 @@ type rocketboardService interface {
 	GetRetrospectiveById(string) (*model.Retrospective, error)
 	AddCardToRetrospective(string, string, string, string) (string, error)
 	GetCardsForRetrospective(string) ([]*model.Card, error)
+	GetCardById(string) (*model.Card, error)
 }
 
 type rootResolver struct {
@@ -47,7 +48,8 @@ func (r *rootResolver) RootQuery() RootQueryResolver {
 func (r *retrospectiveResolver) Columns(ctx context.Context, obj *model.Retrospective) ([]*Column, error) {
 	cards, err := r.s.GetCardsForRetrospective(obj.Id)
 	if err != nil {
-		return nil, err
+		// return nil, err
+		return []*Column{}, nil
 	}
 
 	cardsByColumn := make(map[string][]*model.Card)
@@ -60,8 +62,9 @@ func (r *retrospectiveResolver) Columns(ctx context.Context, obj *model.Retrospe
 
 	columns := make([]*Column, 0)
 	for columnName, cards := range cardsByColumn {
+		cn := columnName
 		columns = append(columns, &Column{
-			Name:  &columnName,
+			Name:  &cn,
 			Cards: cards,
 		})
 	}
@@ -69,14 +72,25 @@ func (r *retrospectiveResolver) Columns(ctx context.Context, obj *model.Retrospe
 	return columns, nil
 }
 
-func (r *queryResolver) RetrospectiveByID(ctx context.Context, id *string) (*model.Retrospective, error) {
-	return r.s.GetRetrospectiveById(*id)
+func (r *queryResolver) RetrospectiveByID(ctx context.Context, id string) (*model.Retrospective, error) {
+	return r.s.GetRetrospectiveById(id)
 }
 
 func (r *mutationResolver) StartRetrospective(ctx context.Context, name *string) (string, error) {
 	return r.s.StartRetrospective(*name)
 }
 
-func (r *mutationResolver) AddCardToRetrospective(ctx context.Context, rId *string, column *string, message *string) (string, error) {
-	return r.s.AddCardToRetrospective(*rId, *column, *message, "unknown user")
+func (r *mutationResolver) AddCardToRetrospective(ctx context.Context, id string, column *string, message *string) (model.Card, error) {
+	id, err := r.s.AddCardToRetrospective(id, *column, *message, "unknown user")
+	var card model.Card
+	if err != nil {
+		return card, err
+	}
+
+	c, err := r.s.GetCardById(id)
+	if err != nil {
+		return card, err
+	}
+
+	return *c, nil
 }

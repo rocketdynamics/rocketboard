@@ -41,10 +41,10 @@ type RetrospectiveResolver interface {
 }
 type RootMutationResolver interface {
 	StartRetrospective(ctx context.Context, name *string) (string, error)
-	AddCardToRetrospective(ctx context.Context, id *string, column *string, message *string) (string, error)
+	AddCardToRetrospective(ctx context.Context, id string, column *string, message *string) (model.Card, error)
 }
 type RootQueryResolver interface {
-	RetrospectiveByID(ctx context.Context, id *string) (*model.Retrospective, error)
+	RetrospectiveByID(ctx context.Context, id string) (*model.Retrospective, error)
 }
 
 type executableSchema struct {
@@ -144,7 +144,7 @@ func (ec *executionContext) _Card_id(ctx context.Context, field graphql.Collecte
 		return graphql.Null
 	}
 	res := resTmp.(string)
-	return graphql.MarshalString(res)
+	return graphql.MarshalID(res)
 }
 
 func (ec *executionContext) _Card_created(ctx context.Context, field graphql.CollectedField, obj *model.Card) graphql.Marshaler {
@@ -351,7 +351,7 @@ func (ec *executionContext) _Retrospective_id(ctx context.Context, field graphql
 		return graphql.Null
 	}
 	res := resTmp.(string)
-	return graphql.MarshalString(res)
+	return graphql.MarshalID(res)
 }
 
 func (ec *executionContext) _Retrospective_created(ctx context.Context, field graphql.CollectedField, obj *model.Retrospective) graphql.Marshaler {
@@ -509,15 +509,10 @@ func (ec *executionContext) _RootMutation_startRetrospective(ctx context.Context
 func (ec *executionContext) _RootMutation_addCardToRetrospective(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
 	rawArgs := field.ArgumentMap(ec.Variables)
 	args := map[string]interface{}{}
-	var arg0 *string
+	var arg0 string
 	if tmp, ok := rawArgs["id"]; ok {
 		var err error
-		var ptr1 string
-		if tmp != nil {
-			ptr1, err = graphql.UnmarshalString(tmp)
-			arg0 = &ptr1
-		}
-
+		arg0, err = graphql.UnmarshalID(tmp)
 		if err != nil {
 			ec.Error(ctx, err)
 			return graphql.Null
@@ -561,13 +556,13 @@ func (ec *executionContext) _RootMutation_addCardToRetrospective(ctx context.Con
 	rctx.PushField(field.Alias)
 	defer rctx.Pop()
 	resTmp := ec.FieldMiddleware(ctx, func(ctx context.Context) (interface{}, error) {
-		return ec.resolvers.RootMutation().AddCardToRetrospective(ctx, args["id"].(*string), args["column"].(*string), args["message"].(*string))
+		return ec.resolvers.RootMutation().AddCardToRetrospective(ctx, args["id"].(string), args["column"].(*string), args["message"].(*string))
 	})
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(string)
-	return graphql.MarshalString(res)
+	res := resTmp.(model.Card)
+	return ec._Card(ctx, field.Selections, &res)
 }
 
 var rootQueryImplementors = []string{"RootQuery"}
@@ -604,15 +599,10 @@ func (ec *executionContext) _RootQuery(ctx context.Context, sel ast.SelectionSet
 func (ec *executionContext) _RootQuery_retrospectiveById(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
 	rawArgs := field.ArgumentMap(ec.Variables)
 	args := map[string]interface{}{}
-	var arg0 *string
+	var arg0 string
 	if tmp, ok := rawArgs["id"]; ok {
 		var err error
-		var ptr1 string
-		if tmp != nil {
-			ptr1, err = graphql.UnmarshalString(tmp)
-			arg0 = &ptr1
-		}
-
+		arg0, err = graphql.UnmarshalID(tmp)
 		if err != nil {
 			ec.Error(ctx, err)
 			return graphql.Null
@@ -634,7 +624,7 @@ func (ec *executionContext) _RootQuery_retrospectiveById(ctx context.Context, fi
 		}()
 
 		resTmp := ec.FieldMiddleware(ctx, func(ctx context.Context) (interface{}, error) {
-			return ec.resolvers.RootQuery().RetrospectiveByID(ctx, args["id"].(*string))
+			return ec.resolvers.RootQuery().RetrospectiveByID(ctx, args["id"].(string))
 		})
 		if resTmp == nil {
 			return graphql.Null
@@ -1595,16 +1585,16 @@ var parsedSchema = gqlparser.MustLoadSchema(
 }
 
 type RootQuery {
-    retrospectiveById(id: String): Retrospective
+    retrospectiveById(id: ID!): Retrospective
 }
 
 type RootMutation {
     startRetrospective(name: String): String!
-    addCardToRetrospective(id: String, column: String, message: String): String!
+    addCardToRetrospective(id: ID!, column: String, message: String): Card!
 }
 
 type Retrospective {
-    id: String
+    id: ID!
     created: Time
     updated: Time
     name: String
@@ -1618,7 +1608,7 @@ type Column {
 }
 
 type Card {
-    id: String
+    id: ID!
     created: Time
     updated: Time
     message: String
