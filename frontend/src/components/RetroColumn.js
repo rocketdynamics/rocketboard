@@ -39,6 +39,12 @@ class RetroColumn extends Component {
                 </Draggable>
               )}
             />
+            <Card
+                style={{ width: (cardWidth || "100%"), backgroundColor: colour }}>
+              <p>
+                New Card
+              </p>
+            </Card>
           </div>
         )}
       </Droppable>

@@ -39,6 +39,10 @@ class retrospective extends Component {
     if (retrospectiveFetch.fulfilled) {
       const retrospective = retrospectiveFetch.value.data.retrospectiveById;
 
+      if (retrospective === null) {
+        return (<div>Retro not found</div>);
+      }
+
       return (
         <div>
           <DragDropContext>
