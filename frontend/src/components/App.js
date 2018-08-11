@@ -21,8 +21,8 @@ import * as R from "ramda";
 const byColumn = R.pipe(R.values, R.groupBy(R.prop("Column")));
 
 let BASE_API_URL = 'http://localhost:5000';
-if (process.env.NODE_ENV === "production") {
-  BASE_API_URL = 'https://rocketboard.arachnys.com';
+if (window.location.protocol === "https:") {
+  BASE_API_URL = window.location.origin;
 }
 
 class retrospective extends Component {
@@ -65,7 +65,21 @@ const Retrospective = withRouter(connect(props => {
   const { match } = props;
   return {
     retrospectiveFetch: {
-      url: `${BASE_API_URL}/retrospective/${match.params.id}/`,
+      url: `${BASE_API_URL}/query`,
+      body: JSON.stringify({
+        query: `{
+          retrospectiveById(id: "${match.params.id}") {
+            id
+            name
+            columns {
+              name
+            }
+          }
+        }`,
+        variables: {},
+        operationName: null,
+      }),
+      method: 'POST',
       refreshInterval: 5000,
     },
   };
@@ -79,7 +93,7 @@ class App extends Component {
 
     <Router>
       <Switch>
-        <Route path="/:id" component={Retrospective} />
+        <Route path="/retrospective/:id" component={Retrospective} />
         <Route render={() => (
           <div>Hello World!</div>
         )} />

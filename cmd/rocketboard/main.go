@@ -21,7 +21,7 @@ func main() {
 			return
 		}
 
-		http.Redirect(w, r, "/"+id, http.StatusFound)
+		http.Redirect(w, r, "/retrospective/"+id, http.StatusFound)
 	})
 
 	http.Handle("/query", handler.GraphQL(
@@ -30,6 +30,9 @@ func main() {
 		}),
 	))
 
+	http.HandleFunc("/retrospective/", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "./public/index.html")
+	})
 	http.Handle("/", http.FileServer(http.Dir("./public/")))
 
 	log.Println("Listening on port 5000 ...")
