@@ -95,7 +95,9 @@ class App extends Component {
       <Switch>
         <Route path="/retrospective/:id" component={Retrospective} />
         <Route render={() => (
-          <div>Hello World!</div>
+          <div>
+            <a href="/retrospective/new">New Retro</a>
+          </div>
         )} />
       </Switch>
     </Router>
