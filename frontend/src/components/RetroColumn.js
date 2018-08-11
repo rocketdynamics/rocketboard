@@ -1,7 +1,14 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types';
-import { List, Card } from 'antd';
+import { List, Card, Icon } from 'antd';
 import { Droppable, Draggable } from 'react-beautiful-dnd';
+
+const IconText = ({ type, text }) => (
+  <span>
+    <Icon type={type} style={{ marginRight: 8 }} />
+    {text}
+  </span>
+);
 
 class RetroColumn extends Component {
   render() {
@@ -26,7 +33,9 @@ class RetroColumn extends Component {
                       {...provided.draggableProps}
                       {...provided.dragHandleProps}
                     >
-                      <List.Item>
+                      <List.Item
+                        actions={[<IconText type="like-o" text="156" />, <IconText type="message" text="2" />]}
+                      >
                         <Card
                             style={{ width: (cardWidth || "100%"), backgroundColor: colour }}>
                           <p>
@@ -39,12 +48,6 @@ class RetroColumn extends Component {
                 </Draggable>
               )}
             />
-            <Card
-                style={{ width: (cardWidth || "100%"), backgroundColor: colour }}>
-              <p>
-                New Card
-              </p>
-            </Card>
           </div>
         )}
       </Droppable>
