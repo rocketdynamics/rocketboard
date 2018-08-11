@@ -48,7 +48,7 @@ func (s *rocketboardService) GetRetrospectiveById(id string) (*model.Retrospecti
 	return s.db.GetRetrospectiveById(id)
 }
 
-func (s *rocketboardService) AddCardToRetrospective(rId string, message string, creator string, column string) (string, error) {
+func (s *rocketboardService) AddCardToRetrospective(rId string, column string, message string, creator string) (string, error) {
 	if _, err := s.GetRetrospectiveById(rId); err != nil {
 		return "", err
 	}

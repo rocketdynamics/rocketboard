@@ -41,6 +41,7 @@ type RetrospectiveResolver interface {
 }
 type RootMutationResolver interface {
 	StartRetrospective(ctx context.Context, name *string) (string, error)
+	AddCardToRetrospective(ctx context.Context, id *string, column *string, message *string) (string, error)
 }
 type RootQueryResolver interface {
 	RetrospectiveByID(ctx context.Context, id *string) (*model.Retrospective, error)
@@ -461,6 +462,8 @@ func (ec *executionContext) _RootMutation(ctx context.Context, sel ast.Selection
 			out.Values[i] = graphql.MarshalString("RootMutation")
 		case "startRetrospective":
 			out.Values[i] = ec._RootMutation_startRetrospective(ctx, field)
+		case "addCardToRetrospective":
+			out.Values[i] = ec._RootMutation_addCardToRetrospective(ctx, field)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -495,6 +498,70 @@ func (ec *executionContext) _RootMutation_startRetrospective(ctx context.Context
 	defer rctx.Pop()
 	resTmp := ec.FieldMiddleware(ctx, func(ctx context.Context) (interface{}, error) {
 		return ec.resolvers.RootMutation().StartRetrospective(ctx, args["name"].(*string))
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	return graphql.MarshalString(res)
+}
+
+func (ec *executionContext) _RootMutation_addCardToRetrospective(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args := map[string]interface{}{}
+	var arg0 *string
+	if tmp, ok := rawArgs["id"]; ok {
+		var err error
+		var ptr1 string
+		if tmp != nil {
+			ptr1, err = graphql.UnmarshalString(tmp)
+			arg0 = &ptr1
+		}
+
+		if err != nil {
+			ec.Error(ctx, err)
+			return graphql.Null
+		}
+	}
+	args["id"] = arg0
+	var arg1 *string
+	if tmp, ok := rawArgs["column"]; ok {
+		var err error
+		var ptr1 string
+		if tmp != nil {
+			ptr1, err = graphql.UnmarshalString(tmp)
+			arg1 = &ptr1
+		}
+
+		if err != nil {
+			ec.Error(ctx, err)
+			return graphql.Null
+		}
+	}
+	args["column"] = arg1
+	var arg2 *string
+	if tmp, ok := rawArgs["message"]; ok {
+		var err error
+		var ptr1 string
+		if tmp != nil {
+			ptr1, err = graphql.UnmarshalString(tmp)
+			arg2 = &ptr1
+		}
+
+		if err != nil {
+			ec.Error(ctx, err)
+			return graphql.Null
+		}
+	}
+	args["message"] = arg2
+	rctx := graphql.GetResolverContext(ctx)
+	rctx.Object = "RootMutation"
+	rctx.Args = args
+	rctx.Field = field
+	rctx.PushField(field.Alias)
+	defer rctx.Pop()
+	resTmp := ec.FieldMiddleware(ctx, func(ctx context.Context) (interface{}, error) {
+		return ec.resolvers.RootMutation().AddCardToRetrospective(ctx, args["id"].(*string), args["column"].(*string), args["message"].(*string))
 	})
 	if resTmp == nil {
 		return graphql.Null
@@ -1533,6 +1600,7 @@ type RootQuery {
 
 type RootMutation {
     startRetrospective(name: String): String!
+    addCardToRetrospective(id: String, column: String, message: String): String!
 }
 
 type Retrospective {

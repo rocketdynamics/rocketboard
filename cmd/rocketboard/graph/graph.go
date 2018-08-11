@@ -76,3 +76,7 @@ func (r *queryResolver) RetrospectiveByID(ctx context.Context, id *string) (*mod
 func (r *mutationResolver) StartRetrospective(ctx context.Context, name *string) (string, error) {
 	return r.s.StartRetrospective(*name)
 }
+
+func (r *mutationResolver) AddCardToRetrospective(ctx context.Context, rId *string, column *string, message *string) (string, error) {
+	return r.s.AddCardToRetrospective(*rId, *column, *message, "unknown user")
+}
