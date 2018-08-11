@@ -1,0 +1,37 @@
+schema {
+    query: RootQuery
+    mutation: RootMutation
+}
+
+type RootQuery {
+    retrospectiveById(id: String): Retrospective
+}
+
+type RootMutation {
+    startRetrospective(name: String): String!
+}
+
+type Retrospective {
+    id: String
+    created: Time
+    updated: Time
+    name: String
+
+    columns: [Column]
+}
+
+type Column {
+    name: String
+    cards: [Card]
+}
+
+type Card {
+    id: String
+    created: Time
+    updated: Time
+    message: String
+    creator: String
+    status: Int
+}
+
+scalar Time
