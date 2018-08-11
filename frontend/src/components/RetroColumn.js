@@ -33,10 +33,9 @@ class RetroColumn extends Component {
                       {...provided.draggableProps}
                       {...provided.dragHandleProps}
                     >
-                      <List.Item
-                        actions={[<IconText type="like-o" text="156" />, <IconText type="message" text="2" />]}
-                      >
+                      <List.Item>
                         <Card
+                            actions={[<IconText type="like-o" text="156" />, <IconText type="message" text="2" />]}
                             style={{ width: (cardWidth || "100%"), backgroundColor: colour }}>
                           <p>
                             {item.message}
