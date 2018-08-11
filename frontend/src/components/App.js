@@ -20,9 +20,16 @@ import * as R from "ramda";
 
 const byColumn = R.pipe(R.values, R.groupBy(R.prop("Column")));
 
+const cardsForColumn = function(columns, name) {
+  if (columns === null) {
+    return [];
+  }
+  return R.propOr([], 'cards')(R.filter(R.propEq('name', name))(columns)[0]);
+};
+
 let BASE_API_URL = 'http://localhost:5000';
-if (process.env.NODE_ENV === "production") {
-  BASE_API_URL = 'https://rocketboard.arachnys.com';
+if (window.location.protocol === "https:") {
+  BASE_API_URL = window.location.origin;
 }
 
 class retrospective extends Component {
@@ -30,12 +37,11 @@ class retrospective extends Component {
     const { retrospectiveFetch } = this.props;
 
     if (retrospectiveFetch.fulfilled) {
-      const retrospective = retrospectiveFetch.value;
-      if (!retrospective || !retrospective.Cards) {
-        return <div>No cards</div>
-      };
+      const retrospective = retrospectiveFetch.value.data.retrospectiveById;
 
-      const columns = byColumn(retrospective.Cards);
+      if (retrospective === null) {
+        return (<div>Retro not found</div>);
+      }
 
       return (
         <div>
@@ -44,9 +50,9 @@ class retrospective extends Component {
           </DragDropContext>
           <div style={{display: "flex"}}>
             <DragDropContext>
-              <RetroColumn cards={R.propOr([], "positive")(columns)} title="Positive" colour="lime"/>
-              <RetroColumn cards={R.propOr([], "mixed")(columns)} title="Mixed" colour="orange"/>
-              <RetroColumn cards={R.propOr([], "negative")(columns)} title="Negative" colour="maroon"/>
+              <RetroColumn cards={cardsForColumn(retrospective.columns, "positive")} title="Positive" colour="lime"/>
+              <RetroColumn cards={cardsForColumn(retrospective.columns, "mixed")} title="Mixed" colour="orange"/>
+              <RetroColumn cards={cardsForColumn(retrospective.columns, "negative")} title="Negative" colour="maroon"/>
             </DragDropContext>
           </div>
         </div>
@@ -65,7 +71,25 @@ const Retrospective = withRouter(connect(props => {
   const { match } = props;
   return {
     retrospectiveFetch: {
-      url: `${BASE_API_URL}/retrospective/${match.params.id}/`,
+      url: `${BASE_API_URL}/query`,
+      body: JSON.stringify({
+        query: `{
+          retrospectiveById(id: "${match.params.id}") {
+            id
+            name
+            columns {
+              name
+              cards {
+                id
+                message
+              }
+            }
+          }
+        }`,
+        variables: {},
+        operationName: null,
+      }),
+      method: 'POST',
       refreshInterval: 5000,
     },
   };
@@ -79,9 +103,11 @@ class App extends Component {
 
     <Router>
       <Switch>
-        <Route path="/:id" component={Retrospective} />
+        <Route path="/retrospective/:id" component={Retrospective} />
         <Route render={() => (
-          <div>Hello World!</div>
+          <div>
+            <a href="/retrospective/new">New Retro</a>
+          </div>
         )} />
       </Switch>
     </Router>

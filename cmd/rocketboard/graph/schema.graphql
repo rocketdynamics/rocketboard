@@ -9,6 +9,7 @@ type RootQuery {
 
 type RootMutation {
     startRetrospective(name: String): String!
+    addCardToRetrospective(id: String, column: String, message: String): String!
 }
 
 type Retrospective {

@@ -1,7 +1,8 @@
 APP_NAME ?= "rocketboard"
 
 VERSION ?= `git rev-parse --short HEAD`
-BRANCH ?= `git rev-parse --abbrev-ref HEAD`
+BRANCH_NAME ?= `git rev-parse --abbrev-ref HEAD`
+BRANCH ?= ${BRANCH_NAME}
 
 IMAGE_NAME = "docker.arachnys.com/${APP_NAME}"
 
