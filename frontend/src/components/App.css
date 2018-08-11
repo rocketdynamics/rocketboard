@@ -1,14 +1,57 @@
-.App {
-
+.wrapper {
+    padding: 2rem;
 }
 
-.App h1 {
-  margin-top: 2em;
-  width: 100%;
-  text-align: center;
+.header {
+    text-align: center;
+    margin-bottom: 2rem;
 }
 
-.AppTabs .pt-tab-list {
-  align-items: center;
-  justify-content: center;
+.header-subtitle {
+    font-weight: normal;
+    font-size: 1rem;
+}
+
+.page-home {
+    text-align: center;
+}
+
+.page-board {
+    display: flex;
+}
+
+.column {
+    flex: 1;
+    margin-right: 1rem;
+}
+
+.column-header {
+    margin-bottom: 2rem;
+}
+
+.column-action {
+    float: right;
+}
+
+.column > .card {
+    background: #f7f7f7;
+    display: block;
+}
+
+.page-board > .column:last-child {
+    margin-right: 0;
+}
+
+.new-card-wrapper {
+    margin-bottom: 2rem;
+}
+
+.new-card-textarea {
+    background: #f7f7f7;
+    display: block;
+    width: 100%;
+}
+
+.new-card-action {
+    text-align: right;
 }
