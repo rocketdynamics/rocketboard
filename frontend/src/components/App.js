@@ -20,6 +20,13 @@ import * as R from "ramda";
 
 const byColumn = R.pipe(R.values, R.groupBy(R.prop("Column")));
 
+const cardsForColumn = function(columns, name) {
+  if (columns === null) {
+    return [];
+  }
+  return R.propOr([], 'cards')(R.filter(R.propEq('name', name))(columns)[0]);
+};
+
 let BASE_API_URL = 'http://localhost:5000';
 if (window.location.protocol === "https:") {
   BASE_API_URL = window.location.origin;
@@ -30,12 +37,7 @@ class retrospective extends Component {
     const { retrospectiveFetch } = this.props;
 
     if (retrospectiveFetch.fulfilled) {
-      const retrospective = retrospectiveFetch.value;
-      if (!retrospective || !retrospective.Cards) {
-        return <div>No cards</div>
-      };
-
-      const columns = byColumn(retrospective.Cards);
+      const retrospective = retrospectiveFetch.value.data.retrospectiveById;
 
       return (
         <div>
@@ -44,9 +46,9 @@ class retrospective extends Component {
           </DragDropContext>
           <div style={{display: "flex"}}>
             <DragDropContext>
-              <RetroColumn cards={R.propOr([], "positive")(columns)} title="Positive" colour="lime"/>
-              <RetroColumn cards={R.propOr([], "mixed")(columns)} title="Mixed" colour="orange"/>
-              <RetroColumn cards={R.propOr([], "negative")(columns)} title="Negative" colour="maroon"/>
+              <RetroColumn cards={cardsForColumn(retrospective.columns, "positive")} title="Positive" colour="lime"/>
+              <RetroColumn cards={cardsForColumn(retrospective.columns, "mixed")} title="Mixed" colour="orange"/>
+              <RetroColumn cards={cardsForColumn(retrospective.columns, "negative")} title="Negative" colour="maroon"/>
             </DragDropContext>
           </div>
         </div>
@@ -73,6 +75,10 @@ const Retrospective = withRouter(connect(props => {
             name
             columns {
               name
+              cards {
+                id
+                message
+              }
             }
           }
         }`,

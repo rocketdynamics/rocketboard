@@ -19,7 +19,7 @@ class RetroColumn extends Component {
               grid={grid}
               dataSource={cards}
               renderItem={item => (
-                <Draggable key={`${title}-${item.Id}`} draggableId={`${title}-${item.Id}`} index={item.Id}>
+                <Draggable key={`${title}-${item.id}`} draggableId={`${title}-${item.id}`} index={item.id}>
                   {(provided, snapshot) => (
                     <div
                       ref={provided.innerRef}
@@ -30,8 +30,7 @@ class RetroColumn extends Component {
                         <Card
                             style={{ width: (cardWidth || "100%"), backgroundColor: colour }}>
                           <p>
-                            {item.Message}
-                            {item.Id}
+                            {item.message}
                           </p>
                         </Card>
                       </List.Item>
