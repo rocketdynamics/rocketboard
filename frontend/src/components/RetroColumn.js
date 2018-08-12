@@ -38,6 +38,9 @@ class RetroColumn extends Component {
                             <List
                                 footer={provided.placeholder}
                                 grid={grid}
+                                locale={{
+                                    emptyText: ""
+                                }}
                                 dataSource={cards}
                                 renderItem={item => (
                                     <Draggable
