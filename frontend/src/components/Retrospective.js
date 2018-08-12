@@ -18,6 +18,10 @@ const GET_RETROSPECTIVE = gql`
                 cards {
                     id
                     message
+                    votes {
+                        voter
+                        count
+                    }
                 }
             }
         }
@@ -29,6 +33,10 @@ const ADD_CARD = gql`
         addCardToRetrospective(id: $id, column: $column, message: $message) {
             id
             message
+            votes {
+                voter
+                count
+            }
         }
     }
 `;
@@ -39,6 +47,10 @@ const MOVE_CARD = gql`
             id
             column
             message
+            votes {
+                voter
+                count
+            }
         }
     }
 `;
@@ -82,6 +94,7 @@ const Retrospective = ({ match }) => {
                                                 __typename: "Card",
                                                 id: "unknown",
                                                 message,
+                                                votes: [],
                                             },
                                         },
                                         update: (

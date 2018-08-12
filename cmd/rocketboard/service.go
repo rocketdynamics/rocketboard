@@ -49,6 +49,36 @@ func (s *rocketboardService) GetRetrospectiveById(id string) (*model.Retrospecti
 	return s.db.GetRetrospectiveById(id)
 }
 
+func (s *rocketboardService) GetVotesByCardId(id string) ([]*model.Vote, error) {
+	return s.db.GetVotesByCardId(id)
+}
+
+func (s *rocketboardService) NewVote(cardId string, voter string) (*model.Vote, error) {
+	votes, err := s.GetVotesByCardId(cardId)
+	if err != nil {
+		return nil, err
+	}
+
+	vote := &model.Vote{
+		Id:      newUlid(),
+		Created: time.Now(),
+		Updated: time.Now(),
+		CardId:  cardId,
+		Voter:   voter,
+		Count:   1,
+	}
+
+	for _, existingVote := range votes {
+		if voter == existingVote.Voter {
+			vote = existingVote
+			vote.Count = vote.Count + 1
+		}
+	}
+
+	err = s.db.NewVote(vote)
+	return vote, err
+}
+
 func (s *rocketboardService) AddCardToRetrospective(rId string, column string, message string, creator string) (string, error) {
 	if _, err := s.GetRetrospectiveById(rId); err != nil {
 		return "", err

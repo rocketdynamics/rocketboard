@@ -8,3 +8,5 @@ models:
     model: github.com/arachnys/rocketboard/cmd/rocketboard/model.Retrospective
   Card:
     model: github.com/arachnys/rocketboard/cmd/rocketboard/model.Card
+  Vote:
+    model: github.com/arachnys/rocketboard/cmd/rocketboard/model.Vote

@@ -109,7 +109,7 @@ func (db *inmemRepository) NewVote(v *model.Vote) error {
 func (db *inmemRepository) GetVotesByCardId(id string) ([]*model.Vote, error) {
 	votes, ok := db.votesByCardId[id]
 	if !ok {
-		return nil, errors.Errorf("vote(s) with card ID `%s` does not exist", id)
+		return make([]*model.Vote, 0), nil
 	}
 
 	return votes, nil

@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { List, Card, Icon } from "antd";
 import { Droppable, Draggable } from "react-beautiful-dnd";
+import * as R from "ramda";
 
 const IconText = ({ type, text }) => (
     <span>
@@ -50,6 +51,7 @@ class RetroColumn extends Component {
                                     >
                                         {(provided, snapshot) => (
                                             <div
+                                                class="card"
                                                 ref={provided.innerRef}
                                                 {...provided.draggableProps}
                                                 {...provided.dragHandleProps}
@@ -61,11 +63,11 @@ class RetroColumn extends Component {
                                                         actions={[
                                                             <IconText
                                                                 type="like-o"
-                                                                text="156"
+                                                                text={R.sum(R.pluck('count')(item.votes))}
                                                             />,
                                                             <IconText
                                                                 type="message"
-                                                                text="2"
+                                                                text="0"
                                                             />,
                                                         ]}
                                                         style={{

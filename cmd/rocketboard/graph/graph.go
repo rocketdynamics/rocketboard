@@ -12,10 +12,16 @@ type rocketboardService interface {
 	MoveCard(string, string) (*model.Card, error)
 	GetCardsForRetrospective(string) ([]*model.Card, error)
 	GetCardById(string) (*model.Card, error)
+	GetVotesByCardId(id string) ([]*model.Vote, error)
+	NewVote(string, string) (*model.Vote, error)
 }
 
 type rootResolver struct {
 	s rocketboardService
+}
+
+type cardResolver struct {
+	*rootResolver
 }
 
 type retrospectiveResolver struct {
@@ -32,6 +38,10 @@ type queryResolver struct {
 
 func NewResolver(s rocketboardService) ResolverRoot {
 	return &rootResolver{s}
+}
+
+func (r *rootResolver) Card() CardResolver {
+	return &cardResolver{r}
 }
 
 func (r *rootResolver) Retrospective() RetrospectiveResolver {
@@ -73,6 +83,24 @@ func (r *retrospectiveResolver) Columns(ctx context.Context, obj *model.Retrospe
 	return columns, nil
 }
 
+func (r *cardResolver) Votes(ctx context.Context, obj *model.Card) ([]*model.Vote, error) {
+	result := make([]*model.Vote, 0)
+
+	// votes, err := r.s.GetVotesByCardId(obj.Id)
+	// if err != nil {
+	// 	return nil, err
+	// }
+
+	// for _, vote := range votes {
+	// 	result = append(result, &Vote{
+	// 		Voter: vote.Voter,
+	// 		Count: vote.Count,
+	// 	})
+	// }
+
+	return result, nil
+}
+
 func (r *queryResolver) RetrospectiveByID(ctx context.Context, id string) (*model.Retrospective, error) {
 	return r.s.GetRetrospectiveById(id)
 }
@@ -87,6 +115,15 @@ func (r *mutationResolver) MoveCard(ctx context.Context, id string, column strin
 		return *c, err
 	} else {
 		return model.Card{}, err
+	}
+}
+
+func (r *mutationResolver) NewVote(ctx context.Context, cardId string) (model.Vote, error) {
+	v, err := r.s.NewVote(cardId, "unknownVoter")
+	if err == nil {
+		return *v, err
+	} else {
+		return model.Vote{}, err
 	}
 }
 

@@ -29,12 +29,16 @@ type Config struct {
 }
 
 type ResolverRoot interface {
+	Card() CardResolver
 	Retrospective() RetrospectiveResolver
 	RootMutation() RootMutationResolver
 	RootQuery() RootQueryResolver
 }
 
 type DirectiveRoot struct {
+}
+type CardResolver interface {
+	Votes(ctx context.Context, obj *model.Card) ([]*model.Vote, error)
 }
 type RetrospectiveResolver interface {
 	Columns(ctx context.Context, obj *model.Retrospective) ([]*Column, error)
@@ -43,6 +47,7 @@ type RootMutationResolver interface {
 	StartRetrospective(ctx context.Context, name *string) (string, error)
 	AddCardToRetrospective(ctx context.Context, id string, column *string, message *string) (model.Card, error)
 	MoveCard(ctx context.Context, id string, column string) (model.Card, error)
+	NewVote(ctx context.Context, cardId string) (model.Vote, error)
 }
 type RootQueryResolver interface {
 	RetrospectiveByID(ctx context.Context, id string) (*model.Retrospective, error)
@@ -125,6 +130,8 @@ func (ec *executionContext) _Card(ctx context.Context, sel ast.SelectionSet, obj
 			out.Values[i] = ec._Card_status(ctx, field, obj)
 		case "column":
 			out.Values[i] = ec._Card_column(ctx, field, obj)
+		case "votes":
+			out.Values[i] = ec._Card_votes(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -250,6 +257,44 @@ func (ec *executionContext) _Card_column(ctx context.Context, field graphql.Coll
 	}
 	res := resTmp.(string)
 	return graphql.MarshalString(res)
+}
+
+func (ec *executionContext) _Card_votes(ctx context.Context, field graphql.CollectedField, obj *model.Card) graphql.Marshaler {
+	ctx = graphql.WithResolverContext(ctx, &graphql.ResolverContext{
+		Object: "Card",
+		Args:   nil,
+		Field:  field,
+	})
+	return graphql.Defer(func() (ret graphql.Marshaler) {
+		defer func() {
+			if r := recover(); r != nil {
+				userErr := ec.Recover(ctx, r)
+				ec.Error(ctx, userErr)
+				ret = graphql.Null
+			}
+		}()
+
+		resTmp := ec.FieldMiddleware(ctx, func(ctx context.Context) (interface{}, error) {
+			return ec.resolvers.Card().Votes(ctx, obj)
+		})
+		if resTmp == nil {
+			return graphql.Null
+		}
+		res := resTmp.([]*model.Vote)
+		arr1 := graphql.Array{}
+		for idx1 := range res {
+			arr1 = append(arr1, func() graphql.Marshaler {
+				rctx := graphql.GetResolverContext(ctx)
+				rctx.PushIndex(idx1)
+				defer rctx.Pop()
+				if res[idx1] == nil {
+					return graphql.Null
+				}
+				return ec._Vote(ctx, field.Selections, res[idx1])
+			}())
+		}
+		return arr1
+	})
 }
 
 var columnImplementors = []string{"Column"}
@@ -486,6 +531,8 @@ func (ec *executionContext) _RootMutation(ctx context.Context, sel ast.Selection
 			out.Values[i] = ec._RootMutation_addCardToRetrospective(ctx, field)
 		case "moveCard":
 			out.Values[i] = ec._RootMutation_moveCard(ctx, field)
+		case "newVote":
+			out.Values[i] = ec._RootMutation_newVote(ctx, field)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -626,6 +673,35 @@ func (ec *executionContext) _RootMutation_moveCard(ctx context.Context, field gr
 	return ec._Card(ctx, field.Selections, &res)
 }
 
+func (ec *executionContext) _RootMutation_newVote(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["cardId"]; ok {
+		var err error
+		arg0, err = graphql.UnmarshalID(tmp)
+		if err != nil {
+			ec.Error(ctx, err)
+			return graphql.Null
+		}
+	}
+	args["cardId"] = arg0
+	rctx := graphql.GetResolverContext(ctx)
+	rctx.Object = "RootMutation"
+	rctx.Args = args
+	rctx.Field = field
+	rctx.PushField(field.Alias)
+	defer rctx.Pop()
+	resTmp := ec.FieldMiddleware(ctx, func(ctx context.Context) (interface{}, error) {
+		return ec.resolvers.RootMutation().NewVote(ctx, args["cardId"].(string))
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(model.Vote)
+	return ec._Vote(ctx, field.Selections, &res)
+}
+
 var rootQueryImplementors = []string{"RootQuery"}
 
 // nolint: gocyclo, errcheck, gas, goconst
@@ -748,6 +824,141 @@ func (ec *executionContext) _RootQuery___schema(ctx context.Context, field graph
 		return graphql.Null
 	}
 	return ec.___Schema(ctx, field.Selections, res)
+}
+
+var voteImplementors = []string{"Vote"}
+
+// nolint: gocyclo, errcheck, gas, goconst
+func (ec *executionContext) _Vote(ctx context.Context, sel ast.SelectionSet, obj *model.Vote) graphql.Marshaler {
+	fields := graphql.CollectFields(ctx, sel, voteImplementors)
+
+	out := graphql.NewOrderedMap(len(fields))
+	for i, field := range fields {
+		out.Keys[i] = field.Alias
+
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Vote")
+		case "id":
+			out.Values[i] = ec._Vote_id(ctx, field, obj)
+		case "created":
+			out.Values[i] = ec._Vote_created(ctx, field, obj)
+		case "updated":
+			out.Values[i] = ec._Vote_updated(ctx, field, obj)
+		case "cardId":
+			out.Values[i] = ec._Vote_cardId(ctx, field, obj)
+		case "voter":
+			out.Values[i] = ec._Vote_voter(ctx, field, obj)
+		case "count":
+			out.Values[i] = ec._Vote_count(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+
+	return out
+}
+
+func (ec *executionContext) _Vote_id(ctx context.Context, field graphql.CollectedField, obj *model.Vote) graphql.Marshaler {
+	rctx := graphql.GetResolverContext(ctx)
+	rctx.Object = "Vote"
+	rctx.Args = nil
+	rctx.Field = field
+	rctx.PushField(field.Alias)
+	defer rctx.Pop()
+	resTmp := ec.FieldMiddleware(ctx, func(ctx context.Context) (interface{}, error) {
+		return obj.Id, nil
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	return graphql.MarshalID(res)
+}
+
+func (ec *executionContext) _Vote_created(ctx context.Context, field graphql.CollectedField, obj *model.Vote) graphql.Marshaler {
+	rctx := graphql.GetResolverContext(ctx)
+	rctx.Object = "Vote"
+	rctx.Args = nil
+	rctx.Field = field
+	rctx.PushField(field.Alias)
+	defer rctx.Pop()
+	resTmp := ec.FieldMiddleware(ctx, func(ctx context.Context) (interface{}, error) {
+		return obj.Created, nil
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	return graphql.MarshalTime(res)
+}
+
+func (ec *executionContext) _Vote_updated(ctx context.Context, field graphql.CollectedField, obj *model.Vote) graphql.Marshaler {
+	rctx := graphql.GetResolverContext(ctx)
+	rctx.Object = "Vote"
+	rctx.Args = nil
+	rctx.Field = field
+	rctx.PushField(field.Alias)
+	defer rctx.Pop()
+	resTmp := ec.FieldMiddleware(ctx, func(ctx context.Context) (interface{}, error) {
+		return obj.Updated, nil
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	return graphql.MarshalTime(res)
+}
+
+func (ec *executionContext) _Vote_cardId(ctx context.Context, field graphql.CollectedField, obj *model.Vote) graphql.Marshaler {
+	rctx := graphql.GetResolverContext(ctx)
+	rctx.Object = "Vote"
+	rctx.Args = nil
+	rctx.Field = field
+	rctx.PushField(field.Alias)
+	defer rctx.Pop()
+	resTmp := ec.FieldMiddleware(ctx, func(ctx context.Context) (interface{}, error) {
+		return obj.CardId, nil
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	return graphql.MarshalString(res)
+}
+
+func (ec *executionContext) _Vote_voter(ctx context.Context, field graphql.CollectedField, obj *model.Vote) graphql.Marshaler {
+	rctx := graphql.GetResolverContext(ctx)
+	rctx.Object = "Vote"
+	rctx.Args = nil
+	rctx.Field = field
+	rctx.PushField(field.Alias)
+	defer rctx.Pop()
+	resTmp := ec.FieldMiddleware(ctx, func(ctx context.Context) (interface{}, error) {
+		return obj.Voter, nil
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	return graphql.MarshalString(res)
+}
+
+func (ec *executionContext) _Vote_count(ctx context.Context, field graphql.CollectedField, obj *model.Vote) graphql.Marshaler {
+	rctx := graphql.GetResolverContext(ctx)
+	rctx.Object = "Vote"
+	rctx.Args = nil
+	rctx.Field = field
+	rctx.PushField(field.Alias)
+	defer rctx.Pop()
+	resTmp := ec.FieldMiddleware(ctx, func(ctx context.Context) (interface{}, error) {
+		return obj.Count, nil
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	return graphql.MarshalInt(res)
 }
 
 var __DirectiveImplementors = []string{"__Directive"}
@@ -1653,6 +1864,7 @@ type RootMutation {
     startRetrospective(name: String): String!
     addCardToRetrospective(id: ID!, column: String, message: String): Card!
     moveCard(id: ID!, column: String!): Card!
+    newVote(cardId: ID!): Vote!
 }
 
 type Retrospective {
@@ -1677,6 +1889,16 @@ type Card {
     creator: String
     status: Int
     column: String
+    votes: [Vote]
+}
+
+type Vote {
+    id: ID!
+    created: Time
+    updated: Time
+    cardId: String
+    voter: String
+    count: Int
 }
 
 scalar Time
