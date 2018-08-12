@@ -79,6 +79,7 @@ class RetroColumn extends Component {
                                 </Draggable>
                             )}
                         />
+                        {provided.placeholder}
                     </div>
                 )}
             </Droppable>
@@ -90,7 +91,7 @@ RetroColumn.propTypes = {
     title: PropTypes.string.isRequired,
     colour: PropTypes.string.isRequired,
     layout: PropTypes.string,
-    cardWidth: PropTypes.integer,
+    cardWidth: PropTypes.number,
 };
 
 export default RetroColumn;

@@ -38,6 +38,7 @@ const MOVE_CARD = gql`
         moveCard(id: $id, column: $column) {
             id
             column
+            message
         }
     }
 `;
@@ -161,6 +162,7 @@ const Retrospective = ({ match }) => {
                                                             __typename: "Card",
                                                             id: "unknown",
                                                             column,
+                                                            message: "...",
                                                         },
                                                     },
                                                     update: (
@@ -211,7 +213,7 @@ const Retrospective = ({ match }) => {
                                                             data,
                                                         });
                                                     },
-                                                })
+                                                });
                                             };
                                             return (
                                                 <DragDropContext onDragEnd={onDragEnd}>
