@@ -1,7 +1,5 @@
 import React from "react";
 
-import "wired-elements";
-
 class Column extends React.Component {
     input = null;
 

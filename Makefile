@@ -39,6 +39,9 @@ deploy/qa:
         -f charts/${APP_NAME}/values.yaml \
         --wait
 
+gqlgen:
+	cd cmd/rocketboard && gqlgen
+
 version:
 	@echo "${VERSION}"
 

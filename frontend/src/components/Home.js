@@ -4,8 +4,6 @@ import { Mutation } from "react-apollo";
 import * as R from "ramda";
 import { Redirect } from "react-router";
 
-import "wired-elements";
-
 const START_RETROSPECTIVE = gql`
     mutation StartRetrospective {
         startRetrospective(name: "")

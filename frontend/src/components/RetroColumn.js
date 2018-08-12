@@ -11,6 +11,15 @@ const IconText = ({ type, text }) => (
 );
 
 class RetroColumn extends Component {
+    handleAdd = e => {
+        e.preventDefault();
+        if (this.props.onNewCard) {
+            this.props.onNewCard("New Card");
+        }
+
+        this.setState({ isEditing: false });
+    };
+
     render() {
         const { cards, title, colour, grid, cardWidth } = this.props;
 
@@ -19,13 +28,23 @@ class RetroColumn extends Component {
                 {(provided, snapshot) => (
                     <div ref={provided.innerRef} style={{ flex: 1 }}>
                         <List
-                            header={<h2>{title}</h2>}
+                            header={(
+                                <div>
+                                    <h2 style={{textAlign: "center"}}>{title}</h2>
+                                    <a style={{display: "block", textAlign: "center"}} onClick={this.handleAdd}>
+                                        <IconText
+                                            type="plus-circle-o"
+                                            text="Add Card"
+                                        />
+                                    </a>
+                                </div>
+                            )}
                             grid={grid}
                             dataSource={cards}
                             renderItem={item => (
                                 <Draggable
                                     key={`${title}-${item.id}`}
-                                    draggableId={`${title}-${item.id}`}
+                                    draggableId={`${item.id}`}
                                     index={item.id}
                                 >
                                     {(provided, snapshot) => (

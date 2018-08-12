@@ -68,6 +68,12 @@ func (db *inmemRepository) MarkCardArchived(id string) error {
 	return nil
 }
 
+func (db *inmemRepository) MoveCard(id string, column string) (*model.Card, error) {
+	c := db.cardsById[id]
+	c.Column = column
+	return c, nil
+}
+
 func (db *inmemRepository) GetCardById(id string) (*model.Card, error) {
 	c, ok := db.cardsById[id]
 	if !ok {

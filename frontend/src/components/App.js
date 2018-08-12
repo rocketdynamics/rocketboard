@@ -10,8 +10,8 @@ import HomePage from "./Home";
 import RetrospectivePage from "./Retrospective";
 
 // Styling
-import "wired-elements";
 import "./App.css";
+import "antd/dist/antd.css";
 
 class App extends React.Component {
     render() {

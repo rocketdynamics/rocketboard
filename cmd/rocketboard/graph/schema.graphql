@@ -10,6 +10,7 @@ type RootQuery {
 type RootMutation {
     startRetrospective(name: String): String!
     addCardToRetrospective(id: ID!, column: String, message: String): Card!
+    moveCard(id: ID!, column: String!): Card!
 }
 
 type Retrospective {
@@ -33,6 +34,7 @@ type Card {
     message: String
     creator: String
     status: Int
+    column: String
 }
 
 scalar Time
