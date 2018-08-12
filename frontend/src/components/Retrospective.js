@@ -162,7 +162,7 @@ const Retrospective = ({ match }) => {
                                                             __typename: "Card",
                                                             id: "unknown",
                                                             column,
-                                                            message: "...",
+                                                            message: document.querySelector(`#card-${cardId}`).getAttribute("data-message"),
                                                         },
                                                     },
                                                     update: (

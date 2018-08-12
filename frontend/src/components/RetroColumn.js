@@ -24,65 +24,65 @@ class RetroColumn extends Component {
         const { cards, title, colour, grid, cardWidth } = this.props;
 
         return (
-            <Droppable droppableId={title}>
-                {(provided, snapshot) => (
-                    <div ref={provided.innerRef} style={{ flex: 1 }}>
-                        <List
-                            header={(
-                                <div>
-                                    <h2 style={{textAlign: "center"}}>{title}</h2>
-                                    <a style={{display: "block", textAlign: "center"}} onClick={this.handleAdd}>
-                                        <IconText
-                                            type="plus-circle-o"
-                                            text="Add Card"
-                                        />
-                                    </a>
-                                </div>
-                            )}
-                            grid={grid}
-                            dataSource={cards}
-                            renderItem={item => (
-                                <Draggable
-                                    key={`${title}-${item.id}`}
-                                    draggableId={`${item.id}`}
-                                    index={item.id}
-                                >
-                                    {(provided, snapshot) => (
-                                        <div
-                                            ref={provided.innerRef}
-                                            {...provided.draggableProps}
-                                            {...provided.dragHandleProps}
-                                        >
-                                            <List.Item>
-                                                <Card
-                                                    actions={[
-                                                        <IconText
-                                                            type="like-o"
-                                                            text="156"
-                                                        />,
-                                                        <IconText
-                                                            type="message"
-                                                            text="2"
-                                                        />,
-                                                    ]}
-                                                    style={{
-                                                        width:
-                                                            cardWidth || "100%",
-                                                        backgroundColor: colour,
-                                                    }}
-                                                >
-                                                    <p>{item.message}</p>
-                                                </Card>
-                                            </List.Item>
-                                        </div>
-                                    )}
-                                </Draggable>
-                            )}
-                        />
-                        {provided.placeholder}
-                    </div>
-                )}
-            </Droppable>
+            <div style={{ flex: 1 }}>
+                <h2 style={{textAlign: "center"}}>{title}</h2>
+                <a style={{display: "block", textAlign: "center"}} onClick={this.handleAdd}>
+                    <IconText
+                        type="plus-circle-o"
+                        text="Add Card"
+                    />
+                </a>
+                <Droppable droppableId={title}>
+                    {(provided, snapshot) => (
+                        <div style={{minHeight:"500px"}} ref={provided.innerRef} {...provided.droppableProps}>
+                            <List
+                                footer={provided.placeholder}
+                                grid={grid}
+                                dataSource={cards}
+                                renderItem={item => (
+                                    <Draggable
+                                        key={`${title}-${item.id}`}
+                                        draggableId={`${item.id}`}
+                                        index={item.id}
+                                    >
+                                        {(provided, snapshot) => (
+                                            <div
+                                                ref={provided.innerRef}
+                                                {...provided.draggableProps}
+                                                {...provided.dragHandleProps}
+                                            >
+                                                <List.Item>
+                                                    <Card
+                                                        id={`card-${item.id}`}
+                                                        data-message={item.message}
+                                                        actions={[
+                                                            <IconText
+                                                                type="like-o"
+                                                                text="156"
+                                                            />,
+                                                            <IconText
+                                                                type="message"
+                                                                text="2"
+                                                            />,
+                                                        ]}
+                                                        style={{
+                                                            width:
+                                                                cardWidth || "100%",
+                                                            backgroundColor: colour,
+                                                        }}
+                                                    >
+                                                        <p>{item.message}</p>
+                                                    </Card>
+                                                </List.Item>
+                                            </div>
+                                        )}
+                                    </Draggable>
+                                )}
+                            />
+                        </div>
+                    )}
+                </Droppable>
+            </div>
         );
     }
 }
