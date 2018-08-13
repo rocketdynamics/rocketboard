@@ -10,9 +10,9 @@ import { GET_RETROSPECTIVE, ADD_CARD, MOVE_CARD } from "../queries";
 const DEFAULT_BOARDS = ["Positive", "Mixed", "Negative"];
 
 const DEFAULT_COLOURS = {
-    Positive: "#006d00",
-    Mixed: "#d18400",
-    Negative: "#bc0000",
+    Positive: "#bae637",
+    Mixed: "#ffa940",
+    Negative: "#ff4d4f",
 };
 
 class _Retrospective extends React.Component {
@@ -117,7 +117,7 @@ class _Retrospective extends React.Component {
                     }
 
                     return (
-                        <div className="page-board">
+                        <div className="page-retrospective">
                             <DragDropContext onDragEnd={this.handleMoveCard}>
                                 {DEFAULT_BOARDS.map(columnName => {
                                     return (

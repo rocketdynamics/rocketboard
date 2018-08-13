@@ -17,26 +17,25 @@ class RetroColumn extends Component {
         if (this.props.onNewCard) {
             this.props.onNewCard("New Card");
         }
-
-        this.setState({ isEditing: false });
     };
 
     render() {
         const { cards, title, colour, grid, cardWidth } = this.props;
 
         return (
-            <div style={{ flex: 1 }}>
-                <h2 style={{ textAlign: "center" }}>{title}</h2>
-                <a
-                    style={{ display: "block", textAlign: "center" }}
-                    onClick={this.handleAdd}
-                >
-                    <IconText type="plus-circle-o" text="Add Card" />
-                </a>
+            <div className="column">
+                <div className="column-header">
+                    <h3>{title}</h3>
+
+                    <a className="column-action" onClick={this.handleAdd}>
+                        <IconText type="plus-circle-o" text="Add Card" />
+                    </a>
+                </div>
+
                 <Droppable droppableId={title}>
                     {(provided, snapshot) => (
                         <div
-                            style={{ minHeight: "500px" }}
+                            className="column-cards"
                             ref={provided.innerRef}
                             {...provided.droppableProps}
                         >

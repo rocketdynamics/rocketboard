@@ -1,5 +1,11 @@
 import gql from "graphql-tag";
 
+export const START_RETROSPECTIVE = gql`
+    mutation StartRetrospective {
+        startRetrospective(name: "")
+    }
+`;
+
 export const GET_RETROSPECTIVE = gql`
     query GetRetrospective($id: ID!) {
         retrospectiveById(id: $id) {

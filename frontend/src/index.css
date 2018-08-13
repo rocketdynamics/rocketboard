@@ -1,6 +1,16 @@
 body {
-    @import url("https://fonts.googleapis.com/css?family=Indie+Flower");
+    @import url('https://fonts.googleapis.com/css?family=Play|Titillium+Web');
+
+    background: #FFFBFA;
+    font-family: 'Titillium Web', sans-serif;
 
     margin: 0;
     padding: 0;
+
+    /* Force scrollbar to avoid jumpiness */
+    overflow-y: scroll;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Play', sans-serif;
 }
