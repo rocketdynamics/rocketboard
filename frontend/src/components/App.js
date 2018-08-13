@@ -13,7 +13,7 @@ import { Layout, Menu } from "antd";
 import "./App.css";
 import "antd/dist/antd.css";
 
-const { Header, Content } = Layout;
+const { Header, Content, Footer } = Layout;
 
 class App extends React.Component {
     onLaunch = async () => {
@@ -49,6 +49,10 @@ class App extends React.Component {
                         <Route path="/" component={HomePage} />
                     </Switch>
                 </Content>
+
+                <Footer className="footer">
+                    Powered by 🍺, ☕ and NIH Principles
+                </Footer>
             </Layout>
         );
     }

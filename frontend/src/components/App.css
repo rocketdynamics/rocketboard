@@ -48,6 +48,10 @@
     margin-top: 64px;
 }
 
+.footer {
+    flex: 0;
+}
+
 .page-home {
     text-align: center;
 }
