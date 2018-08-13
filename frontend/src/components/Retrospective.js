@@ -176,6 +176,7 @@ const Retrospective = ({ match }) => {
                                                             id: "unknown",
                                                             column,
                                                             message: document.querySelector(`#card-${cardId}`).getAttribute("data-message"),
+                                                            votes: [],
                                                         },
                                                     },
                                                     update: (

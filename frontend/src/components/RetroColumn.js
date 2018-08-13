@@ -51,7 +51,7 @@ class RetroColumn extends Component {
                                     >
                                         {(provided, snapshot) => (
                                             <div
-                                                class="card"
+                                                className="card"
                                                 ref={provided.innerRef}
                                                 {...provided.draggableProps}
                                                 {...provided.dragHandleProps}
