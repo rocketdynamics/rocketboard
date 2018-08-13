@@ -11,7 +11,7 @@ type repository interface {
 	NewRetrospective(*model.Retrospective) error
 	GetRetrospectiveById(string) (*model.Retrospective, error)
 	NewCard(*model.Card) error
-	MoveCard(string, string) (*model.Card, error)
+	MoveCard(string, string) error
 	MarkCardInProgress(string) error
 	MarkCardDiscussed(string) error
 	MarkCardArchived(string) error
@@ -102,7 +102,7 @@ func (s *rocketboardService) AddCardToRetrospective(rId string, column string, m
 	return id, nil
 }
 
-func (s *rocketboardService) MoveCard(id string, column string) (*model.Card, error) {
+func (s *rocketboardService) MoveCard(id string, column string) error {
 	return s.db.MoveCard(id, column)
 }
 

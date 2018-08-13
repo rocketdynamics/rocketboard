@@ -9,7 +9,7 @@ type rocketboardService interface {
 	StartRetrospective(string) (string, error)
 	GetRetrospectiveById(string) (*model.Retrospective, error)
 	AddCardToRetrospective(string, string, string, string) (string, error)
-	MoveCard(string, string) (*model.Card, error)
+	MoveCard(string, string) error
 	GetCardsForRetrospective(string) ([]*model.Card, error)
 	GetCardById(string) (*model.Card, error)
 	GetVotesByCardId(id string) ([]*model.Vote, error)
@@ -56,6 +56,11 @@ func (r *rootResolver) RootQuery() RootQueryResolver {
 	return &queryResolver{r}
 }
 
+func (r *retrospectiveResolver) Cards(ctx context.Context, obj *model.Retrospective) ([]*model.Card, error) {
+	cards, _ := r.s.GetCardsForRetrospective(obj.Id)
+	return cards, nil
+}
+
 func (r *retrospectiveResolver) Columns(ctx context.Context, obj *model.Retrospective) ([]*Column, error) {
 	cards, err := r.s.GetCardsForRetrospective(obj.Id)
 	if err != nil {
@@ -95,13 +100,11 @@ func (r *mutationResolver) StartRetrospective(ctx context.Context, name *string)
 	return r.s.StartRetrospective(*name)
 }
 
-func (r *mutationResolver) MoveCard(ctx context.Context, id string, column string) (model.Card, error) {
-	c, err := r.s.MoveCard(id, column)
-	if err == nil {
-		return *c, err
-	} else {
-		return model.Card{}, err
+func (r *mutationResolver) MoveCard(ctx context.Context, id string, column string) (string, error) {
+	if err := r.s.MoveCard(id, column); err != nil {
+		return "", err
 	}
+	return column, nil
 }
 
 func (r *mutationResolver) NewVote(ctx context.Context, cardId string) (model.Vote, error) {
@@ -113,17 +116,11 @@ func (r *mutationResolver) NewVote(ctx context.Context, cardId string) (model.Vo
 	}
 }
 
-func (r *mutationResolver) AddCardToRetrospective(ctx context.Context, id string, column *string, message *string) (model.Card, error) {
-	id, err := r.s.AddCardToRetrospective(id, *column, *message, "unknown user")
-	var card model.Card
+func (r *mutationResolver) AddCardToRetrospective(ctx context.Context, rId string, column *string, message *string) (string, error) {
+	id, err := r.s.AddCardToRetrospective(rId, *column, *message, "unknown user")
 	if err != nil {
-		return card, err
+		return "", err
 	}
 
-	c, err := r.s.GetCardById(id)
-	if err != nil {
-		return card, err
-	}
-
-	return *c, nil
+	return id, nil
 }

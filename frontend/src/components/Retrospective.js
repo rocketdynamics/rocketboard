@@ -1,259 +1,150 @@
 import React from "react";
-import gql from "graphql-tag";
-import { Query, Mutation } from "react-apollo";
+import { Query, compose, graphql } from "react-apollo";
 import * as R from "ramda";
 
 import Column from "./RetroColumn";
 import { DragDropContext } from "react-beautiful-dnd";
 
-const GET_RETROSPECTIVE = gql`
-    query GetRetrospective($id: ID!) {
-        retrospectiveById(id: $id) {
-            id
-            name
-            created
-            updated
-            columns {
-                name
-                cards {
-                    id
-                    message
-                    votes {
-                        voter
-                        count
-                    }
-                }
-            }
-        }
-    }
-`;
-
-const ADD_CARD = gql`
-    mutation AddCard($id: ID!, $column: String!, $message: String!) {
-        addCardToRetrospective(id: $id, column: $column, message: $message) {
-            id
-            message
-            votes {
-                voter
-                count
-            }
-        }
-    }
-`;
-
-const MOVE_CARD = gql`
-    mutation MoveCard($id: ID!, $column: String!) {
-        moveCard(id: $id, column: $column) {
-            id
-            column
-            message
-            votes {
-                voter
-                count
-            }
-        }
-    }
-`;
+import { GET_RETROSPECTIVE, ADD_CARD, MOVE_CARD } from "../queries";
 
 const DEFAULT_BOARDS = ["Positive", "Mixed", "Negative"];
 
 const DEFAULT_COLOURS = {
-    "Positive": "#006d00",
-    "Mixed": "#d18400",
-    "Negative": "#bc0000",
+    Positive: "#006d00",
+    Mixed: "#d18400",
+    Negative: "#bc0000",
 };
 
-const Retrospective = ({ match }) => {
-    const id = R.path(["params", "id"], match);
+class _Retrospective extends React.Component {
+    getRetrospectiveId = () => {
+        return R.path(["params", "id"], this.props.match);
+    };
 
-    return (
-        <Query query={GET_RETROSPECTIVE} variables={{ id }}>
-            {({ loading, error, data }) => {
-                if (loading) {
-                    return <h3>Preparing for Take-Off 🚀</h3>;
-                }
+    handleAddCard = column => {
+        return message => {
+            const id = this.getRetrospectiveId();
+            const newCard = { column, message };
 
-                if (!R.prop(["retrospectiveById"], data)) {
-                    return <h3>Rocketboard not found 💔</h3>;
-                }
+            this.props.addCard({
+                variables: {
+                    id,
+                    ...newCard,
+                },
+                optimisticResponse: {
+                    __typename: "Mutation",
+                    addCardToRetrospective: "pending-id",
+                },
+                update: (proxy, { data: { addCardToRetrospective } }) => {
+                    const data = proxy.readQuery({
+                        query: GET_RETROSPECTIVE,
+                        variables: { id },
+                    });
 
-                return (
-                    <Mutation mutation={ADD_CARD}>
-                        {(addCard, { loading }) => {
-                            const handleNewCard = column => {
-                                return message => {
-                                    addCard({
-                                        variables: {
-                                            id,
-                                            column,
-                                            message,
-                                        },
-                                        optimisticResponse: {
-                                            __typename: "Mutation",
-                                            addCardToRetrospective: {
-                                                __typename: "Card",
-                                                id: "unknown",
-                                                message,
-                                                votes: [],
-                                            },
-                                        },
-                                        update: (
-                                            proxy,
-                                            { data: { addCardToRetrospective } }
-                                        ) => {
-                                            const data = proxy.readQuery({
-                                                query: GET_RETROSPECTIVE,
-                                                variables: { id },
-                                            });
-                                            const getColumnIndex = R.findIndex(
-                                                R.propEq("name", column)
-                                            );
-                                            if (
-                                                getColumnIndex(
-                                                    data.retrospectiveById
-                                                        .columns
-                                                ) === -1
-                                            ) {
-                                                data.retrospectiveById.columns.push(
-                                                    {
-                                                        __typename: "Column",
-                                                        name: column,
-                                                        cards: [],
-                                                    }
-                                                );
-                                            }
-                                            data.retrospectiveById.columns[
-                                                getColumnIndex(
-                                                    data.retrospectiveById
-                                                        .columns
-                                                )
-                                            ].cards.push(
-                                                addCardToRetrospective
-                                            );
-                                            proxy.writeQuery({
-                                                query: GET_RETROSPECTIVE,
-                                                data,
-                                            });
-                                        },
-                                    });
-                                };
-                            };
+                    data.retrospectiveById.cards.push({
+                        __typename: "Card",
+                        id: addCardToRetrospective,
+                        votes: [],
+                        ...newCard,
+                    });
 
-                            const getCards = column => {
-                                return R.pipe(
-                                    R.pathOr(
-                                        [],
-                                        ["retrospectiveById", "columns"]
-                                    ),
-                                    R.find(R.propEq("name", column)),
-                                    R.propOr([], "cards")
-                                );
-                            };
-                            return (
-                                <div className="page-board">
-                                    <Mutation mutation={MOVE_CARD}>
-                                        {(moveCard, { loading }) => {
-                                            const onDragEnd = (result) => {
-                                                const { draggableId, source, destination } = result;
+                    proxy.writeQuery({
+                        query: GET_RETROSPECTIVE,
+                        variables: { id },
+                        data,
+                    });
+                },
+            });
+        };
+    };
 
-                                                if (destination === null) {
-                                                    return;
-                                                }
+    handleMoveCard = result => {
+        const id = this.getRetrospectiveId();
 
-                                                const cardId = draggableId;
-                                                const column = destination.droppableId;
-                                                const sourceColumn = source.droppableId;
+        const { draggableId, destination } = result;
+        if (!destination) {
+            return;
+        }
 
-                                                moveCard({
-                                                    variables: {
-                                                        id: cardId,
-                                                        column,
-                                                    },
-                                                    optimisticResponse: {
-                                                        __typename: "Mutation",
-                                                        moveCard: {
-                                                            __typename: "Card",
-                                                            id: "unknown",
-                                                            column,
-                                                            message: document.querySelector(`#card-${cardId}`).getAttribute("data-message"),
-                                                            votes: [],
-                                                        },
-                                                    },
-                                                    update: (
-                                                        proxy,
-                                                        { data: { moveCard } }
-                                                    ) => {
-                                                        const data = proxy.readQuery({
-                                                            query: GET_RETROSPECTIVE,
-                                                            variables: { id },
-                                                        });
-                                                        const getColumnIndex = (column) => R.findIndex(
-                                                            R.propEq("name", column)
-                                                        );
-                                                        const removeCard = (cardId, column) => {
-                                                            column.cards = R.filter(
-                                                                R.complement(R.propEq("id", cardId)),
-                                                                column.cards
-                                                            );
-                                                        };
-                                                        if (
-                                                            getColumnIndex(column)(
-                                                                data.retrospectiveById
-                                                                    .columns
-                                                            ) === -1
-                                                        ) {
-                                                            data.retrospectiveById.columns.push(
-                                                                {
-                                                                    __typename: "Column",
-                                                                    name: column,
-                                                                    cards: [],
-                                                                }
-                                                            );
-                                                        }
-                                                        removeCard(cardId, data.retrospectiveById.columns[
-                                                            getColumnIndex(sourceColumn)(data.retrospectiveById.columns)
-                                                        ])
+        const cardId = draggableId;
+        const column = destination.droppableId;
 
-                                                        data.retrospectiveById.columns[
-                                                            getColumnIndex(column)(
-                                                                data.retrospectiveById
-                                                                    .columns
-                                                            )
-                                                        ].cards.push(
-                                                            moveCard
-                                                        );
-                                                        proxy.writeQuery({
-                                                            query: GET_RETROSPECTIVE,
-                                                            data,
-                                                        });
-                                                    },
-                                                });
-                                            };
-                                            return (
-                                                <DragDropContext onDragEnd={onDragEnd}>
-                                                {DEFAULT_BOARDS.map(name => {
-                                                    const colour = DEFAULT_COLOURS[name];
-                                                    return <Column
-                                                        isLoading={loading}
-                                                        key={name}
-                                                        title={name}
-                                                        colour={colour}
-                                                        onNewCard={handleNewCard(name)}
-                                                        cards={getCards(name)(data)}
-                                                    />
-                                                })}
-                                                </DragDropContext>
-                                            );
-                                        }}
-                                    </Mutation>
-                                </div>
-                            );
-                        }}
-                    </Mutation>
+        this.props.moveCard({
+            variables: {
+                id: cardId,
+                column,
+            },
+            optimisticResponse: {
+                __typename: "Mutation",
+                moveCard: column,
+            },
+            update: (proxy, { data: { addCardToRetrospective } }) => {
+                const data = proxy.readQuery({
+                    query: GET_RETROSPECTIVE,
+                    variables: { id },
+                });
+                const existingCards = data.retrospectiveById.cards;
+                const targetCardIndex = R.findIndex(R.propEq("id", cardId))(
+                    existingCards
                 );
-            }}
-        </Query>
-    );
-};
+                existingCards[targetCardIndex].column = column;
+                proxy.writeQuery({
+                    query: GET_RETROSPECTIVE,
+                    variables: { id },
+                    data,
+                });
+            },
+        });
+    };
 
-export default Retrospective;
+    getCards = columnName => {
+        return R.pipe(
+            R.pathOr([], ["retrospectiveById", "cards"]),
+            R.filter(R.propEq("column", columnName))
+        );
+    };
+
+    render() {
+        const id = this.getRetrospectiveId();
+        return (
+            <Query query={GET_RETROSPECTIVE} variables={{ id }}>
+                {({ loading, error, data }) => {
+                    if (loading) {
+                        return <h3>Preparing for Take-Off 🚀</h3>;
+                    }
+
+                    if (!R.prop(["retrospectiveById"], data)) {
+                        return <h3>Rocketboard not found 💔</h3>;
+                    }
+
+                    return (
+                        <div className="page-board">
+                            <DragDropContext onDragEnd={this.handleMoveCard}>
+                                {DEFAULT_BOARDS.map(columnName => {
+                                    return (
+                                        <Column
+                                            key={columnName}
+                                            isLoading={loading}
+                                            title={columnName}
+                                            colour={DEFAULT_COLOURS[columnName]}
+                                            onNewCard={this.handleAddCard(
+                                                columnName
+                                            )}
+                                            cards={this.getCards(columnName)(
+                                                data
+                                            )}
+                                        />
+                                    );
+                                })}
+                            </DragDropContext>
+                        </div>
+                    );
+                }}
+            </Query>
+        );
+    }
+}
+
+export default compose(
+    graphql(ADD_CARD, { name: "addCard" }),
+    graphql(MOVE_CARD, { name: "moveCard" })
+)(_Retrospective);

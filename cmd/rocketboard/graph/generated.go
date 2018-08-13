@@ -41,12 +41,13 @@ type CardResolver interface {
 	Votes(ctx context.Context, obj *model.Card) ([]*model.Vote, error)
 }
 type RetrospectiveResolver interface {
+	Cards(ctx context.Context, obj *model.Retrospective) ([]*model.Card, error)
 	Columns(ctx context.Context, obj *model.Retrospective) ([]*Column, error)
 }
 type RootMutationResolver interface {
 	StartRetrospective(ctx context.Context, name *string) (string, error)
-	AddCardToRetrospective(ctx context.Context, id string, column *string, message *string) (model.Card, error)
-	MoveCard(ctx context.Context, id string, column string) (model.Card, error)
+	AddCardToRetrospective(ctx context.Context, id string, column *string, message *string) (string, error)
+	MoveCard(ctx context.Context, id string, column string) (string, error)
 	NewVote(ctx context.Context, cardId string) (model.Vote, error)
 }
 type RootQueryResolver interface {
@@ -392,6 +393,8 @@ func (ec *executionContext) _Retrospective(ctx context.Context, sel ast.Selectio
 			out.Values[i] = ec._Retrospective_updated(ctx, field, obj)
 		case "name":
 			out.Values[i] = ec._Retrospective_name(ctx, field, obj)
+		case "cards":
+			out.Values[i] = ec._Retrospective_cards(ctx, field, obj)
 		case "columns":
 			out.Values[i] = ec._Retrospective_columns(ctx, field, obj)
 		default:
@@ -468,6 +471,44 @@ func (ec *executionContext) _Retrospective_name(ctx context.Context, field graph
 	}
 	res := resTmp.(string)
 	return graphql.MarshalString(res)
+}
+
+func (ec *executionContext) _Retrospective_cards(ctx context.Context, field graphql.CollectedField, obj *model.Retrospective) graphql.Marshaler {
+	ctx = graphql.WithResolverContext(ctx, &graphql.ResolverContext{
+		Object: "Retrospective",
+		Args:   nil,
+		Field:  field,
+	})
+	return graphql.Defer(func() (ret graphql.Marshaler) {
+		defer func() {
+			if r := recover(); r != nil {
+				userErr := ec.Recover(ctx, r)
+				ec.Error(ctx, userErr)
+				ret = graphql.Null
+			}
+		}()
+
+		resTmp := ec.FieldMiddleware(ctx, func(ctx context.Context) (interface{}, error) {
+			return ec.resolvers.Retrospective().Cards(ctx, obj)
+		})
+		if resTmp == nil {
+			return graphql.Null
+		}
+		res := resTmp.([]*model.Card)
+		arr1 := graphql.Array{}
+		for idx1 := range res {
+			arr1 = append(arr1, func() graphql.Marshaler {
+				rctx := graphql.GetResolverContext(ctx)
+				rctx.PushIndex(idx1)
+				defer rctx.Pop()
+				if res[idx1] == nil {
+					return graphql.Null
+				}
+				return ec._Card(ctx, field.Selections, res[idx1])
+			}())
+		}
+		return arr1
+	})
 }
 
 func (ec *executionContext) _Retrospective_columns(ctx context.Context, field graphql.CollectedField, obj *model.Retrospective) graphql.Marshaler {
@@ -630,8 +671,8 @@ func (ec *executionContext) _RootMutation_addCardToRetrospective(ctx context.Con
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(model.Card)
-	return ec._Card(ctx, field.Selections, &res)
+	res := resTmp.(string)
+	return graphql.MarshalString(res)
 }
 
 func (ec *executionContext) _RootMutation_moveCard(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
@@ -669,8 +710,8 @@ func (ec *executionContext) _RootMutation_moveCard(ctx context.Context, field gr
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(model.Card)
-	return ec._Card(ctx, field.Selections, &res)
+	res := resTmp.(string)
+	return graphql.MarshalString(res)
 }
 
 func (ec *executionContext) _RootMutation_newVote(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
@@ -1862,8 +1903,8 @@ type RootQuery {
 
 type RootMutation {
     startRetrospective(name: String): String!
-    addCardToRetrospective(id: ID!, column: String, message: String): Card!
-    moveCard(id: ID!, column: String!): Card!
+    addCardToRetrospective(id: ID!, column: String, message: String): String!
+    moveCard(id: ID!, column: String!): String!
     newVote(cardId: ID!): Vote!
 }
 
@@ -1873,6 +1914,7 @@ type Retrospective {
     updated: Time
     name: String
 
+    cards: [Card]
     columns: [Column]
 }
 

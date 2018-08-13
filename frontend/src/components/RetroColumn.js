@@ -26,21 +26,25 @@ class RetroColumn extends Component {
 
         return (
             <div style={{ flex: 1 }}>
-                <h2 style={{textAlign: "center"}}>{title}</h2>
-                <a style={{display: "block", textAlign: "center"}} onClick={this.handleAdd}>
-                    <IconText
-                        type="plus-circle-o"
-                        text="Add Card"
-                    />
+                <h2 style={{ textAlign: "center" }}>{title}</h2>
+                <a
+                    style={{ display: "block", textAlign: "center" }}
+                    onClick={this.handleAdd}
+                >
+                    <IconText type="plus-circle-o" text="Add Card" />
                 </a>
                 <Droppable droppableId={title}>
                     {(provided, snapshot) => (
-                        <div style={{minHeight:"500px"}} ref={provided.innerRef} {...provided.droppableProps}>
+                        <div
+                            style={{ minHeight: "500px" }}
+                            ref={provided.innerRef}
+                            {...provided.droppableProps}
+                        >
                             <List
                                 footer={provided.placeholder}
                                 grid={grid}
                                 locale={{
-                                    emptyText: ""
+                                    emptyText: "",
                                 }}
                                 dataSource={cards}
                                 renderItem={item => (
@@ -59,11 +63,19 @@ class RetroColumn extends Component {
                                                 <List.Item>
                                                     <Card
                                                         id={`card-${item.id}`}
-                                                        data-message={item.message}
+                                                        data-message={
+                                                            item.message
+                                                        }
                                                         actions={[
                                                             <IconText
                                                                 type="like-o"
-                                                                text={R.sum(R.pluck('count')(item.votes))}
+                                                                text={R.sum(
+                                                                    R.pluck(
+                                                                        "count"
+                                                                    )(
+                                                                        item.votes
+                                                                    )
+                                                                )}
                                                             />,
                                                             <IconText
                                                                 type="message"
@@ -72,7 +84,8 @@ class RetroColumn extends Component {
                                                         ]}
                                                         style={{
                                                             width:
-                                                                cardWidth || "100%",
+                                                                cardWidth ||
+                                                                "100%",
                                                             backgroundColor: colour,
                                                         }}
                                                     >
