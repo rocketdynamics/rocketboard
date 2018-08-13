@@ -21,12 +21,6 @@ type Retrospective {
     name: String
 
     cards: [Card]
-    columns: [Column]
-}
-
-type Column {
-    name: String
-    cards: [Card]
 }
 
 type Card {

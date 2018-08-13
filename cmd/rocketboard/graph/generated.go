@@ -42,7 +42,6 @@ type CardResolver interface {
 }
 type RetrospectiveResolver interface {
 	Cards(ctx context.Context, obj *model.Retrospective) ([]*model.Card, error)
-	Columns(ctx context.Context, obj *model.Retrospective) ([]*Column, error)
 }
 type RootMutationResolver interface {
 	StartRetrospective(ctx context.Context, name *string) (string, error)
@@ -298,80 +297,6 @@ func (ec *executionContext) _Card_votes(ctx context.Context, field graphql.Colle
 	})
 }
 
-var columnImplementors = []string{"Column"}
-
-// nolint: gocyclo, errcheck, gas, goconst
-func (ec *executionContext) _Column(ctx context.Context, sel ast.SelectionSet, obj *Column) graphql.Marshaler {
-	fields := graphql.CollectFields(ctx, sel, columnImplementors)
-
-	out := graphql.NewOrderedMap(len(fields))
-	for i, field := range fields {
-		out.Keys[i] = field.Alias
-
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("Column")
-		case "name":
-			out.Values[i] = ec._Column_name(ctx, field, obj)
-		case "cards":
-			out.Values[i] = ec._Column_cards(ctx, field, obj)
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-
-	return out
-}
-
-func (ec *executionContext) _Column_name(ctx context.Context, field graphql.CollectedField, obj *Column) graphql.Marshaler {
-	rctx := graphql.GetResolverContext(ctx)
-	rctx.Object = "Column"
-	rctx.Args = nil
-	rctx.Field = field
-	rctx.PushField(field.Alias)
-	defer rctx.Pop()
-	resTmp := ec.FieldMiddleware(ctx, func(ctx context.Context) (interface{}, error) {
-		return obj.Name, nil
-	})
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*string)
-	if res == nil {
-		return graphql.Null
-	}
-	return graphql.MarshalString(*res)
-}
-
-func (ec *executionContext) _Column_cards(ctx context.Context, field graphql.CollectedField, obj *Column) graphql.Marshaler {
-	rctx := graphql.GetResolverContext(ctx)
-	rctx.Object = "Column"
-	rctx.Args = nil
-	rctx.Field = field
-	rctx.PushField(field.Alias)
-	defer rctx.Pop()
-	resTmp := ec.FieldMiddleware(ctx, func(ctx context.Context) (interface{}, error) {
-		return obj.Cards, nil
-	})
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.([]*model.Card)
-	arr1 := graphql.Array{}
-	for idx1 := range res {
-		arr1 = append(arr1, func() graphql.Marshaler {
-			rctx := graphql.GetResolverContext(ctx)
-			rctx.PushIndex(idx1)
-			defer rctx.Pop()
-			if res[idx1] == nil {
-				return graphql.Null
-			}
-			return ec._Card(ctx, field.Selections, res[idx1])
-		}())
-	}
-	return arr1
-}
-
 var retrospectiveImplementors = []string{"Retrospective"}
 
 // nolint: gocyclo, errcheck, gas, goconst
@@ -395,8 +320,6 @@ func (ec *executionContext) _Retrospective(ctx context.Context, sel ast.Selectio
 			out.Values[i] = ec._Retrospective_name(ctx, field, obj)
 		case "cards":
 			out.Values[i] = ec._Retrospective_cards(ctx, field, obj)
-		case "columns":
-			out.Values[i] = ec._Retrospective_columns(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -505,44 +428,6 @@ func (ec *executionContext) _Retrospective_cards(ctx context.Context, field grap
 					return graphql.Null
 				}
 				return ec._Card(ctx, field.Selections, res[idx1])
-			}())
-		}
-		return arr1
-	})
-}
-
-func (ec *executionContext) _Retrospective_columns(ctx context.Context, field graphql.CollectedField, obj *model.Retrospective) graphql.Marshaler {
-	ctx = graphql.WithResolverContext(ctx, &graphql.ResolverContext{
-		Object: "Retrospective",
-		Args:   nil,
-		Field:  field,
-	})
-	return graphql.Defer(func() (ret graphql.Marshaler) {
-		defer func() {
-			if r := recover(); r != nil {
-				userErr := ec.Recover(ctx, r)
-				ec.Error(ctx, userErr)
-				ret = graphql.Null
-			}
-		}()
-
-		resTmp := ec.FieldMiddleware(ctx, func(ctx context.Context) (interface{}, error) {
-			return ec.resolvers.Retrospective().Columns(ctx, obj)
-		})
-		if resTmp == nil {
-			return graphql.Null
-		}
-		res := resTmp.([]*Column)
-		arr1 := graphql.Array{}
-		for idx1 := range res {
-			arr1 = append(arr1, func() graphql.Marshaler {
-				rctx := graphql.GetResolverContext(ctx)
-				rctx.PushIndex(idx1)
-				defer rctx.Pop()
-				if res[idx1] == nil {
-					return graphql.Null
-				}
-				return ec._Column(ctx, field.Selections, res[idx1])
 			}())
 		}
 		return arr1
@@ -1914,12 +1799,6 @@ type Retrospective {
     updated: Time
     name: String
 
-    cards: [Card]
-    columns: [Column]
-}
-
-type Column {
-    name: String
     cards: [Card]
 }
 

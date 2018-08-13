@@ -61,33 +61,6 @@ func (r *retrospectiveResolver) Cards(ctx context.Context, obj *model.Retrospect
 	return cards, nil
 }
 
-func (r *retrospectiveResolver) Columns(ctx context.Context, obj *model.Retrospective) ([]*Column, error) {
-	cards, err := r.s.GetCardsForRetrospective(obj.Id)
-	if err != nil {
-		// return nil, err
-		return []*Column{}, nil
-	}
-
-	cardsByColumn := make(map[string][]*model.Card)
-	for _, c := range cards {
-		if cardsByColumn[c.Column] == nil {
-			cardsByColumn[c.Column] = make([]*model.Card, 0)
-		}
-		cardsByColumn[c.Column] = append(cardsByColumn[c.Column], c)
-	}
-
-	columns := make([]*Column, 0)
-	for columnName, cards := range cardsByColumn {
-		cn := columnName
-		columns = append(columns, &Column{
-			Name:  &cn,
-			Cards: cards,
-		})
-	}
-
-	return columns, nil
-}
-
 func (r *cardResolver) Votes(ctx context.Context, obj *model.Card) ([]*model.Vote, error) {
 	return r.s.GetVotesByCardId(obj.Id)
 }
