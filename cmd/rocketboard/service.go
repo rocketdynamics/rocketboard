@@ -10,13 +10,12 @@ import (
 type repository interface {
 	NewRetrospective(*model.Retrospective) error
 	GetRetrospectiveById(string) (*model.Retrospective, error)
+
 	NewCard(*model.Card) error
-	MoveCard(string, string) error
-	MarkCardInProgress(string) error
-	MarkCardDiscussed(string) error
-	MarkCardArchived(string) error
+	UpdateCard(*model.Card) error
 	GetCardById(string) (*model.Card, error)
 	GetCardsByRetrospectiveId(string) ([]*model.Card, error)
+
 	NewVote(v *model.Vote) error
 	GetVotesByCardId(id string) ([]*model.Vote, error)
 }
@@ -103,7 +102,14 @@ func (s *rocketboardService) AddCardToRetrospective(rId string, column string, m
 }
 
 func (s *rocketboardService) MoveCard(id string, column string) error {
-	return s.db.MoveCard(id, column)
+	c, err := s.db.GetCardById(id)
+	if err != nil {
+		return err
+	}
+
+	c.Column = column
+
+	return s.db.UpdateCard(c)
 }
 
 func (s *rocketboardService) GetCardById(id string) (*model.Card, error) {

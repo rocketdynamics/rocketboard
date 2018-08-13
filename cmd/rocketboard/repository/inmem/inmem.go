@@ -50,27 +50,11 @@ func (db *inmemRepository) NewCard(c *model.Card) error {
 	return nil
 }
 
-func (db *inmemRepository) MarkCardInProgress(id string) error {
-	c := db.cardsById[id]
-	c.Status = model.InProgress
-	return nil
-}
-
-func (db *inmemRepository) MarkCardDiscussed(id string) error {
-	c := db.cardsById[id]
-	c.Status = model.Discussed
-	return nil
-}
-
-func (db *inmemRepository) MarkCardArchived(id string) error {
-	c := db.cardsById[id]
-	c.Status = model.Archived
-	return nil
-}
-
-func (db *inmemRepository) MoveCard(id string, column string) error {
-	c := db.cardsById[id]
-	c.Column = column
+func (db *inmemRepository) UpdateCard(card *model.Card) error {
+	c := db.cardsById[card.Id]
+	c.Column = card.Column
+	c.Message = card.Message
+	c.Status = card.Status
 	return nil
 }
 
