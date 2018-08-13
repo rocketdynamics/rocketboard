@@ -84,21 +84,7 @@ func (r *retrospectiveResolver) Columns(ctx context.Context, obj *model.Retrospe
 }
 
 func (r *cardResolver) Votes(ctx context.Context, obj *model.Card) ([]*model.Vote, error) {
-	result := make([]*model.Vote, 0)
-
-	// votes, err := r.s.GetVotesByCardId(obj.Id)
-	// if err != nil {
-	// 	return nil, err
-	// }
-
-	// for _, vote := range votes {
-	// 	result = append(result, &Vote{
-	// 		Voter: vote.Voter,
-	// 		Count: vote.Count,
-	// 	})
-	// }
-
-	return result, nil
+	return r.s.GetVotesByCardId(obj.Id)
 }
 
 func (r *queryResolver) RetrospectiveByID(ctx context.Context, id string) (*model.Retrospective, error) {

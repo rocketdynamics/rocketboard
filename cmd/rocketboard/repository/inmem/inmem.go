@@ -100,8 +100,13 @@ func (db *inmemRepository) NewVote(v *model.Vote) error {
 		db.votesByCardId = make(map[string][]*model.Vote)
 	}
 
-	db.votesById[v.Id] = v
-	db.votesByCardId[v.CardId] = append(db.votesByCardId[v.CardId], v)
+	// Update existing vote instead of adding new if we already have it.
+	if db.votesById[v.Id] == nil {
+		db.votesByCardId[v.CardId] = append(db.votesByCardId[v.CardId], v)
+		db.votesById[v.Id] = v
+	} else {
+		db.votesById[v.Id].Count = v.Count
+	}
 
 	return nil
 }

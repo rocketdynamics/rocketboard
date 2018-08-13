@@ -72,6 +72,7 @@ func (s *rocketboardService) NewVote(cardId string, voter string) (*model.Vote, 
 		if voter == existingVote.Voter {
 			vote = existingVote
 			vote.Count = vote.Count + 1
+			break
 		}
 	}
 
