@@ -11,6 +11,7 @@ type RootMutation {
     startRetrospective(name: String): String!
     addCardToRetrospective(id: ID!, column: String, message: String): String!
     moveCard(id: ID!, column: String!): String!
+    updateMessage(id: ID!, message: String!): String!
     newVote(cardId: ID!): Vote!
 }
 

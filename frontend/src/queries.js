@@ -37,3 +37,9 @@ export const MOVE_CARD = gql`
         moveCard(id: $id, column: $column)
     }
 `;
+
+export const UPDATE_MESSAGE = gql`
+    mutation UpdateMessage($id: ID!, $message: String!) {
+        updateMessage(id: $id, message: $message)
+    }
+`;

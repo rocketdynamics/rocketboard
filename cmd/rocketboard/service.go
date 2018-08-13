@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/arachnys/rocketboard/cmd/rocketboard/model"
+	"github.com/microcosm-cc/bluemonday"
 	"github.com/oklog/ulid"
 	"math/rand"
 	"time"
@@ -91,7 +92,7 @@ func (s *rocketboardService) AddCardToRetrospective(rId string, column string, m
 		Created:         time.Now(),
 		Updated:         time.Now(),
 		RetrospectiveId: rId,
-		Message:         message,
+		Message:         bluemonday.UGCPolicy().Sanitize(message),
 		Creator:         creator,
 		Column:          column,
 	}); err != nil {
@@ -108,6 +109,17 @@ func (s *rocketboardService) MoveCard(id string, column string) error {
 	}
 
 	c.Column = column
+
+	return s.db.UpdateCard(c)
+}
+
+func (s *rocketboardService) UpdateMessage(id string, message string) error {
+	c, err := s.db.GetCardById(id)
+	if err != nil {
+		return err
+	}
+
+	c.Message = bluemonday.UGCPolicy().Sanitize(message)
 
 	return s.db.UpdateCard(c)
 }

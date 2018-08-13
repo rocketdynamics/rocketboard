@@ -1,23 +1,29 @@
-import React, { Component } from "react";
+import React from "react";
+import { compose, graphql } from "react-apollo";
 import PropTypes from "prop-types";
-import * as R from "ramda";
+
+import RetroCard from "./RetroCard";
+
+import { UPDATE_MESSAGE } from "../queries";
 
 import { Droppable, Draggable } from "react-beautiful-dnd";
-import { Button, List, Card, Icon } from "antd";
+import { Button, List } from "antd";
 
-const IconText = ({ type, text }) => (
-    <span>
-        <Icon type={type} style={{ marginRight: 8 }} />
-        {text}
-    </span>
-);
-
-class RetroColumn extends Component {
+class _RetroColumn extends React.Component {
     handleAdd = e => {
         e.preventDefault();
         if (this.props.onNewCard) {
             this.props.onNewCard("New Card");
         }
+    };
+
+    handleMessageUpdated = ({ id, message }) => {
+        this.props.updateMessage({
+            variables: {
+                id,
+                message,
+            },
+        });
     };
 
     render() {
@@ -64,36 +70,15 @@ class RetroColumn extends Component {
                                                 {...provided.dragHandleProps}
                                             >
                                                 <List.Item>
-                                                    <Card
-                                                        id={`card-${item.id}`}
-                                                        data-message={
-                                                            item.message
+                                                    <RetroCard
+                                                        onMessageUpdated={
+                                                            this
+                                                                .handleMessageUpdated
                                                         }
-                                                        actions={[
-                                                            <IconText
-                                                                type="like-o"
-                                                                text={R.sum(
-                                                                    R.pluck(
-                                                                        "count"
-                                                                    )(
-                                                                        item.votes
-                                                                    )
-                                                                )}
-                                                            />,
-                                                            <IconText
-                                                                type="message"
-                                                                text="0"
-                                                            />,
-                                                        ]}
-                                                        style={{
-                                                            width:
-                                                                cardWidth ||
-                                                                "100%",
-                                                            backgroundColor: colour,
-                                                        }}
-                                                    >
-                                                        <p>{item.message}</p>
-                                                    </Card>
+                                                        data={item}
+                                                        cardWidth={cardWidth}
+                                                        colour={colour}
+                                                    />
                                                 </List.Item>
                                             </div>
                                         )}
@@ -108,11 +93,13 @@ class RetroColumn extends Component {
     }
 }
 
-RetroColumn.propTypes = {
+_RetroColumn.propTypes = {
     title: PropTypes.string.isRequired,
     colour: PropTypes.string.isRequired,
     layout: PropTypes.string,
     cardWidth: PropTypes.number,
 };
 
-export default RetroColumn;
+export default compose(graphql(UPDATE_MESSAGE, { name: "updateMessage" }))(
+    _RetroColumn
+);

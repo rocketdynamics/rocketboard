@@ -47,6 +47,7 @@ type RootMutationResolver interface {
 	StartRetrospective(ctx context.Context, name *string) (string, error)
 	AddCardToRetrospective(ctx context.Context, id string, column *string, message *string) (string, error)
 	MoveCard(ctx context.Context, id string, column string) (string, error)
+	UpdateMessage(ctx context.Context, id string, message string) (string, error)
 	NewVote(ctx context.Context, cardId string) (model.Vote, error)
 }
 type RootQueryResolver interface {
@@ -457,6 +458,8 @@ func (ec *executionContext) _RootMutation(ctx context.Context, sel ast.Selection
 			out.Values[i] = ec._RootMutation_addCardToRetrospective(ctx, field)
 		case "moveCard":
 			out.Values[i] = ec._RootMutation_moveCard(ctx, field)
+		case "updateMessage":
+			out.Values[i] = ec._RootMutation_updateMessage(ctx, field)
 		case "newVote":
 			out.Values[i] = ec._RootMutation_newVote(ctx, field)
 		default:
@@ -591,6 +594,45 @@ func (ec *executionContext) _RootMutation_moveCard(ctx context.Context, field gr
 	defer rctx.Pop()
 	resTmp := ec.FieldMiddleware(ctx, func(ctx context.Context) (interface{}, error) {
 		return ec.resolvers.RootMutation().MoveCard(ctx, args["id"].(string), args["column"].(string))
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	return graphql.MarshalString(res)
+}
+
+func (ec *executionContext) _RootMutation_updateMessage(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		var err error
+		arg0, err = graphql.UnmarshalID(tmp)
+		if err != nil {
+			ec.Error(ctx, err)
+			return graphql.Null
+		}
+	}
+	args["id"] = arg0
+	var arg1 string
+	if tmp, ok := rawArgs["message"]; ok {
+		var err error
+		arg1, err = graphql.UnmarshalString(tmp)
+		if err != nil {
+			ec.Error(ctx, err)
+			return graphql.Null
+		}
+	}
+	args["message"] = arg1
+	rctx := graphql.GetResolverContext(ctx)
+	rctx.Object = "RootMutation"
+	rctx.Args = args
+	rctx.Field = field
+	rctx.PushField(field.Alias)
+	defer rctx.Pop()
+	resTmp := ec.FieldMiddleware(ctx, func(ctx context.Context) (interface{}, error) {
+		return ec.resolvers.RootMutation().UpdateMessage(ctx, args["id"].(string), args["message"].(string))
 	})
 	if resTmp == nil {
 		return graphql.Null
@@ -1790,6 +1832,7 @@ type RootMutation {
     startRetrospective(name: String): String!
     addCardToRetrospective(id: ID!, column: String, message: String): String!
     moveCard(id: ID!, column: String!): String!
+    updateMessage(id: ID!, message: String!): String!
     newVote(cardId: ID!): Vote!
 }
 
