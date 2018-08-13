@@ -35,7 +35,10 @@ class App extends React.Component {
                             className="action-launch"
                             onClick={this.onLaunch}
                         >
-                            Launch into Orbit 🚀
+                            Launch into Orbit{" "}
+                            <span role="img" aria-label="rocket">
+                                🚀
+                            </span>
                         </Menu.Item>
                     </Menu>
                 </Header>

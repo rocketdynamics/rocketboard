@@ -1,8 +1,9 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
-import { List, Card, Icon } from "antd";
-import { Droppable, Draggable } from "react-beautiful-dnd";
 import * as R from "ramda";
+
+import { Droppable, Draggable } from "react-beautiful-dnd";
+import { Button, List, Card, Icon } from "antd";
 
 const IconText = ({ type, text }) => (
     <span>
@@ -27,9 +28,12 @@ class RetroColumn extends Component {
                 <div className="column-header">
                     <h3>{title}</h3>
 
-                    <a className="column-action" onClick={this.handleAdd}>
-                        <IconText type="plus-circle-o" text="Add Card" />
-                    </a>
+                    <Button
+                        onClick={this.handleAdd}
+                        type="dashed"
+                        icon="plus"
+                        block
+                    />
                 </div>
 
                 <Droppable droppableId={title}>

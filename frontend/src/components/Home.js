@@ -9,7 +9,11 @@ const Home = () => (
         <p className="home-description">
             Experience Rocket Growth™ in your Retrospectives
             <br />
-            (by Rocket Growth™ Hackers for Rocket Growth™ Hackers 👩‍🚀)
+            (by Rocket Growth™ Hackers for Rocket Growth™ Hackers{" "}
+            <span role="img" aria-label="grwoth hackers">
+                👩‍🚀
+            </span>
+            )
         </p>
     </div>
 );
