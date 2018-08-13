@@ -60,13 +60,18 @@ class _Retrospective extends React.Component {
     handleMoveCard = result => {
         const id = this.getRetrospectiveId();
 
-        const { draggableId, destination } = result;
+        const { draggableId, destination, source } = result;
         if (!destination) {
             return;
         }
 
         const cardId = draggableId;
+        const originalColumn = source.droppableId;
         const column = destination.droppableId;
+
+        if (originalColumn === column) {
+            return;
+        }
 
         this.props.moveCard({
             variables: {
