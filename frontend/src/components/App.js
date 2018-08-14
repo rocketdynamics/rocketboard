@@ -51,7 +51,15 @@ class App extends React.Component {
                 </Content>
 
                 <Footer className="footer">
-                    Powered by 🍺, ☕ and NIH Principles
+                    Powered by{" "}
+                    <span role="img" aria-label="beer">
+                        🍺
+                    </span>
+                    ,{" "}
+                    <span role="img" aria-label="coffee">
+                        ☕
+                    </span>{" "}
+                    and NIH Principles
                 </Footer>
             </Layout>
         );
