@@ -5,7 +5,7 @@ import * as R from "ramda";
 import Column from "./RetroColumn";
 import { DragDropContext } from "react-beautiful-dnd";
 
-import { GET_RETROSPECTIVE, ADD_CARD, MOVE_CARD, NEW_VOTE } from "../queries";
+import { GET_RETROSPECTIVE, ADD_CARD, MOVE_CARD, NEW_VOTE, CARD_SUBSCRIPTION } from "../queries";
 
 const DEFAULT_BOARDS = ["Positive", "Mixed", "Negative"];
 
@@ -14,6 +14,20 @@ const DEFAULT_COLOURS = {
     Mixed: "#ffa940",
     Negative: "#ff4d4f",
 };
+
+export class Retro extends React.Component {
+  componentDidMount() {
+    this.props.subscribeToNewComments();
+  }
+
+  render() {
+    return (
+        <div className={this.props.className}>
+            {this.props.children}
+        </div>
+    )
+  }
+}
 
 class _Retrospective extends React.Component {
     getRetrospectiveId = () => {
@@ -163,7 +177,7 @@ class _Retrospective extends React.Component {
         const id = this.getRetrospectiveId();
         return (
             <Query query={GET_RETROSPECTIVE} variables={{ id }}>
-                {({ loading, error, data }) => {
+                {({ loading, error, data, subscribeToMore }) => {
                     if (loading) {
                         return (
                             <h2>
@@ -187,7 +201,22 @@ class _Retrospective extends React.Component {
                     }
 
                     return (
-                        <div className="page-retrospective">
+                        <Retro
+                            className="page-retrospective"
+                            subscribeToNewComments={() =>
+                              subscribeToMore({
+                                document: CARD_SUBSCRIPTION,
+                                variables: { rId: id },
+                                updateQuery: (prev, { subscriptionData }) => {
+                                  if (!subscriptionData.data) return prev;
+                                  debugger;
+
+                                  return Object.assign({}, prev, {
+                                  });
+                                }
+                              })
+                            }
+                        >
                             <DragDropContext onDragEnd={this.handleMoveCard}>
                                 {DEFAULT_BOARDS.map(columnName => {
                                     return (
@@ -207,7 +236,7 @@ class _Retrospective extends React.Component {
                                     );
                                 })}
                             </DragDropContext>
-                        </div>
+                        </Retro>
                     );
                 }}
             </Query>

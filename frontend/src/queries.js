@@ -52,3 +52,18 @@ export const NEW_VOTE = gql`
       }
     }
 `;
+
+
+export const CARD_SUBSCRIPTION = gql`
+  subscription OnCardChanged($rId: String!) {
+    cardChanged(rId: $rId) {
+      id
+      message
+      votes {
+        count
+        voter
+      }
+    }
+  }
+`;
+
