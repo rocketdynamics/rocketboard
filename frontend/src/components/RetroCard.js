@@ -63,7 +63,7 @@ class RetroCard extends React.Component {
         const { newVoteHandler } = this.props;
         const numVotes = R.sum(R.pluck("count")(votes));
 
-        let body = <p>{this.state.message}</p>;
+        let body = <p>{this.props.data.message}</p>;
         if (this.state.isEditing) {
             body = (
                 <Input.TextArea
