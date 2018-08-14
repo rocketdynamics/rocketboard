@@ -5,7 +5,13 @@ import * as R from "ramda";
 import Column from "./RetroColumn";
 import { DragDropContext } from "react-beautiful-dnd";
 
-import { GET_RETROSPECTIVE, ADD_CARD, MOVE_CARD } from "../queries";
+import {
+    GET_RETROSPECTIVE,
+    ADD_CARD,
+    MOVE_CARD,
+    NEW_VOTE,
+    CARD_SUBSCRIPTION,
+} from "../queries";
 
 const DEFAULT_BOARDS = ["Positive", "Mixed", "Negative"];
 
@@ -14,6 +20,18 @@ const DEFAULT_COLOURS = {
     Mixed: "#ffa940",
     Negative: "#ff4d4f",
 };
+
+export class Retro extends React.Component {
+    componentDidMount() {
+        this.props.subscribeToNewComments();
+    }
+
+    render() {
+        return (
+            <div className={this.props.className}>{this.props.children}</div>
+        );
+    }
+}
 
 class _Retrospective extends React.Component {
     getRetrospectiveId = () => {
@@ -101,6 +119,57 @@ class _Retrospective extends React.Component {
         });
     };
 
+    handleNewVote = (numVotes, cardId) => {
+        return () => {
+            const id = this.getRetrospectiveId();
+
+            this.props.newVote({
+                variables: {
+                    cardId,
+                },
+                optimisticResponse: {
+                    __typename: "Mutation",
+                    newVote: {
+                        __typename: "Vote",
+                        count: numVotes + 1,
+                        voter: "unknownVoter",
+                    },
+                },
+                update: (proxy, { data: { newVote } }) => {
+                    const data = proxy.readQuery({
+                        query: GET_RETROSPECTIVE,
+                        variables: { id },
+                    });
+
+                    const existingCards = data.retrospectiveById.cards;
+                    const targetCardIndex = R.findIndex(R.propEq("id", cardId))(
+                        existingCards
+                    );
+                    const card = existingCards[targetCardIndex];
+                    const targetVoteIndex = R.findIndex(
+                        R.propEq("voter", "unknownVoter")
+                    )(card.votes);
+                    var vote = card.votes[targetVoteIndex];
+                    if (vote === undefined) {
+                        vote = {
+                            __typename: "Vote",
+                            count: 1,
+                            voter: "unknownVoter",
+                        };
+                        card.votes.push(vote);
+                    }
+                    vote.count = newVote.count;
+
+                    proxy.writeQuery({
+                        query: GET_RETROSPECTIVE,
+                        variables: { id },
+                        data,
+                    });
+                },
+            });
+        };
+    };
+
     getCards = columnName => {
         return R.pipe(
             R.pathOr([], ["retrospectiveById", "cards"]),
@@ -112,7 +181,7 @@ class _Retrospective extends React.Component {
         const id = this.getRetrospectiveId();
         return (
             <Query query={GET_RETROSPECTIVE} variables={{ id }}>
-                {({ loading, error, data }) => {
+                {({ loading, error, data, subscribeToMore }) => {
                     if (loading) {
                         return (
                             <h2>
@@ -136,15 +205,25 @@ class _Retrospective extends React.Component {
                     }
 
                     return (
-                        <div className="page-retrospective">
+                        <Retro
+                            className="page-retrospective"
+                            subscribeToNewComments={() =>
+                                subscribeToMore({
+                                    document: CARD_SUBSCRIPTION,
+                                    variables: { rId: id },
+                                })
+                            }
+                        >
                             <DragDropContext onDragEnd={this.handleMoveCard}>
                                 {DEFAULT_BOARDS.map(columnName => {
                                     return (
                                         <Column
                                             key={columnName}
+                                            retrospectiveId={id}
                                             isLoading={loading}
                                             title={columnName}
                                             colour={DEFAULT_COLOURS[columnName]}
+                                            newVoteHandler={this.handleNewVote}
                                             onNewCard={this.handleAddCard(
                                                 columnName
                                             )}
@@ -155,7 +234,7 @@ class _Retrospective extends React.Component {
                                     );
                                 })}
                             </DragDropContext>
-                        </div>
+                        </Retro>
                     );
                 }}
             </Query>
@@ -165,5 +244,6 @@ class _Retrospective extends React.Component {
 
 export default compose(
     graphql(ADD_CARD, { name: "addCard" }),
-    graphql(MOVE_CARD, { name: "moveCard" })
+    graphql(MOVE_CARD, { name: "moveCard" }),
+    graphql(NEW_VOTE, { name: "newVote" })
 )(_Retrospective);

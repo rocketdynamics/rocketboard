@@ -24,7 +24,7 @@ class RetroCard extends React.Component {
 
         if (this.state.isEditing && this.props.onMessageUpdated) {
             this.props.onMessageUpdated({
-                id: this.props.data.id,
+                cardId: this.props.data.id,
                 message: this.state.message,
             });
         }
@@ -38,6 +38,8 @@ class RetroCard extends React.Component {
 
     render() {
         const { id, votes } = this.props.data;
+        const { newVoteHandler } = this.props;
+        const numVotes = R.sum(R.pluck("count")(votes));
 
         let body = <p>{this.state.message}</p>;
         if (this.state.isEditing) {
@@ -57,7 +59,8 @@ class RetroCard extends React.Component {
                 actions={[
                     <IconText
                         type="like-o"
-                        text={R.sum(R.pluck("count")(votes))}
+                        text={numVotes}
+                        onClick={newVoteHandler(numVotes, id)}
                     />,
                     <IconText type="message" text="0" />,
                     <IconText

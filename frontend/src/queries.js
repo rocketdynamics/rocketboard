@@ -43,3 +43,25 @@ export const UPDATE_MESSAGE = gql`
         updateMessage(id: $id, message: $message)
     }
 `;
+
+export const NEW_VOTE = gql`
+    mutation($cardId: ID!) {
+        newVote(cardId: $cardId) {
+            count
+            voter
+        }
+    }
+`;
+
+export const CARD_SUBSCRIPTION = gql`
+    subscription OnCardChanged($rId: String!) {
+        cardChanged(rId: $rId) {
+            id
+            message
+            votes {
+                count
+                voter
+            }
+        }
+    }
+`;

@@ -6,7 +6,13 @@ image:
   pullPolicy: IfNotPresent
 
 ingress:
-  enabled: false
+  enabled: true
+  hosts:
+    - rocketboard.arachnys.com
+  tls:
+    - secretName: arachnys-wildcard-tls
+      hosts:
+        - rocketboard.arachnys.com
 
 oauth2-proxy:
   replicaCount: 1
@@ -18,7 +24,7 @@ oauth2-proxy:
     port: 4180
 
   ingress:
-    enabled: true
+    enabled: false
     hosts:
       - rocketboard.arachnys.com
     tls:

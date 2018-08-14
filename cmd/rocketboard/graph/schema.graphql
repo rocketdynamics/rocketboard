@@ -15,6 +15,10 @@ type RootMutation {
     newVote(cardId: ID!): Vote!
 }
 
+type Subscription {
+  cardChanged(rId: String!): Card!
+}
+
 type Retrospective {
     id: ID!
     created: Time

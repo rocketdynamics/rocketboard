@@ -33,6 +33,7 @@ type ResolverRoot interface {
 	Retrospective() RetrospectiveResolver
 	RootMutation() RootMutationResolver
 	RootQuery() RootQueryResolver
+	Subscription() SubscriptionResolver
 }
 
 type DirectiveRoot struct {
@@ -52,6 +53,9 @@ type RootMutationResolver interface {
 }
 type RootQueryResolver interface {
 	RetrospectiveByID(ctx context.Context, id string) (*model.Retrospective, error)
+}
+type SubscriptionResolver interface {
+	CardChanged(ctx context.Context, rId string) (<-chan model.Card, error)
 }
 
 type executableSchema struct {
@@ -96,7 +100,31 @@ func (e *executableSchema) Mutation(ctx context.Context, op *ast.OperationDefini
 }
 
 func (e *executableSchema) Subscription(ctx context.Context, op *ast.OperationDefinition) func() *graphql.Response {
-	return graphql.OneShot(graphql.ErrorResponse(ctx, "subscriptions are not supported"))
+	ec := executionContext{graphql.GetRequestContext(ctx), e}
+
+	next := ec._Subscription(ctx, op.SelectionSet)
+	if ec.Errors != nil {
+		return graphql.OneShot(&graphql.Response{Data: []byte("null"), Errors: ec.Errors})
+	}
+
+	var buf bytes.Buffer
+	return func() *graphql.Response {
+		buf := ec.RequestMiddleware(ctx, func(ctx context.Context) []byte {
+			buf.Reset()
+			data := next()
+
+			if data == nil {
+				return nil
+			}
+			data.MarshalGQL(&buf)
+			return buf.Bytes()
+		})
+
+		return &graphql.Response{
+			Data:   buf,
+			Errors: ec.Errors,
+		}
+	}
 }
 
 type executionContext struct {
@@ -792,6 +820,57 @@ func (ec *executionContext) _RootQuery___schema(ctx context.Context, field graph
 		return graphql.Null
 	}
 	return ec.___Schema(ctx, field.Selections, res)
+}
+
+var subscriptionImplementors = []string{"Subscription"}
+
+// nolint: gocyclo, errcheck, gas, goconst
+func (ec *executionContext) _Subscription(ctx context.Context, sel ast.SelectionSet) func() graphql.Marshaler {
+	fields := graphql.CollectFields(ctx, sel, subscriptionImplementors)
+	ctx = graphql.WithResolverContext(ctx, &graphql.ResolverContext{
+		Object: "Subscription",
+	})
+	if len(fields) != 1 {
+		ec.Errorf(ctx, "must subscribe to exactly one stream")
+		return nil
+	}
+
+	switch fields[0].Name {
+	case "cardChanged":
+		return ec._Subscription_cardChanged(ctx, fields[0])
+	default:
+		panic("unknown field " + strconv.Quote(fields[0].Name))
+	}
+}
+
+func (ec *executionContext) _Subscription_cardChanged(ctx context.Context, field graphql.CollectedField) func() graphql.Marshaler {
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["rId"]; ok {
+		var err error
+		arg0, err = graphql.UnmarshalString(tmp)
+		if err != nil {
+			ec.Error(ctx, err)
+			return nil
+		}
+	}
+	args["rId"] = arg0
+	ctx = graphql.WithResolverContext(ctx, &graphql.ResolverContext{Field: field})
+	results, err := ec.resolvers.Subscription().CardChanged(ctx, args["rId"].(string))
+	if err != nil {
+		ec.Error(ctx, err)
+		return nil
+	}
+	return func() graphql.Marshaler {
+		res, ok := <-results
+		if !ok {
+			return nil
+		}
+		var out graphql.OrderedMap
+		out.Add(field.Alias, func() graphql.Marshaler { return ec._Card(ctx, field.Selections, &res) }())
+		return &out
+	}
 }
 
 var voteImplementors = []string{"Vote"}
@@ -1834,6 +1913,10 @@ type RootMutation {
     moveCard(id: ID!, column: String!): String!
     updateMessage(id: ID!, message: String!): String!
     newVote(cardId: ID!): Vote!
+}
+
+type Subscription {
+  cardChanged(rId: String!): Card!
 }
 
 type Retrospective {

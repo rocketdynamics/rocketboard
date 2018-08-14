@@ -132,6 +132,10 @@ func (s *rocketboardService) GetCardsForRetrospective(rId string) ([]*model.Card
 	return s.db.GetCardsByRetrospectiveId(rId)
 }
 
+func (s *rocketboardService) NewUlid() string {
+	return newUlid()
+}
+
 func newUlid() string {
 	entropy := rand.New(rand.NewSource(time.Now().UnixNano()))
 	return ulid.MustNew(ulid.Now(), entropy).String()
