@@ -23,7 +23,7 @@ const DEFAULT_COLOURS = {
 
 export class Retro extends React.Component {
     componentDidMount() {
-        this.props.subscribeToNewComments();
+        this.props.subscribeToCardUpdates();
     }
 
     render() {
@@ -207,7 +207,7 @@ class _Retrospective extends React.Component {
                     return (
                         <Retro
                             className="page-retrospective"
-                            subscribeToNewComments={() =>
+                            subscribeToCardUpdates={() =>
                                 subscribeToMore({
                                     document: CARD_SUBSCRIPTION,
                                     variables: { rId: id },
