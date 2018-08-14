@@ -21,18 +21,6 @@ const DEFAULT_COLOURS = {
     Negative: "#ff4d4f",
 };
 
-export class Retro extends React.Component {
-    componentDidMount() {
-        this.props.subscribeToCardUpdates();
-    }
-
-    render() {
-        return (
-            <div className={this.props.className}>{this.props.children}</div>
-        );
-    }
-}
-
 class _Retrospective extends React.Component {
     getRetrospectiveId = () => {
         return R.path(["params", "id"], this.props.match);
@@ -177,6 +165,28 @@ class _Retrospective extends React.Component {
         );
     };
 
+    handleSubscribeToMore = subscribe => {
+        const id = this.getRetrospectiveId();
+        subscribe({
+            document: CARD_SUBSCRIPTION,
+            variables: { rId: id },
+            updateQuery: (prev, { subscriptionData: { data } }) => {
+                const newCard = data.cardChanged;
+                const existingCards = prev.retrospectiveById.cards;
+
+                if (!R.find(R.propEq("id", newCard.id))(existingCards)) {
+                    return {
+                        ...prev,
+                        retrospectiveById: {
+                            ...prev.retrospectiveById,
+                            cards: [...existingCards, newCard],
+                        },
+                    };
+                }
+            },
+        });
+    };
+
     render() {
         const id = this.getRetrospectiveId();
         return (
@@ -204,16 +214,10 @@ class _Retrospective extends React.Component {
                         );
                     }
 
+                    this.handleSubscribeToMore(subscribeToMore);
+
                     return (
-                        <Retro
-                            className="page-retrospective"
-                            subscribeToCardUpdates={() =>
-                                subscribeToMore({
-                                    document: CARD_SUBSCRIPTION,
-                                    variables: { rId: id },
-                                })
-                            }
-                        >
+                        <div className="page-retrospective">
                             <DragDropContext onDragEnd={this.handleMoveCard}>
                                 {DEFAULT_BOARDS.map(columnName => {
                                     return (
@@ -234,7 +238,7 @@ class _Retrospective extends React.Component {
                                     );
                                 })}
                             </DragDropContext>
-                        </Retro>
+                        </div>
                     );
                 }}
             </Query>

@@ -106,7 +106,9 @@ class _RetroColumn extends React.Component {
                                                                 .handleMessageUpdated
                                                         }
                                                         data={item}
-                                                        newVoteHandler={newVoteHandler}
+                                                        newVoteHandler={
+                                                            newVoteHandler
+                                                        }
                                                         cardWidth={cardWidth}
                                                         colour={colour}
                                                     />
