@@ -38,7 +38,8 @@ class RetroCard extends React.Component {
 
     render() {
         const { id, votes } = this.props.data;
-        const { onNewVote } = this.props;
+        const { newVoteHandler } = this.props;
+        const numVotes = R.sum(R.pluck("count")(votes));
 
         let body = <p>{this.state.message}</p>;
         if (this.state.isEditing) {
@@ -58,8 +59,8 @@ class RetroCard extends React.Component {
                 actions={[
                     <IconText
                         type="like-o"
-                        text={R.sum(R.pluck("count")(votes))}
-                        onClick={onNewVote}
+                        text={numVotes}
+                        onClick={newVoteHandler(numVotes, id)}
                     />,
                     <IconText type="message" text="0" />,
                     <IconText
