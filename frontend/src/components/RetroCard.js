@@ -15,7 +15,7 @@ class RetroCard extends React.Component {
         super(props);
         this.state = {
             isEditing: false,
-            message: this.props.data.message,
+            message: "",
             effects: [],
         };
     }
@@ -28,6 +28,10 @@ class RetroCard extends React.Component {
                 cardId: this.props.data.id,
                 message: this.state.message,
             });
+        } else if (!this.state.isEditing) {
+            this.setState({
+                message: this.props.data.message,
+            });
         }
 
         this.setState({ isEditing: !this.state.isEditing });
@@ -39,15 +43,15 @@ class RetroCard extends React.Component {
 
     createVoteEffect = () => {
         this.setState({
-            effects: [...this.state.effects, 0]
-        })
+            effects: [...this.state.effects, 0],
+        });
 
         clearTimeout(this.cleanupTimeout);
 
         this.cleanupTimeout = setTimeout(() => {
-            this.setState({effects: []})
+            this.setState({ effects: [] });
         }, 500);
-    }
+    };
 
     componentWillReceiveProps(nextProps) {
         const numVotes = R.sum(R.pluck("count")(this.props.data.votes));
@@ -79,25 +83,24 @@ class RetroCard extends React.Component {
             <span>
                 <IconText
                     type="like-o"
-                    style={{position: "relative"}}
+                    style={{ position: "relative" }}
                     text={numVotes}
                     onClick={newVoteHandler(numVotes, id)}
                 />
                 {this.state.effects.map((effect, i) => (
-                        <IconText
-                            type="like-o"
-                            className="vote-effect"
-                            style={{
-                                position: "absolute",
-                                top: "0px",
-                                left: "0px",
-                                pointerEvents: "none",
-                            }}
-                            key={i}
-                            text={numVotes}
-                        />
-                )
-                )}
+                    <IconText
+                        type="like-o"
+                        className="vote-effect"
+                        style={{
+                            position: "absolute",
+                            top: "0px",
+                            left: "0px",
+                            pointerEvents: "none",
+                        }}
+                        key={i}
+                        text={numVotes}
+                    />
+                ))}
             </span>
         );
 
