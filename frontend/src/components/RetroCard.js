@@ -16,6 +16,7 @@ class RetroCard extends React.Component {
         this.state = {
             isEditing: false,
             message: this.props.data.message,
+            effects: [],
         };
     }
 
@@ -36,12 +37,33 @@ class RetroCard extends React.Component {
         this.setState({ message: e.target.value });
     };
 
+    createVoteEffect = () => {
+        this.setState({
+            effects: [...this.state.effects, 0]
+        })
+
+        clearTimeout(this.cleanupTimeout);
+
+        this.cleanupTimeout = setTimeout(() => {
+            this.setState({effects: []})
+        }, 500);
+    }
+
+    componentWillReceiveProps(nextProps) {
+        const numVotes = R.sum(R.pluck("count")(this.props.data.votes));
+        const nextVotes = R.sum(R.pluck("count")(nextProps.data.votes));
+
+        if (nextVotes > numVotes) {
+            this.createVoteEffect();
+        }
+    }
+
     render() {
         const { id, votes } = this.props.data;
         const { newVoteHandler } = this.props;
         const numVotes = R.sum(R.pluck("count")(votes));
 
-        let body = <p>{this.state.message}</p>;
+        let body = <p>{this.props.data.message}</p>;
         if (this.state.isEditing) {
             body = (
                 <Input.TextArea
@@ -53,15 +75,37 @@ class RetroCard extends React.Component {
             );
         }
 
+        this.voteIcon = (
+            <span>
+                <IconText
+                    type="like-o"
+                    style={{position: "relative"}}
+                    text={numVotes}
+                    onClick={newVoteHandler(numVotes, id)}
+                />
+                {this.state.effects.map((effect, i) => (
+                        <IconText
+                            type="like-o"
+                            className="vote-effect"
+                            style={{
+                                position: "absolute",
+                                top: "0px",
+                                left: "0px",
+                                pointerEvents: "none",
+                            }}
+                            key={i}
+                            text={numVotes}
+                        />
+                )
+                )}
+            </span>
+        );
+
         return (
             <Card
                 id={`card-${id}`}
                 actions={[
-                    <IconText
-                        type="like-o"
-                        text={numVotes}
-                        onClick={newVoteHandler(numVotes, id)}
-                    />,
+                    this.voteIcon,
                     <IconText type="message" text="0" />,
                     <IconText
                         type={this.state.isEditing ? "save" : "edit"}

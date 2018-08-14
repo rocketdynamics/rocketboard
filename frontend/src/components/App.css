@@ -105,3 +105,18 @@
         overflow: auto;
     }
 
+@keyframes card-voting {
+    0% {
+        top: 0px;
+        opacity: 1;
+    }
+    100% {
+        top: -35px;
+        opacity: 0;
+    }
+}
+
+.vote-effect {
+    animation: card-voting 400ms ease;
+    animation-fill-mode: forwards;
+}
