@@ -42,6 +42,11 @@ class RetroCard extends React.Component {
     };
 
     createVoteEffect = () => {
+        // Prevent lag on effect spam
+        if (this.state.effects.length > 50) {
+            return;
+        }
+
         this.setState({
             effects: [...this.state.effects, 0],
         });
