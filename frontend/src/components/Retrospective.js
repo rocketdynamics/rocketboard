@@ -222,6 +222,7 @@ class _Retrospective extends React.Component {
                                     return (
                                         <Column
                                             key={columnName}
+                                            retrospectiveId={id}
                                             isLoading={loading}
                                             title={columnName}
                                             colour={DEFAULT_COLOURS[columnName]}

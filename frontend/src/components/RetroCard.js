@@ -24,7 +24,7 @@ class RetroCard extends React.Component {
 
         if (this.state.isEditing && this.props.onMessageUpdated) {
             this.props.onMessageUpdated({
-                id: this.props.data.id,
+                cardId: this.props.data.id,
                 message: this.state.message,
             });
         }
