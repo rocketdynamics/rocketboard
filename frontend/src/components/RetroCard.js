@@ -49,6 +49,15 @@ class RetroCard extends React.Component {
         }, 500);
     }
 
+    componentWillReceiveProps(nextProps) {
+        const numVotes = R.sum(R.pluck("count")(this.props.data.votes));
+        const nextVotes = R.sum(R.pluck("count")(nextProps.data.votes));
+
+        if (nextVotes > numVotes) {
+            this.createVoteEffect();
+        }
+    }
+
     render() {
         const { id, votes } = this.props.data;
         const { newVoteHandler } = this.props;
@@ -72,10 +81,7 @@ class RetroCard extends React.Component {
                     type="like-o"
                     style={{position: "relative"}}
                     text={numVotes}
-                    onClick={() => {
-                        newVoteHandler(numVotes, id);
-                        this.createVoteEffect();
-                    }}
+                    onClick={newVoteHandler(numVotes, id)}
                 />
                 {this.state.effects.map((effect, i) => (
                         <IconText
