@@ -41,6 +41,12 @@ class RetroCard extends React.Component {
         this.setState({
             effects: [...this.state.effects, 0]
         })
+
+        clearTimeout(this.cleanupTimeout);
+
+        this.cleanupTimeout = setTimeout(() => {
+            this.setState({effects: []})
+        }, 500);
     }
 
     render() {
