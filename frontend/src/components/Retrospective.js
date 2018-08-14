@@ -22,6 +22,8 @@ const DEFAULT_COLOURS = {
 };
 
 class _Retrospective extends React.Component {
+    isSubscribed = false;
+
     getRetrospectiveId = () => {
         return R.path(["params", "id"], this.props.match);
     };
@@ -165,7 +167,7 @@ class _Retrospective extends React.Component {
         );
     };
 
-    handleSubscribeToMore = subscribe => {
+    handleSubscribeToMore = R.memoize(subscribe => {
         const id = this.getRetrospectiveId();
         subscribe({
             document: CARD_SUBSCRIPTION,
@@ -185,7 +187,7 @@ class _Retrospective extends React.Component {
                 }
             },
         });
-    };
+    });
 
     render() {
         const id = this.getRetrospectiveId();
