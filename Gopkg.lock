@@ -24,6 +24,12 @@
   version = "v1.2.0"
 
 [[projects]]
+  name = "github.com/microcosm-cc/bluemonday"
+  packages = ["."]
+  revision = "dafebb5b6ff2861a0d69af64991e10866c19be85"
+  version = "v1.0.0"
+
+[[projects]]
   name = "github.com/oklog/ulid"
   packages = ["."]
   revision = "8356aea91ceecc7d00ef87508040d1031adb2953"
@@ -49,9 +55,18 @@
   ]
   revision = "c063da4fdb845f11bd524096452558e8759103b6"
 
+[[projects]]
+  branch = "master"
+  name = "golang.org/x/net"
+  packages = [
+    "html",
+    "html/atom"
+  ]
+  revision = "c39426892332e1bb5ec0a434a079bf82f5d30c54"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "706c2c498ea37ad2b36c95dcc2e1cfcdfaaf55d8331d34f6b972d865fe77f3f0"
+  inputs-digest = "79c4860f808a8bc580f92cae1f1c2930a7ae0bd8898464c01a22262cfb536fc2"
   solver-name = "gps-cdcl"
   solver-version = 1
