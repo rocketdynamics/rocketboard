@@ -102,52 +102,54 @@ class _Retrospective extends React.Component {
     };
 
     handleNewVote = cardId => {
-        const id = this.getRetrospectiveId();
+        return () => {
+            const id = this.getRetrospectiveId();
 
-        this.props.newVote({
-            variables: {
-                cardId,
-            },
-            optimisticResponse: {
-                __typename: "Mutation",
-                newVote: {
-                    __typename: "Vote",
-                    count: 123,
-                    voter: "unknownVoter",
-                }
-            },
-            update: (proxy, { data: { newVote } }) => {
-                const data = proxy.readQuery({
-                    query: GET_RETROSPECTIVE,
-                    variables: { id },
-                });
-
-                const existingCards = data.retrospectiveById.cards;
-                const targetCardIndex = R.findIndex(R.propEq("id", cardId))(
-                    existingCards
-                );
-                const card = existingCards[targetCardIndex];
-                const targetVoteIndex = R.findIndex(R.propEq("voter", "unknownVoter"))(
-                    card.votes
-                );
-                var vote = card.votes[targetVoteIndex];
-                if (vote === undefined) {
-                    vote = {
+            this.props.newVote({
+                variables: {
+                    cardId,
+                },
+                optimisticResponse: {
+                    __typename: "Mutation",
+                    newVote: {
                         __typename: "Vote",
-                        count: 1,
+                        count: 123,
                         voter: "unknownVoter",
                     }
-                    card.votes.push(vote)
-                }
-                vote.count = newVote.count
+                },
+                update: (proxy, { data: { newVote } }) => {
+                    const data = proxy.readQuery({
+                        query: GET_RETROSPECTIVE,
+                        variables: { id },
+                    });
 
-                proxy.writeQuery({
-                    query: GET_RETROSPECTIVE,
-                    variables: { id },
-                    data,
-                });
-            },
-        });
+                    const existingCards = data.retrospectiveById.cards;
+                    const targetCardIndex = R.findIndex(R.propEq("id", cardId))(
+                        existingCards
+                    );
+                    const card = existingCards[targetCardIndex];
+                    const targetVoteIndex = R.findIndex(R.propEq("voter", "unknownVoter"))(
+                        card.votes
+                    );
+                    var vote = card.votes[targetVoteIndex];
+                    if (vote === undefined) {
+                        vote = {
+                            __typename: "Vote",
+                            count: 1,
+                            voter: "unknownVoter",
+                        }
+                        card.votes.push(vote)
+                    }
+                    vote.count = newVote.count
+
+                    proxy.writeQuery({
+                        query: GET_RETROSPECTIVE,
+                        variables: { id },
+                        data,
+                    });
+                },
+            });
+        };
     };
 
     getCards = columnName => {
