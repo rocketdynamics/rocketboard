@@ -50,7 +50,14 @@ class _RetroColumn extends React.Component {
     };
 
     render() {
-        const { cards, title, colour, grid, cardWidth, newVoteHandler } = this.props;
+        const {
+            cards,
+            title,
+            colour,
+            grid,
+            cardWidth,
+            newVoteHandler,
+        } = this.props;
 
         return (
             <div className="column">

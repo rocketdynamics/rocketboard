@@ -5,7 +5,13 @@ import * as R from "ramda";
 import Column from "./RetroColumn";
 import { DragDropContext } from "react-beautiful-dnd";
 
-import { GET_RETROSPECTIVE, ADD_CARD, MOVE_CARD, NEW_VOTE, CARD_SUBSCRIPTION } from "../queries";
+import {
+    GET_RETROSPECTIVE,
+    ADD_CARD,
+    MOVE_CARD,
+    NEW_VOTE,
+    CARD_SUBSCRIPTION,
+} from "../queries";
 
 const DEFAULT_BOARDS = ["Positive", "Mixed", "Negative"];
 
@@ -16,17 +22,15 @@ const DEFAULT_COLOURS = {
 };
 
 export class Retro extends React.Component {
-  componentDidMount() {
-    this.props.subscribeToNewComments();
-  }
+    componentDidMount() {
+        this.props.subscribeToNewComments();
+    }
 
-  render() {
-    return (
-        <div className={this.props.className}>
-            {this.props.children}
-        </div>
-    )
-  }
+    render() {
+        return (
+            <div className={this.props.className}>{this.props.children}</div>
+        );
+    }
 }
 
 class _Retrospective extends React.Component {
@@ -129,7 +133,7 @@ class _Retrospective extends React.Component {
                         __typename: "Vote",
                         count: numVotes + 1,
                         voter: "unknownVoter",
-                    }
+                    },
                 },
                 update: (proxy, { data: { newVote } }) => {
                     const data = proxy.readQuery({
@@ -142,19 +146,19 @@ class _Retrospective extends React.Component {
                         existingCards
                     );
                     const card = existingCards[targetCardIndex];
-                    const targetVoteIndex = R.findIndex(R.propEq("voter", "unknownVoter"))(
-                        card.votes
-                    );
+                    const targetVoteIndex = R.findIndex(
+                        R.propEq("voter", "unknownVoter")
+                    )(card.votes);
                     var vote = card.votes[targetVoteIndex];
                     if (vote === undefined) {
                         vote = {
                             __typename: "Vote",
                             count: 1,
                             voter: "unknownVoter",
-                        }
-                        card.votes.push(vote)
+                        };
+                        card.votes.push(vote);
                     }
-                    vote.count = newVote.count
+                    vote.count = newVote.count;
 
                     proxy.writeQuery({
                         query: GET_RETROSPECTIVE,
@@ -204,17 +208,10 @@ class _Retrospective extends React.Component {
                         <Retro
                             className="page-retrospective"
                             subscribeToNewComments={() =>
-                              subscribeToMore({
-                                document: CARD_SUBSCRIPTION,
-                                variables: { rId: id },
-                                updateQuery: (prev, { subscriptionData }) => {
-                                  if (!subscriptionData.data) return prev;
-                                  debugger;
-
-                                  return Object.assign({}, prev, {
-                                  });
-                                }
-                              })
+                                subscribeToMore({
+                                    document: CARD_SUBSCRIPTION,
+                                    variables: { rId: id },
+                                })
                             }
                         >
                             <DragDropContext onDragEnd={this.handleMoveCard}>
@@ -248,5 +245,5 @@ class _Retrospective extends React.Component {
 export default compose(
     graphql(ADD_CARD, { name: "addCard" }),
     graphql(MOVE_CARD, { name: "moveCard" }),
-    graphql(NEW_VOTE, { name: "newVote" }),
+    graphql(NEW_VOTE, { name: "newVote" })
 )(_Retrospective);
