@@ -18,6 +18,8 @@ class RetroCard extends React.Component {
             message: "",
             effects: [],
         };
+        this.id = 0;
+        this.cleanupTimeout = null;
     }
 
     toggleEditing = e => {
@@ -47,15 +49,26 @@ class RetroCard extends React.Component {
             return;
         }
 
+        var effect = {
+            expired: false,
+            key: this.id,
+        }
+        this.id += 1;
+
         this.setState({
-            effects: [...this.state.effects, 0],
+            effects: [...this.state.effects, effect],
         });
 
-        clearTimeout(this.cleanupTimeout);
+        setTimeout(() => {
+            effect.expired = true;
+        }, 400);
 
-        this.cleanupTimeout = setTimeout(() => {
-            this.setState({ effects: [] });
-        }, 500);
+        if (this.cleanupTimeout === null ) {
+            this.cleanupTimeout = setTimeout(() => {
+                this.setState({ effects: R.filter(R.propEq("expired", false), this.state.effects) });
+                this.cleanupTimeout = null;
+            }, 500);
+        }
     };
 
     componentWillReceiveProps(nextProps) {
@@ -92,8 +105,9 @@ class RetroCard extends React.Component {
                     text={numVotes}
                     onClick={newVoteHandler(numVotes, id)}
                 />
-                {this.state.effects.map((effect, i) => (
-                    <IconText
+                {this.state.effects.map((effect) => {
+                    if (effect.expired) return null;
+                    return <IconText
                         type="like-o"
                         className="vote-effect"
                         style={{
@@ -102,10 +116,10 @@ class RetroCard extends React.Component {
                             left: "0px",
                             pointerEvents: "none",
                         }}
-                        key={i}
+                        key={effect.key}
                         text={numVotes}
                     />
-                ))}
+                })}
             </span>
         );
 
