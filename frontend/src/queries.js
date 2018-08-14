@@ -58,6 +58,7 @@ export const CARD_SUBSCRIPTION = gql`
         cardChanged(rId: $rId) {
             id
             message
+            column
             votes {
                 count
                 voter

@@ -90,6 +90,8 @@ func (r *mutationResolver) MoveCard(ctx context.Context, id string, column strin
 	if err := r.s.MoveCard(id, column); err != nil {
 		return "", err
 	}
+	c, _ := r.s.GetCardById(id)
+	sendCardToSubs(c)
 	return column, nil
 }
 
@@ -97,18 +99,16 @@ func (r *mutationResolver) UpdateMessage(ctx context.Context, id string, message
 	if err := r.s.UpdateMessage(id, message); err != nil {
 		return "", err
 	}
+	c, _ := r.s.GetCardById(id)
+	sendCardToSubs(c)
 	return message, nil
 }
 
 func (r *mutationResolver) NewVote(ctx context.Context, cardId string) (model.Vote, error) {
 	v, err := r.s.NewVote(cardId, "unknownVoter")
 	if err == nil {
-		c, err := r.s.GetCardById(cardId)
-		if err == nil && cardSubs[c.RetrospectiveId] != nil {
-			for _, subChan := range cardSubs[c.RetrospectiveId] {
-				subChan <- *c
-			}
-		}
+		c, _ := r.s.GetCardById(cardId)
+		sendCardToSubs(c)
 		return *v, err
 	} else {
 		return model.Vote{}, err
@@ -120,11 +120,20 @@ func (r *mutationResolver) AddCardToRetrospective(ctx context.Context, rId strin
 	if err != nil {
 		return "", err
 	}
-
+	c, _ := r.s.GetCardById(id)
+	sendCardToSubs(c)
 	return id, nil
 }
 
 var cardSubs = make(map[string]map[string]chan model.Card)
+
+func sendCardToSubs(c *model.Card) {
+	if c != nil && cardSubs[c.RetrospectiveId] != nil {
+		for _, subChan := range cardSubs[c.RetrospectiveId] {
+			subChan <- *c
+		}
+	}
+}
 
 func (r *subscriptionResolver) CardChanged(ctx context.Context, rId string) (<-chan model.Card, error) {
 	subChan := make(chan model.Card, 1)
