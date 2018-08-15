@@ -21,6 +21,36 @@ const DEFAULT_COLOURS = {
     Negative: "#ff4d4f",
 };
 
+class _LiveRetrospective extends React.Component {
+    onCardChanged = null;
+
+    componentDidMount() {
+        const { id } = this.props;
+        this.onCardChanged = this.props.subscribe({
+            document: CARD_SUBSCRIPTION,
+            variables: { rId: id },
+            updateQuery: (prev, { subscriptionData: { data } }) => {
+                const newCard = data.cardChanged;
+                const existingCards = prev.retrospectiveById.cards;
+
+                if (!R.find(R.propEq("id", newCard.id))(existingCards)) {
+                    return {
+                        ...prev,
+                        retrospectiveById: {
+                            ...prev.retrospectiveById,
+                            cards: [...existingCards, newCard],
+                        },
+                    };
+                }
+            },
+        });
+    }
+
+    render() {
+        return this.props.children;
+    }
+}
+
 class _Retrospective extends React.Component {
     isSubscribed = false;
 
@@ -167,28 +197,6 @@ class _Retrospective extends React.Component {
         );
     };
 
-    handleSubscribeToMore = R.memoize(subscribe => {
-        const id = this.getRetrospectiveId();
-        subscribe({
-            document: CARD_SUBSCRIPTION,
-            variables: { rId: id },
-            updateQuery: (prev, { subscriptionData: { data } }) => {
-                const newCard = data.cardChanged;
-                const existingCards = prev.retrospectiveById.cards;
-
-                if (!R.find(R.propEq("id", newCard.id))(existingCards)) {
-                    return {
-                        ...prev,
-                        retrospectiveById: {
-                            ...prev.retrospectiveById,
-                            cards: [...existingCards, newCard],
-                        },
-                    };
-                }
-            },
-        });
-    });
-
     render() {
         const id = this.getRetrospectiveId();
         return (
@@ -216,30 +224,30 @@ class _Retrospective extends React.Component {
                         );
                     }
 
-                    this.handleSubscribeToMore(subscribeToMore);
-
                     return (
                         <div className="page-retrospective">
-                            <DragDropContext onDragEnd={this.handleMoveCard}>
-                                {DEFAULT_BOARDS.map(columnName => {
-                                    return (
-                                        <Column
-                                            key={columnName}
-                                            retrospectiveId={id}
-                                            isLoading={loading}
-                                            title={columnName}
-                                            colour={DEFAULT_COLOURS[columnName]}
-                                            newVoteHandler={this.handleNewVote}
-                                            onNewCard={this.handleAddCard(
-                                                columnName
-                                            )}
-                                            cards={this.getCards(columnName)(
-                                                data
-                                            )}
-                                        />
-                                    );
-                                })}
-                            </DragDropContext>
+                            <_LiveRetrospective id={id} subscribe={subscribeToMore}>
+                                <DragDropContext onDragEnd={this.handleMoveCard}>
+                                    {DEFAULT_BOARDS.map(columnName => {
+                                        return (
+                                            <Column
+                                                key={columnName}
+                                                retrospectiveId={id}
+                                                isLoading={loading}
+                                                title={columnName}
+                                                colour={DEFAULT_COLOURS[columnName]}
+                                                newVoteHandler={this.handleNewVote}
+                                                onNewCard={this.handleAddCard(
+                                                    columnName
+                                                )}
+                                                cards={this.getCards(columnName)(
+                                                    data
+                                                )}
+                                            />
+                                        );
+                                    })}
+                                </DragDropContext>
+                            </_LiveRetrospective>
                         </div>
                     );
                 }}

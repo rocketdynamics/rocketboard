@@ -109,6 +109,7 @@ class RetroCard extends React.Component {
                 id={`card-${id}`}
                 actions={[
                     this.voteIcon,
+                    <IconText type="play-circle-o" />,
                     <IconText type="message" text="0" />,
                     <IconText
                         type={this.state.isEditing ? "save" : "edit"}
