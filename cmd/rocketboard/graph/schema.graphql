@@ -34,8 +34,9 @@ type Card {
     updated: Time
     message: String
     creator: String
-    status: Int
     column: String
+
+    statuses: [Status]
     votes: [Vote]
 }
 
@@ -46,6 +47,13 @@ type Vote {
     cardId: String
     voter: String
     count: Int
+}
+
+type Status {
+    id: ID!
+    created: Time
+    cardId: String
+    type: Int
 }
 
 scalar Time

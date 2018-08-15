@@ -39,6 +39,7 @@ type ResolverRoot interface {
 type DirectiveRoot struct {
 }
 type CardResolver interface {
+	Statuses(ctx context.Context, obj *model.Card) ([]*model.Status, error)
 	Votes(ctx context.Context, obj *model.Card) ([]*model.Vote, error)
 }
 type RetrospectiveResolver interface {
@@ -155,10 +156,10 @@ func (ec *executionContext) _Card(ctx context.Context, sel ast.SelectionSet, obj
 			out.Values[i] = ec._Card_message(ctx, field, obj)
 		case "creator":
 			out.Values[i] = ec._Card_creator(ctx, field, obj)
-		case "status":
-			out.Values[i] = ec._Card_status(ctx, field, obj)
 		case "column":
 			out.Values[i] = ec._Card_column(ctx, field, obj)
+		case "statuses":
+			out.Values[i] = ec._Card_statuses(ctx, field, obj)
 		case "votes":
 			out.Values[i] = ec._Card_votes(ctx, field, obj)
 		default:
@@ -254,23 +255,6 @@ func (ec *executionContext) _Card_creator(ctx context.Context, field graphql.Col
 	return graphql.MarshalString(res)
 }
 
-func (ec *executionContext) _Card_status(ctx context.Context, field graphql.CollectedField, obj *model.Card) graphql.Marshaler {
-	rctx := graphql.GetResolverContext(ctx)
-	rctx.Object = "Card"
-	rctx.Args = nil
-	rctx.Field = field
-	rctx.PushField(field.Alias)
-	defer rctx.Pop()
-	resTmp := ec.FieldMiddleware(ctx, func(ctx context.Context) (interface{}, error) {
-		return obj.Status, nil
-	})
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(model.Status)
-	return graphql.MarshalInt(int(res))
-}
-
 func (ec *executionContext) _Card_column(ctx context.Context, field graphql.CollectedField, obj *model.Card) graphql.Marshaler {
 	rctx := graphql.GetResolverContext(ctx)
 	rctx.Object = "Card"
@@ -286,6 +270,44 @@ func (ec *executionContext) _Card_column(ctx context.Context, field graphql.Coll
 	}
 	res := resTmp.(string)
 	return graphql.MarshalString(res)
+}
+
+func (ec *executionContext) _Card_statuses(ctx context.Context, field graphql.CollectedField, obj *model.Card) graphql.Marshaler {
+	ctx = graphql.WithResolverContext(ctx, &graphql.ResolverContext{
+		Object: "Card",
+		Args:   nil,
+		Field:  field,
+	})
+	return graphql.Defer(func() (ret graphql.Marshaler) {
+		defer func() {
+			if r := recover(); r != nil {
+				userErr := ec.Recover(ctx, r)
+				ec.Error(ctx, userErr)
+				ret = graphql.Null
+			}
+		}()
+
+		resTmp := ec.FieldMiddleware(ctx, func(ctx context.Context) (interface{}, error) {
+			return ec.resolvers.Card().Statuses(ctx, obj)
+		})
+		if resTmp == nil {
+			return graphql.Null
+		}
+		res := resTmp.([]*model.Status)
+		arr1 := graphql.Array{}
+		for idx1 := range res {
+			arr1 = append(arr1, func() graphql.Marshaler {
+				rctx := graphql.GetResolverContext(ctx)
+				rctx.PushIndex(idx1)
+				defer rctx.Pop()
+				if res[idx1] == nil {
+					return graphql.Null
+				}
+				return ec._Status(ctx, field.Selections, res[idx1])
+			}())
+		}
+		return arr1
+	})
 }
 
 func (ec *executionContext) _Card_votes(ctx context.Context, field graphql.CollectedField, obj *model.Card) graphql.Marshaler {
@@ -820,6 +842,103 @@ func (ec *executionContext) _RootQuery___schema(ctx context.Context, field graph
 		return graphql.Null
 	}
 	return ec.___Schema(ctx, field.Selections, res)
+}
+
+var statusImplementors = []string{"Status"}
+
+// nolint: gocyclo, errcheck, gas, goconst
+func (ec *executionContext) _Status(ctx context.Context, sel ast.SelectionSet, obj *model.Status) graphql.Marshaler {
+	fields := graphql.CollectFields(ctx, sel, statusImplementors)
+
+	out := graphql.NewOrderedMap(len(fields))
+	for i, field := range fields {
+		out.Keys[i] = field.Alias
+
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Status")
+		case "id":
+			out.Values[i] = ec._Status_id(ctx, field, obj)
+		case "created":
+			out.Values[i] = ec._Status_created(ctx, field, obj)
+		case "cardId":
+			out.Values[i] = ec._Status_cardId(ctx, field, obj)
+		case "type":
+			out.Values[i] = ec._Status_type(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+
+	return out
+}
+
+func (ec *executionContext) _Status_id(ctx context.Context, field graphql.CollectedField, obj *model.Status) graphql.Marshaler {
+	rctx := graphql.GetResolverContext(ctx)
+	rctx.Object = "Status"
+	rctx.Args = nil
+	rctx.Field = field
+	rctx.PushField(field.Alias)
+	defer rctx.Pop()
+	resTmp := ec.FieldMiddleware(ctx, func(ctx context.Context) (interface{}, error) {
+		return obj.Id, nil
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	return graphql.MarshalID(res)
+}
+
+func (ec *executionContext) _Status_created(ctx context.Context, field graphql.CollectedField, obj *model.Status) graphql.Marshaler {
+	rctx := graphql.GetResolverContext(ctx)
+	rctx.Object = "Status"
+	rctx.Args = nil
+	rctx.Field = field
+	rctx.PushField(field.Alias)
+	defer rctx.Pop()
+	resTmp := ec.FieldMiddleware(ctx, func(ctx context.Context) (interface{}, error) {
+		return obj.Created, nil
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	return graphql.MarshalTime(res)
+}
+
+func (ec *executionContext) _Status_cardId(ctx context.Context, field graphql.CollectedField, obj *model.Status) graphql.Marshaler {
+	rctx := graphql.GetResolverContext(ctx)
+	rctx.Object = "Status"
+	rctx.Args = nil
+	rctx.Field = field
+	rctx.PushField(field.Alias)
+	defer rctx.Pop()
+	resTmp := ec.FieldMiddleware(ctx, func(ctx context.Context) (interface{}, error) {
+		return obj.CardId, nil
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	return graphql.MarshalString(res)
+}
+
+func (ec *executionContext) _Status_type(ctx context.Context, field graphql.CollectedField, obj *model.Status) graphql.Marshaler {
+	rctx := graphql.GetResolverContext(ctx)
+	rctx.Object = "Status"
+	rctx.Args = nil
+	rctx.Field = field
+	rctx.PushField(field.Alias)
+	defer rctx.Pop()
+	resTmp := ec.FieldMiddleware(ctx, func(ctx context.Context) (interface{}, error) {
+		return obj.Type, nil
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(model.StatusType)
+	return graphql.MarshalInt(int(res))
 }
 
 var subscriptionImplementors = []string{"Subscription"}
@@ -1934,8 +2053,9 @@ type Card {
     updated: Time
     message: String
     creator: String
-    status: Int
     column: String
+
+    statuses: [Status]
     votes: [Vote]
 }
 
@@ -1946,6 +2066,13 @@ type Vote {
     cardId: String
     voter: String
     count: Int
+}
+
+type Status {
+    id: ID!
+    created: Time
+    cardId: String
+    type: Int
 }
 
 scalar Time

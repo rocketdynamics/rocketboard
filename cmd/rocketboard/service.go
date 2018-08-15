@@ -17,8 +17,11 @@ type repository interface {
 	GetCardById(string) (*model.Card, error)
 	GetCardsByRetrospectiveId(string) ([]*model.Card, error)
 
-	NewVote(v *model.Vote) error
-	GetVotesByCardId(id string) ([]*model.Vote, error)
+	NewVote(*model.Vote) error
+	GetVotesByCardId(string) ([]*model.Vote, error)
+
+	NewStatus(*model.Status) error
+	GetStatusesByCardId(string) ([]*model.Status, error)
 }
 
 type rocketboardService struct {
@@ -130,6 +133,10 @@ func (s *rocketboardService) GetCardById(id string) (*model.Card, error) {
 
 func (s *rocketboardService) GetCardsForRetrospective(rId string) ([]*model.Card, error) {
 	return s.db.GetCardsByRetrospectiveId(rId)
+}
+
+func (s *rocketboardService) GetCardStatuses(id string) ([]*model.Status, error) {
+	return s.db.GetStatusesByCardId(id)
 }
 
 func (s *rocketboardService) NewUlid() string {

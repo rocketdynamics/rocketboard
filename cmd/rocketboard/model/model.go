@@ -13,15 +13,6 @@ type Retrospective struct {
 	Name string
 }
 
-type Status int
-
-const (
-	_ Status = iota
-	InProgress
-	Discussed
-	Archived
-)
-
 type Card struct {
 	Id string
 
@@ -33,8 +24,24 @@ type Card struct {
 	Message string
 	Creator string
 	Column  string
+}
 
-	Status Status
+type StatusType int
+
+const (
+	_ StatusType = iota
+	InProgress
+	Discussed
+	Archived
+)
+
+type Status struct {
+	Id string
+
+	Created time.Time
+	CardId  string
+
+	Type StatusType
 }
 
 type Vote struct {

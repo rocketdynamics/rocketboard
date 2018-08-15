@@ -16,6 +16,7 @@ type rocketboardService interface {
 	GetCardById(string) (*model.Card, error)
 	GetVotesByCardId(string) ([]*model.Vote, error)
 	NewVote(string, string) (*model.Vote, error)
+	GetCardStatuses(string) ([]*model.Status, error)
 
 	NewUlid() string
 }
@@ -72,6 +73,10 @@ func (r *rootResolver) RootQuery() RootQueryResolver {
 func (r *retrospectiveResolver) Cards(ctx context.Context, obj *model.Retrospective) ([]*model.Card, error) {
 	cards, _ := r.s.GetCardsForRetrospective(obj.Id)
 	return cards, nil
+}
+
+func (r *cardResolver) Statuses(ctx context.Context, obj *model.Card) ([]*model.Status, error) {
+	return r.s.GetCardStatuses(obj.Id)
 }
 
 func (r *cardResolver) Votes(ctx context.Context, obj *model.Card) ([]*model.Vote, error) {
