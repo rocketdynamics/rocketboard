@@ -10,6 +10,7 @@ import {
     ADD_CARD,
     MOVE_CARD,
     NEW_VOTE,
+    UPDATE_STATUS,
     CARD_SUBSCRIPTION,
 } from "../queries";
 
@@ -82,6 +83,7 @@ class _Retrospective extends React.Component {
                         __typename: "Card",
                         id: addCardToRetrospective,
                         votes: [],
+                        statuses: [],
                         ...newCard,
                     });
 
@@ -199,6 +201,48 @@ class _Retrospective extends React.Component {
         };
     };
 
+    handleSetStatus = (status, cardId) => {
+        return () => {
+            const id = this.getRetrospectiveId();
+            this.props.updateStatus({
+                variables: {
+                    id: cardId,
+                    status,
+                },
+                optimisticResponse: {
+                    __typename: "Mutation",
+                    updateStatus: {
+                        __typename: "Status",
+                        id: "pending-id",
+                        created: new Date(),
+                        cardId,
+                        type: status,
+                    },
+                },
+                update: (proxy, { data: { updateStatus } }) => {
+                    const data = proxy.readQuery({
+                        query: GET_RETROSPECTIVE,
+                        variables: { id },
+                    });
+
+                    const existingCards = data.retrospectiveById.cards;
+                    const targetCardIndex = R.findIndex(R.propEq("id", cardId))(
+                        existingCards
+                    );
+
+                    const card = existingCards[targetCardIndex];
+                    card.statuses = [...card.statuses, updateStatus];
+
+                    proxy.writeQuery({
+                        query: GET_RETROSPECTIVE,
+                        variables: { id },
+                        data,
+                    });
+                },
+            });
+        };
+    };
+
     getCards = columnName => {
         return R.pipe(
             R.pathOr([], ["retrospectiveById", "cards"]),
@@ -235,8 +279,14 @@ class _Retrospective extends React.Component {
 
                     return (
                         <div className="page-retrospective">
-                            <_LiveRetrospective id={id} subscribe={subscribeToMore}>
-                                <DragDropContext onDragEnd={this.handleMoveCard} onDragUpdate={this.cardDragUpdate}>
+                            <_LiveRetrospective
+                                id={id}
+                                subscribe={subscribeToMore}
+                            >
+                                <DragDropContext
+                                    onDragEnd={this.handleMoveCard}
+                                    onDragUpdate={this.cardDragUpdate}
+                                >
                                     {DEFAULT_BOARDS.map(columnName => {
                                         return (
                                             <Column
@@ -244,14 +294,19 @@ class _Retrospective extends React.Component {
                                                 retrospectiveId={id}
                                                 isLoading={loading}
                                                 title={columnName}
-                                                colour={DEFAULT_COLOURS[columnName]}
-                                                newVoteHandler={this.handleNewVote}
+                                                colour={
+                                                    DEFAULT_COLOURS[columnName]
+                                                }
+                                                onNewVote={this.handleNewVote}
                                                 onNewCard={this.handleAddCard(
                                                     columnName
                                                 )}
-                                                cards={this.getCards(columnName)(
-                                                    data
-                                                )}
+                                                onSetStatus={
+                                                    this.handleSetStatus
+                                                }
+                                                cards={this.getCards(
+                                                    columnName
+                                                )(data)}
                                             />
                                         );
                                     })}
@@ -268,5 +323,6 @@ class _Retrospective extends React.Component {
 export default compose(
     graphql(ADD_CARD, { name: "addCard" }),
     graphql(MOVE_CARD, { name: "moveCard" }),
-    graphql(NEW_VOTE, { name: "newVote" })
+    graphql(NEW_VOTE, { name: "newVote" }),
+    graphql(UPDATE_STATUS, { name: "updateStatus" })
 )(_Retrospective);

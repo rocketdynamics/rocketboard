@@ -51,6 +51,7 @@ type RootMutationResolver interface {
 	MoveCard(ctx context.Context, id string, column string) (string, error)
 	UpdateMessage(ctx context.Context, id string, message string) (string, error)
 	NewVote(ctx context.Context, cardId string) (model.Vote, error)
+	UpdateStatus(ctx context.Context, id string, status model.StatusType) (model.Status, error)
 }
 type RootQueryResolver interface {
 	RetrospectiveByID(ctx context.Context, id string) (*model.Retrospective, error)
@@ -512,6 +513,8 @@ func (ec *executionContext) _RootMutation(ctx context.Context, sel ast.Selection
 			out.Values[i] = ec._RootMutation_updateMessage(ctx, field)
 		case "newVote":
 			out.Values[i] = ec._RootMutation_newVote(ctx, field)
+		case "updateStatus":
+			out.Values[i] = ec._RootMutation_updateStatus(ctx, field)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -718,6 +721,45 @@ func (ec *executionContext) _RootMutation_newVote(ctx context.Context, field gra
 	}
 	res := resTmp.(model.Vote)
 	return ec._Vote(ctx, field.Selections, &res)
+}
+
+func (ec *executionContext) _RootMutation_updateStatus(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		var err error
+		arg0, err = graphql.UnmarshalID(tmp)
+		if err != nil {
+			ec.Error(ctx, err)
+			return graphql.Null
+		}
+	}
+	args["id"] = arg0
+	var arg1 model.StatusType
+	if tmp, ok := rawArgs["status"]; ok {
+		var err error
+		err = (&arg1).UnmarshalGQL(tmp)
+		if err != nil {
+			ec.Error(ctx, err)
+			return graphql.Null
+		}
+	}
+	args["status"] = arg1
+	rctx := graphql.GetResolverContext(ctx)
+	rctx.Object = "RootMutation"
+	rctx.Args = args
+	rctx.Field = field
+	rctx.PushField(field.Alias)
+	defer rctx.Pop()
+	resTmp := ec.FieldMiddleware(ctx, func(ctx context.Context) (interface{}, error) {
+		return ec.resolvers.RootMutation().UpdateStatus(ctx, args["id"].(string), args["status"].(model.StatusType))
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(model.Status)
+	return ec._Status(ctx, field.Selections, &res)
 }
 
 var rootQueryImplementors = []string{"RootQuery"}
@@ -938,7 +980,7 @@ func (ec *executionContext) _Status_type(ctx context.Context, field graphql.Coll
 		return graphql.Null
 	}
 	res := resTmp.(model.StatusType)
-	return graphql.MarshalInt(int(res))
+	return res
 }
 
 var subscriptionImplementors = []string{"Subscription"}
@@ -2032,10 +2074,17 @@ type RootMutation {
     moveCard(id: ID!, column: String!): String!
     updateMessage(id: ID!, message: String!): String!
     newVote(cardId: ID!): Vote!
+    updateStatus(id: ID!, status: StatusType!): Status!
 }
 
 type Subscription {
   cardChanged(rId: String!): Card!
+}
+
+enum StatusType {
+    InProgress
+    Discussed
+    Archived
 }
 
 type Retrospective {
@@ -2072,7 +2121,7 @@ type Status {
     id: ID!
     created: Time
     cardId: String
-    type: Int
+    type: StatusType
 }
 
 scalar Time

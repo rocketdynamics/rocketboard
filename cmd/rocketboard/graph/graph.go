@@ -17,6 +17,8 @@ type rocketboardService interface {
 	GetVotesByCardId(string) ([]*model.Vote, error)
 	NewVote(string, string) (*model.Vote, error)
 	GetCardStatuses(string) ([]*model.Status, error)
+	SetStatus(string, model.StatusType) (string, error)
+	GetStatusById(string) (*model.Status, error)
 
 	NewUlid() string
 }
@@ -128,6 +130,20 @@ func (r *mutationResolver) AddCardToRetrospective(ctx context.Context, rId strin
 	c, _ := r.s.GetCardById(id)
 	sendCardToSubs(c)
 	return id, nil
+}
+
+func (r *mutationResolver) UpdateStatus(ctx context.Context, id string, status model.StatusType) (model.Status, error) {
+	sid, err := r.s.SetStatus(id, status)
+	if err != nil {
+		return model.Status{}, err
+	}
+
+	s, err := r.s.GetStatusById(sid)
+	if err != nil {
+		return model.Status{}, err
+	}
+
+	return *s, nil
 }
 
 var cardSubs = make(map[string]map[string]chan model.Card)

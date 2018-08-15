@@ -1,7 +1,8 @@
 import React from "react";
 import * as R from "ramda";
 
-import { Card, Icon, Input } from "antd";
+import { Card, Icon, Input, Tag } from "antd";
+import TimeAgo from "react-timeago";
 
 const IconText = ({ type, text = "", ...otherProps }) => (
     <span {...otherProps}>
@@ -80,9 +81,29 @@ class RetroCard extends React.Component {
         }
     }
 
+    getCurrentStatus = () => {
+        return R.last(this.props.data.statuses);
+    };
+
+    getStatusType = status => {
+        return R.propOr("", "type")(status);
+    };
+
+    hasNoStatus = () => {
+        return R.isNil(this.getCurrentStatus());
+    };
+
+    isInProgress = () => {
+        return this.getStatusType(this.getCurrentStatus()) === "InProgress";
+    };
+
+    isDiscussed = () => {
+        return this.getStatusType(this.getCurrentStatus()) === "Discussed";
+    };
+
     render() {
         const { id, votes } = this.props.data;
-        const { newVoteHandler } = this.props;
+        const { onNewVote, onSetStatus } = this.props;
         const numVotes = R.sum(R.pluck("count")(votes));
 
         let body = <p>{this.props.data.message}</p>;
@@ -103,7 +124,7 @@ class RetroCard extends React.Component {
                     type="like-o"
                     style={{ position: "relative" }}
                     text={numVotes}
-                    onClick={newVoteHandler(numVotes, id)}
+                    onClick={onNewVote(numVotes, id)}
                 />
                 {this.state.effects.map((effect) => {
                     if (effect.expired) return null;
@@ -123,24 +144,52 @@ class RetroCard extends React.Component {
             </span>
         );
 
+        let actions = [
+            this.voteIcon,
+            <IconText type="message" text="0" />,
+            <IconText
+                type={this.state.isEditing ? "save" : "edit"}
+                onClick={this.toggleEditing}
+            />,
+        ];
+
+        if (this.hasNoStatus()) {
+            actions = [
+                ...actions,
+                <IconText
+                    type="play-circle-o"
+                    onClick={onSetStatus("InProgress", id)}
+                />,
+            ];
+        } else if (this.isInProgress()) {
+            actions = [
+                ...actions,
+                <IconText
+                    type="check-circle"
+                    onClick={onSetStatus("Discussed", id)}
+                />,
+            ];
+        }
+
         return (
             <Card
                 id={`card-${id}`}
-                actions={[
-                    this.voteIcon,
-                    <IconText type="play-circle-o" />,
-                    <IconText type="message" text="0" />,
-                    <IconText
-                        type={this.state.isEditing ? "save" : "edit"}
-                        onClick={this.toggleEditing}
-                    />,
-                ]}
+                actions={actions}
                 style={{
                     width: this.props.cardWidth || "100%",
                     backgroundColor: this.props.colour,
                 }}
             >
                 {body}
+
+                <div>
+                    {this.isInProgress() && (
+                        <Tag>
+                            In Discussion:{" "}
+                            <TimeAgo date={this.getCurrentStatus().created} />
+                        </Tag>
+                    )}
+                </div>
             </Card>
         );
     }

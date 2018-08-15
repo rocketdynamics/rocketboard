@@ -56,7 +56,8 @@ class _RetroColumn extends React.Component {
             colour,
             grid,
             cardWidth,
-            newVoteHandler,
+            onNewVote,
+            onSetStatus,
         } = this.props;
 
         return (
@@ -106,8 +107,9 @@ class _RetroColumn extends React.Component {
                                                                 .handleMessageUpdated
                                                         }
                                                         data={item}
-                                                        newVoteHandler={
-                                                            newVoteHandler
+                                                        onNewVote={onNewVote}
+                                                        onSetStatus={
+                                                            onSetStatus
                                                         }
                                                         cardWidth={cardWidth}
                                                         colour={colour}

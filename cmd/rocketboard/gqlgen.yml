@@ -12,3 +12,5 @@ models:
     model: github.com/arachnys/rocketboard/cmd/rocketboard/model.Vote
   Status:
     model: github.com/arachnys/rocketboard/cmd/rocketboard/model.Status
+  StatusType:
+    model: github.com/arachnys/rocketboard/cmd/rocketboard/model.StatusType

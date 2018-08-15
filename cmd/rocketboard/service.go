@@ -21,6 +21,7 @@ type repository interface {
 	GetVotesByCardId(string) ([]*model.Vote, error)
 
 	NewStatus(*model.Status) error
+	GetStatusById(id string) (*model.Status, error)
 	GetStatusesByCardId(string) ([]*model.Status, error)
 }
 
@@ -137,6 +138,31 @@ func (s *rocketboardService) GetCardsForRetrospective(rId string) ([]*model.Card
 
 func (s *rocketboardService) GetCardStatuses(id string) ([]*model.Status, error) {
 	return s.db.GetStatusesByCardId(id)
+}
+
+func (s *rocketboardService) GetStatusById(id string) (*model.Status, error) {
+	return s.db.GetStatusById(id)
+}
+
+func (s *rocketboardService) SetStatus(id string, t model.StatusType) (string, error) {
+	c, err := s.db.GetCardById(id)
+	if err != nil {
+		return "", err
+	}
+
+	statusId := newUlid()
+	status := &model.Status{
+		Id:      statusId,
+		Created: time.Now(),
+		CardId:  c.Id,
+		Type:    t,
+	}
+
+	if err := s.db.NewStatus(status); err != nil {
+		return "", err
+	}
+
+	return statusId, nil
 }
 
 func (s *rocketboardService) NewUlid() string {

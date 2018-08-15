@@ -13,6 +13,7 @@ type inmemRepository struct {
 	votesById     map[string]*model.Vote
 	votesByCardId map[string][]*model.Vote
 
+	statusesById     map[string]*model.Status
 	statusesByCardId map[string][]*model.Status
 }
 
@@ -106,13 +107,26 @@ func (db *inmemRepository) GetVotesByCardId(id string) ([]*model.Vote, error) {
 }
 
 func (db *inmemRepository) NewStatus(s *model.Status) error {
+	if db.statusesById == nil {
+		db.statusesById = make(map[string]*model.Status)
+	}
 	if db.statusesByCardId == nil {
 		db.statusesByCardId = make(map[string][]*model.Status)
 	}
 
+	db.statusesById[s.Id] = s
 	db.statusesByCardId[s.CardId] = append(db.statusesByCardId[s.CardId], s)
 
 	return nil
+}
+
+func (db *inmemRepository) GetStatusById(id string) (*model.Status, error) {
+	s, ok := db.statusesById[id]
+	if !ok {
+		return nil, errors.Errorf("status with ID `%s` does not exist", id)
+	}
+
+	return s, nil
 }
 
 func (db *inmemRepository) GetStatusesByCardId(id string) ([]*model.Status, error) {

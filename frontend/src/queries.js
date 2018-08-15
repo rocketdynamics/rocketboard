@@ -17,6 +17,10 @@ export const GET_RETROSPECTIVE = gql`
                 id
                 message
                 column
+                statuses {
+                    created
+                    type
+                }
                 votes {
                     voter
                     count
@@ -41,6 +45,16 @@ export const MOVE_CARD = gql`
 export const UPDATE_MESSAGE = gql`
     mutation UpdateMessage($id: ID!, $message: String!) {
         updateMessage(id: $id, message: $message)
+    }
+`;
+
+export const UPDATE_STATUS = gql`
+    mutation UpdateStatus($id: ID!, $status: StatusType!) {
+        updateStatus(id: $id, status: $status) {
+            id
+            created
+            type
+        }
     }
 `;
 

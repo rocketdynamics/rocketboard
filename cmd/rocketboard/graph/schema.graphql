@@ -13,10 +13,17 @@ type RootMutation {
     moveCard(id: ID!, column: String!): String!
     updateMessage(id: ID!, message: String!): String!
     newVote(cardId: ID!): Vote!
+    updateStatus(id: ID!, status: StatusType!): Status!
 }
 
 type Subscription {
   cardChanged(rId: String!): Card!
+}
+
+enum StatusType {
+    InProgress
+    Discussed
+    Archived
 }
 
 type Retrospective {
@@ -53,7 +60,7 @@ type Status {
     id: ID!
     created: Time
     cardId: String
-    type: Int
+    type: StatusType
 }
 
 scalar Time

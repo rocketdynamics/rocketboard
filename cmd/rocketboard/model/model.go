@@ -1,6 +1,11 @@
+//go:generate enumer -type=StatusType
+
 package model
 
 import (
+	"fmt"
+	"io"
+	"strconv"
 	"time"
 )
 
@@ -24,6 +29,21 @@ type Card struct {
 	Message string
 	Creator string
 	Column  string
+}
+
+func (t *StatusType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	var err error
+	*t, err = StatusTypeString(str)
+	return err
+}
+
+func (t StatusType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(t.String()))
 }
 
 type StatusType int
