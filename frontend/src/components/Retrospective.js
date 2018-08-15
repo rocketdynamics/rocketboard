@@ -97,14 +97,16 @@ class _Retrospective extends React.Component {
         };
     };
 
-    cardDragUpdate = ({draggableId, destination, source, ...args}) => {
+    cardDragUpdate = ({ draggableId, destination, source, ...args }) => {
         const cardElem = document.querySelector(`#card-${draggableId}`);
-        if( destination ) {
-            cardElem.style.backgroundColor = DEFAULT_COLOURS[destination.droppableId];
+        if (destination) {
+            cardElem.style.backgroundColor =
+                DEFAULT_COLOURS[destination.droppableId];
         } else {
-            cardElem.style.backgroundColor = DEFAULT_COLOURS[source.droppableId];
+            cardElem.style.backgroundColor =
+                DEFAULT_COLOURS[source.droppableId];
         }
-    }
+    };
 
     handleMoveCard = result => {
         const id = this.getRetrospectiveId();

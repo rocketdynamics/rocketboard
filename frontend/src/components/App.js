@@ -25,9 +25,9 @@ class App extends React.Component {
         return (
             <Layout className="layout">
                 <Header className="header">
-                    <Link to="/">
-                        <h1 className="logo">Rocketboard</h1>
-                    </Link>
+                    <h1 className="logo">
+                        <Link to="/">Rocketboard</Link>
+                    </h1>
 
                     <Menu mode="horizontal" className="menu">
                         <Menu.Item

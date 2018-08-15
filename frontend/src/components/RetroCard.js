@@ -53,7 +53,7 @@ class RetroCard extends React.Component {
         var effect = {
             expired: false,
             key: this.id,
-        }
+        };
         this.id += 1;
 
         this.setState({
@@ -64,9 +64,14 @@ class RetroCard extends React.Component {
             effect.expired = true;
         }, 400);
 
-        if (this.cleanupTimeout === null ) {
+        if (this.cleanupTimeout === null) {
             this.cleanupTimeout = setTimeout(() => {
-                this.setState({ effects: R.filter(R.propEq("expired", false), this.state.effects) });
+                this.setState({
+                    effects: R.filter(
+                        R.propEq("expired", false),
+                        this.state.effects
+                    ),
+                });
                 this.cleanupTimeout = null;
             }, 500);
         }
@@ -126,20 +131,22 @@ class RetroCard extends React.Component {
                     text={numVotes}
                     onClick={onNewVote(numVotes, id)}
                 />
-                {this.state.effects.map((effect) => {
+                {this.state.effects.map(effect => {
                     if (effect.expired) return null;
-                    return <IconText
-                        type="like-o"
-                        className="vote-effect"
-                        style={{
-                            position: "absolute",
-                            top: "0px",
-                            left: "0px",
-                            pointerEvents: "none",
-                        }}
-                        key={effect.key}
-                        text={numVotes}
-                    />
+                    return (
+                        <IconText
+                            type="like-o"
+                            className="vote-effect"
+                            style={{
+                                position: "absolute",
+                                top: "0px",
+                                left: "0px",
+                                pointerEvents: "none",
+                            }}
+                            key={effect.key}
+                            text={numVotes}
+                        />
+                    );
                 })}
             </span>
         );
@@ -175,6 +182,7 @@ class RetroCard extends React.Component {
             <Card
                 id={`card-${id}`}
                 actions={actions}
+                className="card"
                 style={{
                     width: this.props.cardWidth || "100%",
                     backgroundColor: this.props.colour,
