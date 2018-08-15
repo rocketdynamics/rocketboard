@@ -1,13 +1,42 @@
 package main
 
 import (
+	"context"
+	"encoding/base64"
 	"github.com/99designs/gqlgen/handler"
 	"github.com/arachnys/rocketboard/cmd/rocketboard/graph"
 	"github.com/arachnys/rocketboard/cmd/rocketboard/repository/inmem"
 	"log"
 	"net/http"
+	"regexp"
+	"strings"
 	"time"
 )
+
+func WithEmail(base http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+		email := "unknown"
+
+		cookie, err := r.Cookie("_oauth2_proxy")
+		if err == nil {
+			parts := strings.Split(cookie.Value, ":")
+			if len(parts) > 0 {
+				cookieValue, err := base64.StdEncoding.DecodeString(parts[0])
+				if err != nil {
+					re := regexp.MustCompile("email:([^\\s]+)")
+					matches := re.FindStringSubmatch(string(cookieValue))
+					if len(matches) > 1 {
+						email = matches[1]
+					}
+				}
+			}
+		}
+		ctx = context.WithValue(ctx, "email", email)
+		r = r.WithContext(ctx)
+		base.ServeHTTP(w, r)
+	})
+}
 
 func main() {
 	svc := NewRocketboardService(inmem.NewRepository())
@@ -24,11 +53,11 @@ func main() {
 		http.Redirect(w, r, "/retrospective/"+id, http.StatusFound)
 	})
 
-	http.Handle("/query", handler.GraphQL(
+	http.Handle("/query", WithEmail(handler.GraphQL(
 		graph.NewExecutableSchema(graph.Config{
 			Resolvers: graph.NewResolver(svc),
 		}),
-	))
+	)))
 
 	http.HandleFunc("/retrospective/", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "./public/index.html")

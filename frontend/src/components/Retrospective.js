@@ -165,7 +165,7 @@ class _Retrospective extends React.Component {
                     newVote: {
                         __typename: "Vote",
                         count: numVotes + 1,
-                        voter: "unknownVoter",
+                        voter: "unknown",
                     },
                 },
                 update: (proxy, { data: { newVote } }) => {
@@ -180,14 +180,14 @@ class _Retrospective extends React.Component {
                     );
                     const card = existingCards[targetCardIndex];
                     const targetVoteIndex = R.findIndex(
-                        R.propEq("voter", "unknownVoter")
+                        R.propEq("voter", "unknown")
                     )(card.votes);
                     var vote = card.votes[targetVoteIndex];
                     if (vote === undefined) {
                         vote = {
                             __typename: "Vote",
                             count: 1,
-                            voter: "unknownVoter",
+                            voter: "unknown",
                         };
                         card.votes.push(vote);
                     }

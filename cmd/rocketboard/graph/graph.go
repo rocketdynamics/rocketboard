@@ -112,7 +112,7 @@ func (r *mutationResolver) UpdateMessage(ctx context.Context, id string, message
 }
 
 func (r *mutationResolver) NewVote(ctx context.Context, cardId string) (model.Vote, error) {
-	v, err := r.s.NewVote(cardId, "unknownVoter")
+	v, err := r.s.NewVote(cardId, ctx.Value("email").(string))
 	if err == nil {
 		c, _ := r.s.GetCardById(cardId)
 		sendCardToSubs(c)
@@ -123,7 +123,7 @@ func (r *mutationResolver) NewVote(ctx context.Context, cardId string) (model.Vo
 }
 
 func (r *mutationResolver) AddCardToRetrospective(ctx context.Context, rId string, column *string, message *string) (string, error) {
-	id, err := r.s.AddCardToRetrospective(rId, *column, *message, "unknown user")
+	id, err := r.s.AddCardToRetrospective(rId, *column, *message, ctx.Value("email").(string))
 	if err != nil {
 		return "", err
 	}
