@@ -33,7 +33,11 @@ deploy/qa:
         ${HELM_RELEASE_QA} \
         charts/${APP_NAME} \
         --set ingress.hosts[0]=${HELM_QA_DEPLOY_URL} \
+        --set ingress.tls[0].hosts[0]=${HELM_QA_DEPLOY_URL} \
         --set ingress.tls[0].secretName=k8s-dev-wildcard-tls \
+        --set oauth2-proxy.ingress.hosts[0]=${HELM_QA_DEPLOY_URL} \
+        --set oauth2-proxy.ingress.tls[0].hosts[0]=${HELM_QA_DEPLOY_URL} \
+        --set oauth2-proxy.ingress.tls[0].secretName=k8s-dev-wildcard-tls \
         --set-string image.tag=${VERSION} \
         --set oauth2-proxy.extraArgs.upstream="http://${HELM_RELEASE_QA}" \
         -f charts/${APP_NAME}/values.yaml \
