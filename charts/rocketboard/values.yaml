@@ -7,6 +7,10 @@ image:
 
 ingress:
   enabled: true
+  path: /
+  annotations:
+    nginx.ingress.kubernetes.io/auth-url: "https://$host/oauth2/auth"
+    nginx.ingress.kubernetes.io/auth-signin: "https://$host/oauth2/start?rd=$request_uri"
   hosts:
     - rocketboard.arachnys.com
   tls:
@@ -24,7 +28,8 @@ oauth2-proxy:
     port: 4180
 
   ingress:
-    enabled: false
+    enabled: true
+    path: /oauth2
     hosts:
       - rocketboard.arachnys.com
     tls:
