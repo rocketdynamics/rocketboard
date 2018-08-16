@@ -21,17 +21,21 @@ spec:
     spec:
       imagePullSecrets:
         - name: arachnys-docker
+{{- if index .Values.persistence.enabled }}
       volumes:
         - name: rocketboard-data
           persistentVolumeClaim:
             claimName: {{ template "rocketboard.fullname" . }}
+{{- end }}
       containers:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+{{- if index .Values.persistence.enabled }}
           volumeMounts:
           - mountPath: "/data"
             name: rocketboard-data
+{{- end }}
           env:
             - name: ROCKET_DATA_DIR
               value: /data
