@@ -46,7 +46,7 @@ class RetroCard extends React.Component {
         var effect = {
             expired: false,
             key: this.id,
-            randomId: Math.floor(Math.random() * 99),
+            randomId: Math.floor(Math.random() * 100),
             numVotes: numVotes,
         };
         this.id += 1;
