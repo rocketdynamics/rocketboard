@@ -143,6 +143,11 @@ func (r *mutationResolver) UpdateStatus(ctx context.Context, id string, status m
 		return model.Status{}, err
 	}
 
+	go func() {
+		c, _ := r.s.GetCardById(id)
+		r.sendCardToSubs(c)
+	}()
+
 	return *s, nil
 }
 

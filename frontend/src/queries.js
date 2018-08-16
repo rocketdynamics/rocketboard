@@ -18,6 +18,7 @@ export const GET_RETROSPECTIVE = gql`
                 message
                 column
                 statuses {
+                    id
                     created
                     type
                 }
@@ -73,6 +74,11 @@ export const CARD_SUBSCRIPTION = gql`
             id
             message
             column
+            statuses {
+                id
+                created
+                type
+            }
             votes {
                 count
                 voter

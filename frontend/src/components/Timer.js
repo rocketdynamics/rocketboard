@@ -26,6 +26,10 @@ class Timer extends React.Component {
         )}`;
     };
 
+    shouldComponentUpdate(nextProps, nextState) {
+        return nextState.duration !== this.state.duration;
+    }
+
     render() {
         return (
             <React.Fragment>

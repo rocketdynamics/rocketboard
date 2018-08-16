@@ -49,6 +49,11 @@ class _RetroColumn extends React.Component {
         });
     };
 
+    shouldComponentUpdate(nextProps, nextState) {
+        // Update if cards changes
+        return !R.equals(nextProps.cards, this.props.cards);
+    }
+
     render() {
         const { cards, title, colour, onNewVote, onSetStatus } = this.props;
 
