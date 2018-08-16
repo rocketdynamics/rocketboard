@@ -50,14 +50,7 @@ class _RetroColumn extends React.Component {
     };
 
     render() {
-        const {
-            cards,
-            title,
-            colour,
-            cardWidth,
-            onNewVote,
-            onSetStatus,
-        } = this.props;
+        const { cards, title, colour, onNewVote, onSetStatus } = this.props;
 
         return (
             <div className="column">
@@ -105,6 +98,7 @@ class _RetroColumn extends React.Component {
                                     )}
                                 </Draggable>
                             ))}
+                            <div>{provided.placeholder}</div>
                         </div>
                     )}
                 </Droppable>
@@ -117,7 +111,6 @@ _RetroColumn.propTypes = {
     title: PropTypes.string.isRequired,
     colour: PropTypes.string.isRequired,
     layout: PropTypes.string,
-    cardWidth: PropTypes.number,
 };
 
 export default compose(graphql(UPDATE_MESSAGE, { name: "updateMessage" }))(

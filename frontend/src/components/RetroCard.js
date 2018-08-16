@@ -1,14 +1,7 @@
 import React from "react";
 import * as R from "ramda";
 
-import { Icon, Input } from "antd";
-
-const IconText = ({ type, text = "", ...otherProps }) => (
-    <span {...otherProps}>
-        <Icon type={type} style={{ marginRight: 8 }} />
-        {text}
-    </span>
-);
+import { Input } from "antd";
 
 class RetroCard extends React.Component {
     constructor(props) {
@@ -52,6 +45,7 @@ class RetroCard extends React.Component {
         var effect = {
             expired: false,
             key: this.id,
+            randomId: Math.floor(Math.random() * 99),
         };
         this.id += 1;
 
@@ -111,6 +105,17 @@ class RetroCard extends React.Component {
         const numVotes = R.sum(R.pluck("count")(votes));
 
         let body = <p>{this.props.data.message}</p>;
+        if (this.state.isEditing) {
+            body = (
+                <Input.TextArea
+                    onChange={this.handleMessageChange}
+                    onBlur={this.toggleEditing}
+                    className="card-input"
+                    rows={4}
+                    value={this.state.message}
+                />
+            );
+        }
 
         const vote = (
             <div className="card-action-clap" onClick={onNewVote(id)}>
@@ -124,13 +129,22 @@ class RetroCard extends React.Component {
                 {this.state.effects.map(effect => {
                     if (effect.expired) return null;
                     return (
-                        <div key={effect.key} className="vote-effect">
-                            <span role="img" aria-label="clap">
-                                👏
-                            </span>{" "}
-                            <span className="card-action-count">
-                                {numVotes}
-                            </span>
+                        <div id={effect.key} key={effect.key}>
+                            <div
+                                className="vote-effect"
+                                style={{
+                                    animation: `card-voting-${
+                                        effect.randomId
+                                    } 400ms ease forwards`,
+                                }}
+                            >
+                                <span role="img" aria-label="clap">
+                                    👏
+                                </span>{" "}
+                                <span className="card-action-count">
+                                    {numVotes}
+                                </span>
+                            </div>
                         </div>
                     );
                 })}
@@ -145,7 +159,9 @@ class RetroCard extends React.Component {
                     borderTop: `6px solid ${this.props.colour}`,
                 }}
             >
-                {body}
+                <div onDoubleClick={this.toggleEditing} className="card-body">
+                    {body}
+                </div>
 
                 {vote}
             </div>

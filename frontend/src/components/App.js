@@ -11,6 +11,7 @@ import RetrospectivePage from "./Retrospective";
 // Styling
 import { Layout, Menu } from "antd";
 import "./App.css";
+import "./Effects.css";
 import "antd/dist/antd.css";
 
 const { Header, Content, Footer } = Layout;
