@@ -29,6 +29,7 @@ FROM alpine
 
 WORKDIR /app
 RUN apk add -U ca-certificates curl
+RUN mkdir -p /data
 
 COPY --from=frontend-builder /frontend/build /app/public
 COPY --from=backend-builder /go/bin/rocketboard /usr/bin/rocketboard
