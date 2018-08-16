@@ -98,7 +98,7 @@ func (r *mutationResolver) MoveCard(ctx context.Context, id string, column strin
 		return "", err
 	}
 	c, _ := r.s.GetCardById(id)
-	sendCardToSubs(c)
+	r.sendCardToSubs(c)
 	return column, nil
 }
 
@@ -107,7 +107,7 @@ func (r *mutationResolver) UpdateMessage(ctx context.Context, id string, message
 		return "", err
 	}
 	c, _ := r.s.GetCardById(id)
-	sendCardToSubs(c)
+	r.sendCardToSubs(c)
 	return message, nil
 }
 
@@ -115,7 +115,7 @@ func (r *mutationResolver) NewVote(ctx context.Context, cardId string) (model.Vo
 	v, err := r.s.NewVote(cardId, ctx.Value("email").(string))
 	if err == nil {
 		c, _ := r.s.GetCardById(cardId)
-		sendCardToSubs(c)
+		r.sendCardToSubs(c)
 		return *v, err
 	} else {
 		return model.Vote{}, err
@@ -128,7 +128,7 @@ func (r *mutationResolver) AddCardToRetrospective(ctx context.Context, rId strin
 		return "", err
 	}
 	c, _ := r.s.GetCardById(id)
-	sendCardToSubs(c)
+	r.sendCardToSubs(c)
 	return id, nil
 }
 
@@ -148,12 +148,14 @@ func (r *mutationResolver) UpdateStatus(ctx context.Context, id string, status m
 
 var cardSubs = make(map[string]map[string]chan model.Card)
 
-func sendCardToSubs(c *model.Card) {
+func (r *rootResolver) sendCardToSubs(c *model.Card) {
+	r.mu.Lock()
 	if c != nil && cardSubs[c.RetrospectiveId] != nil {
 		for _, subChan := range cardSubs[c.RetrospectiveId] {
 			subChan <- *c
 		}
 	}
+	r.mu.Unlock()
 }
 
 func (r *subscriptionResolver) CardChanged(ctx context.Context, rId string) (<-chan model.Card, error) {
