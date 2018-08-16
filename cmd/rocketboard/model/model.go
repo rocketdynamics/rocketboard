@@ -24,7 +24,7 @@ type Card struct {
 	Created time.Time
 	Updated time.Time
 
-	RetrospectiveId string
+	RetrospectiveId string `db:"retrospectiveId"`
 
 	Message string
 	Creator string
@@ -59,7 +59,7 @@ type Status struct {
 	Id string
 
 	Created time.Time
-	CardId  string
+	CardId  string `db:"cardId"`
 
 	Type StatusType
 }
@@ -70,7 +70,7 @@ type Vote struct {
 	Created time.Time
 	Updated time.Time
 
-	CardId string
+	CardId string `db:"cardId"`
 
 	Voter string
 	Count int

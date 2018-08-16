@@ -2,10 +2,13 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"encoding/base64"
 	"github.com/99designs/gqlgen/handler"
 	"github.com/arachnys/rocketboard/cmd/rocketboard/graph"
-	"github.com/arachnys/rocketboard/cmd/rocketboard/repository/inmem"
+	rocketSql "github.com/arachnys/rocketboard/cmd/rocketboard/repository/sql"
+	_ "github.com/mattn/go-sqlite3"
+	// "github.com/arachnys/rocketboard/pkg/dqlite"
 	"log"
 	"net/http"
 	"regexp"
@@ -39,7 +42,11 @@ func WithEmail(base http.Handler) http.Handler {
 }
 
 func main() {
-	svc := NewRocketboardService(inmem.NewRepository())
+	db, err := sql.Open("sqlite3", "rocket.db")
+	if err != nil {
+		log.Fatal(err)
+	}
+	svc := NewRocketboardService(rocketSql.NewRepository(db))
 
 	http.Handle("/query-playground", handler.Playground("Rocketboard", "/query"))
 	http.HandleFunc("/retrospective/new", func(w http.ResponseWriter, r *http.Request) {
