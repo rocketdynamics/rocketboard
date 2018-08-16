@@ -24,6 +24,21 @@
   version = "v1.2.0"
 
 [[projects]]
+  branch = "master"
+  name = "github.com/jmoiron/sqlx"
+  packages = [
+    ".",
+    "reflectx"
+  ]
+  revision = "0dae4fefe7c0e190f7b5a78dac28a1c82cc8d849"
+
+[[projects]]
+  name = "github.com/mattn/go-sqlite3"
+  packages = ["."]
+  revision = "25ecb14adfc7543176f7d85291ec7dba82c6f7e4"
+  version = "v1.9.0"
+
+[[projects]]
   name = "github.com/microcosm-cc/bluemonday"
   packages = ["."]
   revision = "dafebb5b6ff2861a0d69af64991e10866c19be85"
@@ -53,7 +68,7 @@
     "validator",
     "validator/rules"
   ]
-  revision = "c063da4fdb845f11bd524096452558e8759103b6"
+  revision = "04021c23cb3810632117e34c3e0e3d415a202c63"
 
 [[projects]]
   branch = "master"
@@ -62,11 +77,11 @@
     "html",
     "html/atom"
   ]
-  revision = "c39426892332e1bb5ec0a434a079bf82f5d30c54"
+  revision = "aaf60122140d3fcf75376d319f0554393160eb50"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "79c4860f808a8bc580f92cae1f1c2930a7ae0bd8898464c01a22262cfb536fc2"
+  inputs-digest = "6fbd6ec36cebbdf332f80259d0da24e82f340b701de3bfd30d80fc5bede0427e"
   solver-name = "gps-cdcl"
   solver-version = 1
