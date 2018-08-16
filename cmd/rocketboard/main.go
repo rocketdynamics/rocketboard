@@ -11,6 +11,8 @@ import (
 	// "github.com/arachnys/rocketboard/pkg/dqlite"
 	"log"
 	"net/http"
+	"os"
+	"path"
 	"regexp"
 	"strings"
 	"time"
@@ -42,7 +44,8 @@ func WithEmail(base http.Handler) http.Handler {
 }
 
 func main() {
-	db, err := sql.Open("sqlite3", "rocket.db")
+	dbPath := os.Getenv("ROCKET_DATA_DIR")
+	db, err := sql.Open("sqlite3", path.Join(dbPath, "rocket.db"))
 	if err != nil {
 		log.Fatal(err)
 	}
