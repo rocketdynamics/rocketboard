@@ -103,7 +103,9 @@ func (db *sqlRepository) UpdateCard(c *model.Card) error {
 		return err
 	}
 
-	if len(cs) <= c.Index {
+	if len(cs) == 0 {
+		c.Index = IDX_SPACING
+	} else if len(cs) <= c.Index {
 		c.Index = cs[len(cs)-1].Index + IDX_SPACING
 	} else if c.Index == 0 {
 		c.Index = cs[0].Index - IDX_SPACING
