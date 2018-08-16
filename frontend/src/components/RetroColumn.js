@@ -8,7 +8,7 @@ import * as R from "ramda";
 import { UPDATE_MESSAGE, GET_RETROSPECTIVE } from "../queries";
 
 import { Droppable, Draggable } from "react-beautiful-dnd";
-import { Button, List } from "antd";
+import { Button } from "antd";
 
 class _RetroColumn extends React.Component {
     handleAdd = e => {
@@ -54,7 +54,6 @@ class _RetroColumn extends React.Component {
             cards,
             title,
             colour,
-            grid,
             cardWidth,
             onNewVote,
             onSetStatus,
@@ -80,46 +79,32 @@ class _RetroColumn extends React.Component {
                             ref={provided.innerRef}
                             {...provided.droppableProps}
                         >
-                            <List
-                                footer={provided.placeholder}
-                                grid={grid}
-                                locale={{
-                                    emptyText: "",
-                                }}
-                                dataSource={cards}
-                                renderItem={item => (
-                                    <Draggable
-                                        key={`${title}-${item.id}`}
-                                        draggableId={`${item.id}`}
-                                        index={item.id}
-                                    >
-                                        {(provided, snapshot) => (
-                                            <div
-                                                className="card"
-                                                ref={provided.innerRef}
-                                                {...provided.draggableProps}
-                                                {...provided.dragHandleProps}
-                                            >
-                                                <List.Item>
-                                                    <RetroCard
-                                                        onMessageUpdated={
-                                                            this
-                                                                .handleMessageUpdated
-                                                        }
-                                                        data={item}
-                                                        onNewVote={onNewVote}
-                                                        onSetStatus={
-                                                            onSetStatus
-                                                        }
-                                                        cardWidth={cardWidth}
-                                                        colour={colour}
-                                                    />
-                                                </List.Item>
-                                            </div>
-                                        )}
-                                    </Draggable>
-                                )}
-                            />
+                            {cards.map(item => (
+                                <Draggable
+                                    key={`${title}-${item.id}`}
+                                    draggableId={`${item.id}`}
+                                    index={item.id}
+                                >
+                                    {(provided, snapshot) => (
+                                        <div
+                                            ref={provided.innerRef}
+                                            {...provided.draggableProps}
+                                            {...provided.dragHandleProps}
+                                        >
+                                            <RetroCard
+                                                onMessageUpdated={
+                                                    this.handleMessageUpdated
+                                                }
+                                                isDragging={snapshot.isDragging}
+                                                data={item}
+                                                onNewVote={onNewVote}
+                                                onSetStatus={onSetStatus}
+                                                colour={colour}
+                                            />
+                                        </div>
+                                    )}
+                                </Draggable>
+                            ))}
                         </div>
                     )}
                 </Droppable>

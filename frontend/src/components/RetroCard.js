@@ -1,8 +1,7 @@
 import React from "react";
 import * as R from "ramda";
 
-import { Card, Icon, Input, Tag } from "antd";
-import TimeAgo from "react-timeago";
+import { Icon, Input } from "antd";
 
 const IconText = ({ type, text = "", ...otherProps }) => (
     <span {...otherProps}>
@@ -108,97 +107,48 @@ class RetroCard extends React.Component {
 
     render() {
         const { id, votes } = this.props.data;
-        const { onNewVote, onSetStatus } = this.props;
+        const { isDragging, onNewVote, onSetStatus } = this.props;
         const numVotes = R.sum(R.pluck("count")(votes));
 
         let body = <p>{this.props.data.message}</p>;
-        if (this.state.isEditing) {
-            body = (
-                <Input.TextArea
-                    onChange={this.handleMessageChange}
-                    onBlur={this.toggleEditing}
-                    rows={4}
-                    value={this.state.message}
-                />
-            );
-        }
 
-        this.voteIcon = (
-            <span>
-                <IconText
-                    type="like-o"
-                    style={{ position: "relative" }}
-                    text={numVotes}
-                    onClick={onNewVote(id)}
-                />
+        const vote = (
+            <div className="card-action-clap" onClick={onNewVote(id)}>
+                <div>
+                    <span role="img" aria-label="clap">
+                        👏
+                    </span>{" "}
+                    <span className="card-action-count">{numVotes}</span>
+                </div>
+
                 {this.state.effects.map(effect => {
                     if (effect.expired) return null;
                     return (
-                        <IconText
-                            type="like-o"
-                            className="vote-effect"
-                            style={{
-                                position: "absolute",
-                                top: "0px",
-                                left: "0px",
-                                pointerEvents: "none",
-                            }}
-                            key={effect.key}
-                            text={numVotes}
-                        />
+                        <div key={effect.key} className="vote-effect">
+                            <span role="img" aria-label="clap">
+                                👏
+                            </span>{" "}
+                            <span className="card-action-count">
+                                {numVotes}
+                            </span>
+                        </div>
                     );
                 })}
-            </span>
+            </div>
         );
 
-        let actions = [
-            this.voteIcon,
-            <IconText type="message" text="0" />,
-            <IconText
-                type={this.state.isEditing ? "save" : "edit"}
-                onClick={this.toggleEditing}
-            />,
-        ];
-
-        if (this.hasNoStatus()) {
-            actions = [
-                ...actions,
-                <IconText
-                    type="play-circle-o"
-                    onClick={onSetStatus("InProgress", id)}
-                />,
-            ];
-        } else if (this.isInProgress()) {
-            actions = [
-                ...actions,
-                <IconText
-                    type="check-circle"
-                    onClick={onSetStatus("Discussed", id)}
-                />,
-            ];
-        }
-
         return (
-            <Card
+            <div
                 id={`card-${id}`}
-                actions={actions}
-                className="card"
+                className={`card ${isDragging && "card-dragging"}`}
                 style={{
-                    width: this.props.cardWidth || "100%",
-                    backgroundColor: this.props.colour,
+                    borderTop: `6px solid ${this.props.colour}`,
                 }}
             >
                 {body}
 
-                <div>
-                    {this.isInProgress() && (
-                        <Tag>
-                            In Discussion:{" "}
-                            <TimeAgo date={this.getCurrentStatus().created} />
-                        </Tag>
-                    )}
-                </div>
-            </Card>
+                {vote}
+            </div>
         );
     }
 }

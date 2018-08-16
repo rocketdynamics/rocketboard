@@ -159,3 +159,41 @@
     box-shadow: 0 -2px 20px rgba(0,0,0,0.08);
     border-top: 1px solid #fffbfa5e !important;
 }
+
+/* New styles */
+.card {
+    background: #fff;
+    border-radius: 8px;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    /*border-top: 6px solid #ff4d4f;*/
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
+    min-height: 100px;
+    margin-bottom: 1.5rem;
+    padding-bottom: 2rem;
+    padding: 1rem;
+    flex:1;
+    position: relative;
+    transition: all .3s cubic-bezier(.4,0,.2,1);
+}
+
+.card-dragging {
+    box-shadow: 0 3px 16px rgba(0, 0, 0, 0.2);
+    transform: rotate(1deg);
+}
+
+.card-action-clap {
+    border-left: 1px solid rgba(0, 0, 0, 0.05);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    border-radius: 0 0 0 6px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    padding: 0.3rem;
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+
+.vote-effect {
+    position: absolute;
+    pointer-events: none;
+}
