@@ -168,6 +168,32 @@ class _Retrospective extends React.Component {
                         voter: Math.random(),
                     },
                 },
+                update: (proxy, { data: { newVote } }) => {
+                    const data = proxy.readQuery({
+                        query: GET_RETROSPECTIVE,
+                        variables: { id },
+                    });
+
+                    const existingCards = data.retrospectiveById.cards;
+                    const targetCardIndex = R.findIndex(R.propEq("id", cardId))(
+                        existingCards
+                    );
+                    const card = existingCards[targetCardIndex];
+                    const targetVoteIndex = R.findIndex(
+                        R.propEq("voter", newVote.voter)
+                    )(card.votes);
+                    var vote = card.votes[targetVoteIndex];
+                    if (vote === undefined) {
+                        vote = newVote
+                        card.votes.push(newVote);
+                    }
+                    vote.count = newVote.count;
+                    proxy.writeQuery({
+                        query: GET_RETROSPECTIVE,
+                        variables: { id },
+                        data,
+                    });
+                },
             });
         };
     };
