@@ -13,6 +13,11 @@ spec:
     matchLabels:
       app: {{ template "rocketboard.name" . }}
       release: {{ .Release.Name }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 0
+      maxUnavailable: 1
   template:
     metadata:
       labels:
