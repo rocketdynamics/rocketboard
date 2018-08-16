@@ -36,7 +36,7 @@ class RetroCard extends React.Component {
         this.setState({ message: e.target.value });
     };
 
-    createVoteEffect = () => {
+    createVoteEffect = (numVotes) => {
         // Prevent lag on effect spam
         if (this.state.effects.length > 50) {
             return;
@@ -46,6 +46,7 @@ class RetroCard extends React.Component {
             expired: false,
             key: this.id,
             randomId: Math.floor(Math.random() * 99),
+            numVotes: numVotes,
         };
         this.id += 1;
 
@@ -55,7 +56,7 @@ class RetroCard extends React.Component {
 
         setTimeout(() => {
             effect.expired = true;
-        }, 400);
+        }, 800);
 
         if (this.cleanupTimeout === null) {
             this.cleanupTimeout = setTimeout(() => {
@@ -66,7 +67,7 @@ class RetroCard extends React.Component {
                     ),
                 });
                 this.cleanupTimeout = null;
-            }, 500);
+            }, 1000);
         }
     };
 
@@ -75,7 +76,7 @@ class RetroCard extends React.Component {
         const nextVotes = R.sum(R.pluck("count")(nextProps.data.votes));
 
         if (nextVotes > numVotes) {
-            this.createVoteEffect();
+            this.createVoteEffect(nextVotes);
         }
     }
 
@@ -135,14 +136,14 @@ class RetroCard extends React.Component {
                                 style={{
                                     animation: `card-voting-${
                                         effect.randomId
-                                    } 400ms ease forwards`,
+                                    } 800ms ease forwards`,
                                 }}
                             >
                                 <span role="img" aria-label="clap">
                                     👏
                                 </span>{" "}
                                 <span className="card-action-count">
-                                    {numVotes}
+                                    {effect.numVotes}
                                 </span>
                             </div>
                         </div>

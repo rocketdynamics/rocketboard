@@ -158,10 +158,11 @@
     border-radius: 0 0 0 6px;
     cursor: pointer;
     font-size: 0.8rem;
-    padding: 0.3rem;
+    padding: 5px;
     position: absolute;
     right: 0;
     top: 0;
+    white-space: nowrap;
 }
 
 .vote-effect {
