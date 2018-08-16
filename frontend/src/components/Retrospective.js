@@ -151,7 +151,7 @@ class _Retrospective extends React.Component {
         });
     };
 
-    handleNewVote = (cardId) => {
+    handleNewVote = cardId => {
         return () => {
             const id = this.getRetrospectiveId();
 
@@ -183,7 +183,7 @@ class _Retrospective extends React.Component {
                     )(card.votes);
                     var vote = card.votes[targetVoteIndex];
                     if (vote === undefined) {
-                        vote = newVote
+                        vote = newVote;
                         card.votes.push(newVote);
                     }
                     vote.count = newVote.count;

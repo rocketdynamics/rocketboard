@@ -1,7 +1,8 @@
 import React from "react";
 import * as R from "ramda";
 
-import { Input } from "antd";
+import { Icon, Input, Tooltip } from "antd";
+import Timer from "./Timer";
 
 class RetroCard extends React.Component {
     constructor(props) {
@@ -100,6 +101,24 @@ class RetroCard extends React.Component {
         return this.getStatusType(this.getCurrentStatus()) === "Discussed";
     };
 
+    getDiscussionDuration = () => {
+        if (this.isInProgress()) {
+            return (
+                new Date().getTime() -
+                new Date(this.getCurrentStatus().created).getTime()
+            );
+        } else if (this.isDiscussed()) {
+            const start = R.find(R.propEq("type", "InProgress"))(
+                this.props.data.statuses
+            );
+            return (
+                new Date(this.getCurrentStatus().created).getTime() -
+                new Date(start.created).getTime()
+            );
+        }
+        return 0;
+    };
+
     render() {
         const { id, votes } = this.props.data;
         const { isDragging, onNewVote, onSetStatus } = this.props;
@@ -152,6 +171,35 @@ class RetroCard extends React.Component {
             </div>
         );
 
+        let statusAction = null;
+        if (this.hasNoStatus()) {
+            statusAction = (
+                <div
+                    className="card-action-item"
+                    onClick={onSetStatus("InProgress", id)}
+                >
+                    <Tooltip title="Start Discussion">
+                        <span role="img" aria-label="discuss">
+                            📣
+                        </span>
+                    </Tooltip>
+                </div>
+            );
+        } else if (this.isInProgress()) {
+            statusAction = (
+                <div
+                    className="card-action-item"
+                    onClick={onSetStatus("Discussed", id)}
+                >
+                    <Tooltip title="End Discussion">
+                        <span role="img" aria-label="end discussion">
+                            🤐
+                        </span>
+                    </Tooltip>
+                </div>
+            );
+        }
+
         return (
             <div
                 id={`card-${id}`}
@@ -163,6 +211,17 @@ class RetroCard extends React.Component {
                 <div onDoubleClick={this.toggleEditing} className="card-body">
                     {body}
                 </div>
+
+                <div className="card-actions">{statusAction}</div>
+
+                {!this.hasNoStatus() && (
+                    <div
+                        className={`card-timer ${this.isDiscussed() &&
+                            "card-timer-discussed"}`}
+                    >
+                        <Timer getDuration={this.getDiscussionDuration} />
+                    </div>
+                )}
 
                 {vote}
             </div>
