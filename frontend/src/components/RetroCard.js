@@ -129,7 +129,7 @@ class RetroCard extends React.Component {
                     type="like-o"
                     style={{ position: "relative" }}
                     text={numVotes}
-                    onClick={onNewVote(numVotes, id)}
+                    onClick={onNewVote(id)}
                 />
                 {this.state.effects.map(effect => {
                     if (effect.expired) return null;

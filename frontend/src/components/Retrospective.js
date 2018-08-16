@@ -152,7 +152,7 @@ class _Retrospective extends React.Component {
         });
     };
 
-    handleNewVote = (numVotes, cardId) => {
+    handleNewVote = (cardId) => {
         return () => {
             const id = this.getRetrospectiveId();
 
@@ -164,40 +164,9 @@ class _Retrospective extends React.Component {
                     __typename: "Mutation",
                     newVote: {
                         __typename: "Vote",
-                        count: numVotes + 1,
-                        voter: "unknown",
+                        count: 1,
+                        voter: Math.random(),
                     },
-                },
-                update: (proxy, { data: { newVote } }) => {
-                    const data = proxy.readQuery({
-                        query: GET_RETROSPECTIVE,
-                        variables: { id },
-                    });
-
-                    const existingCards = data.retrospectiveById.cards;
-                    const targetCardIndex = R.findIndex(R.propEq("id", cardId))(
-                        existingCards
-                    );
-                    const card = existingCards[targetCardIndex];
-                    const targetVoteIndex = R.findIndex(
-                        R.propEq("voter", "unknown")
-                    )(card.votes);
-                    var vote = card.votes[targetVoteIndex];
-                    if (vote === undefined) {
-                        vote = {
-                            __typename: "Vote",
-                            count: 1,
-                            voter: "unknown",
-                        };
-                        card.votes.push(vote);
-                    }
-                    vote.count = newVote.count;
-
-                    proxy.writeQuery({
-                        query: GET_RETROSPECTIVE,
-                        variables: { id },
-                        data,
-                    });
                 },
             });
         };
