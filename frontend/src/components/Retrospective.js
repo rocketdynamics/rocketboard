@@ -100,11 +100,10 @@ class _Retrospective extends React.Component {
     cardDragUpdate = ({ draggableId, destination, source, ...args }) => {
         const cardElem = document.querySelector(`#card-${draggableId}`);
         if (destination) {
-            cardElem.style.backgroundColor =
+            cardElem.style.borderTopColor =
                 DEFAULT_COLOURS[destination.droppableId];
         } else {
-            cardElem.style.backgroundColor =
-                DEFAULT_COLOURS[source.droppableId];
+            cardElem.style.borderTopColor = DEFAULT_COLOURS[source.droppableId];
         }
     };
 
@@ -284,29 +283,35 @@ class _Retrospective extends React.Component {
                                     onDragEnd={this.handleMoveCard}
                                     onDragUpdate={this.cardDragUpdate}
                                 >
-                                    {DEFAULT_BOARDS.map(columnName => {
-                                        return (
-                                            <Column
-                                                key={columnName}
-                                                retrospectiveId={id}
-                                                isLoading={loading}
-                                                title={columnName}
-                                                colour={
-                                                    DEFAULT_COLOURS[columnName]
-                                                }
-                                                onNewVote={this.handleNewVote}
-                                                onNewCard={this.handleAddCard(
-                                                    columnName
-                                                )}
-                                                onSetStatus={
-                                                    this.handleSetStatus
-                                                }
-                                                cards={this.getCards(
-                                                    columnName
-                                                )(data)}
-                                            />
-                                        );
-                                    })}
+                                    <div className="columns-wrapper">
+                                        {DEFAULT_BOARDS.map(columnName => {
+                                            return (
+                                                <Column
+                                                    key={columnName}
+                                                    retrospectiveId={id}
+                                                    isLoading={loading}
+                                                    title={columnName}
+                                                    colour={
+                                                        DEFAULT_COLOURS[
+                                                            columnName
+                                                        ]
+                                                    }
+                                                    onNewVote={
+                                                        this.handleNewVote
+                                                    }
+                                                    onNewCard={this.handleAddCard(
+                                                        columnName
+                                                    )}
+                                                    onSetStatus={
+                                                        this.handleSetStatus
+                                                    }
+                                                    cards={this.getCards(
+                                                        columnName
+                                                    )(data)}
+                                                />
+                                            );
+                                        })}
+                                    </div>
                                 </DragDropContext>
                             </_LiveRetrospective>
                         </div>

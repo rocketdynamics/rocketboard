@@ -1,0 +1,1501 @@
+
+@keyframes card-voting-0 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -37.28569489394222px;
+        right: 11.315992352898668px;
+        transform: rotate(-12.374970170166552deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-1 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -39.23155371622002px;
+        right: -8.87706833680471px;
+        transform: rotate(0.6000047052564312deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-2 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -32.898815419491996px;
+        right: 7.670323674581898px;
+        transform: rotate(6.806823607644095deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-3 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -34.671857856363985px;
+        right: -10.227886218052483px;
+        transform: rotate(5.407548021784756deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-4 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -34.300065142272906px;
+        right: 10.652038689991336px;
+        transform: rotate(0.966199767678706deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-5 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -33.10166010865678px;
+        right: -1.7673281547445558px;
+        transform: rotate(-3.35724905652442deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-6 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -36.20955547263656px;
+        right: 1.2095421226720262px;
+        transform: rotate(0.8918153310874803deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-7 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -31.947680496245354px;
+        right: 3.992571884029452px;
+        transform: rotate(6.300501348456077deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-8 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -36.512094334366125px;
+        right: -12.099010156021144px;
+        transform: rotate(12.107792906260116deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-9 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -37.445842656973994px;
+        right: 13.860624737391383px;
+        transform: rotate(-4.346450779753612deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-10 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -31.18495168037056px;
+        right: 3.648117728385426px;
+        transform: rotate(13.77951362814208deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-11 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -37.30582232909871px;
+        right: -1.5716559102465766px;
+        transform: rotate(-13.74633143319748deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-12 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -30.15442674631545px;
+        right: 5.206154248961969px;
+        transform: rotate(2.562378112272583deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-13 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -39.88173623346571px;
+        right: -3.1239937990561835px;
+        transform: rotate(-10.326811539005226deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-14 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -39.66622955808265px;
+        right: 1.372671471101377px;
+        transform: rotate(-8.447881306210425deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-15 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -34.26055713317445px;
+        right: -5.6925057673638495px;
+        transform: rotate(9.74453740467586deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-16 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -36.22156637759045px;
+        right: -4.029408181847225px;
+        transform: rotate(4.361299066200896deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-17 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -31.867367702588567px;
+        right: -9.148689641331046px;
+        transform: rotate(8.732655279533358deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-18 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -36.91873441685467px;
+        right: -1.9573574474426962px;
+        transform: rotate(-6.748512245510552deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-19 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -36.89975533473012px;
+        right: 0.7449692798263801px;
+        transform: rotate(14.262815432281315deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-20 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -37.996518305195295px;
+        right: -9.087978901222147px;
+        transform: rotate(3.8680811335219687deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-21 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -30.478499514814192px;
+        right: 14.852135550269171px;
+        transform: rotate(-8.885859242018817deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-22 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -30.94086562668553px;
+        right: 13.554274117376885px;
+        transform: rotate(-1.1553864823078506deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-23 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -32.56968764773268px;
+        right: -12.375656310851994px;
+        transform: rotate(-11.236076626843959deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-24 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -35.743599132932985px;
+        right: -8.921421125515163px;
+        transform: rotate(-1.9526029185610483deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-25 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -32.77637185894369px;
+        right: -7.670622198438113px;
+        transform: rotate(-7.003223588557111deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-26 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -37.56890986151175px;
+        right: 9.30555094533101px;
+        transform: rotate(13.18319187038324deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-27 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -32.6739767997578px;
+        right: -6.198862146951441px;
+        transform: rotate(-2.393092521693349deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-28 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -36.47936976509588px;
+        right: -3.7851886018642684px;
+        transform: rotate(-3.4808728725970983deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-29 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -32.12811565333118px;
+        right: 10.210498875158944px;
+        transform: rotate(5.016101259243424deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-30 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -30.352248093218165px;
+        right: 12.973803348228458px;
+        transform: rotate(13.718394062702302deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-31 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -36.27288538531055px;
+        right: 7.657739431894317px;
+        transform: rotate(1.7831853945919427deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-32 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -31.85423617335119px;
+        right: 14.247976225677078px;
+        transform: rotate(-9.822034824447483deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-33 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -39.12327300910327px;
+        right: 3.4223580872743433px;
+        transform: rotate(-0.8936295834200596deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-34 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -38.65693715329949px;
+        right: -7.16200539728465px;
+        transform: rotate(-4.676633214700258deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-35 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -32.93167073301901px;
+        right: -14.771110263024923px;
+        transform: rotate(14.707182586138234deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-36 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -39.90029814125131px;
+        right: 14.556072835459872px;
+        transform: rotate(-4.031719232162349deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-37 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -37.235299516515006px;
+        right: -10.689435224991655px;
+        transform: rotate(2.3326379793859218deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-38 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -33.40084289071662px;
+        right: 6.643540799440171px;
+        transform: rotate(7.679445866976366deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-39 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -34.08058708229004px;
+        right: -8.065071969768082px;
+        transform: rotate(-5.0000709620961015deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-40 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -33.393965288786944px;
+        right: 0.07858267983533906px;
+        transform: rotate(-9.993028664943871deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-41 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -34.047491432194406px;
+        right: 13.585150978047245px;
+        transform: rotate(-0.9730343165244406deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-42 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -39.75156486091103px;
+        right: -7.4991232024766274px;
+        transform: rotate(4.197262214376764deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-43 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -34.65334523753302px;
+        right: 12.63420952256537px;
+        transform: rotate(-11.071394382303634deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-44 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -35.10932608244242px;
+        right: -1.2690751930321138px;
+        transform: rotate(-1.1639804301457684deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-45 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -35.86069760937782px;
+        right: 12.556167756868554px;
+        transform: rotate(14.359583145800997deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-46 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -36.01650646552742px;
+        right: -13.46180189971508px;
+        transform: rotate(-11.09532044497388deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-47 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -36.96250405767561px;
+        right: -8.707226470377638px;
+        transform: rotate(-0.9195379178075829deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-48 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -37.05042120942191px;
+        right: -9.706133818152923px;
+        transform: rotate(5.6884926274935985deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-49 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -36.00944999993245px;
+        right: 11.266142097215045px;
+        transform: rotate(5.463972946740878deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-50 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -30.74449762976711px;
+        right: -7.001552556423219px;
+        transform: rotate(2.7824709286757425deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-51 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -32.730506177115835px;
+        right: 11.124940339876666px;
+        transform: rotate(-13.466784552043315deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-52 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -37.72310129449455px;
+        right: 6.2518748251093434px;
+        transform: rotate(-2.32105833574753deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-53 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -31.296918450562828px;
+        right: 7.708212505170657px;
+        transform: rotate(-11.353156815755323deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-54 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -32.569875242606614px;
+        right: 6.637406671346838px;
+        transform: rotate(3.365202833409956deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-55 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -33.78693607745611px;
+        right: 4.460343342136497px;
+        transform: rotate(1.9969009230904717deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-56 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -36.98935078312614px;
+        right: 3.6526220953443875px;
+        transform: rotate(-11.289930149718337deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-57 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -34.74795943669613px;
+        right: -13.331160307421701px;
+        transform: rotate(-12.48784451331882deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-58 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -34.348831701568194px;
+        right: -11.279985699135956px;
+        transform: rotate(3.7124309484831812deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-59 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -30.29568641447211px;
+        right: 14.465944007664184px;
+        transform: rotate(-11.543245425891138deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-60 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -36.02799266406004px;
+        right: 8.984250566860752px;
+        transform: rotate(-0.17685713037574935deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-61 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -36.36417468592202px;
+        right: -3.4372633270575808px;
+        transform: rotate(8.826124301799247deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-62 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -31.2391037140943px;
+        right: -10.023322422927992px;
+        transform: rotate(11.610426448158599deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-63 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -32.24916462953843px;
+        right: 2.5475240293951096px;
+        transform: rotate(-3.9543617699682603deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-64 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -36.29485080676749px;
+        right: -13.234108857403605px;
+        transform: rotate(-0.27029833176501583deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-65 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -39.58531453834599px;
+        right: -13.905556952271809px;
+        transform: rotate(7.98378555309306deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-66 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -36.17198486746988px;
+        right: 2.4080551112193618px;
+        transform: rotate(7.69337804523882deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-67 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -32.06005706717262px;
+        right: 7.954730146708439px;
+        transform: rotate(-4.908295369990112deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-68 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -38.087658131180035px;
+        right: 0.7022584562813066px;
+        transform: rotate(13.135806113880161deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-69 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -38.567078959020144px;
+        right: 12.140126096070013px;
+        transform: rotate(-11.96167835886664deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-70 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -38.456345424913295px;
+        right: -3.0384853791368354px;
+        transform: rotate(11.669539057639deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-71 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -33.0380296021286px;
+        right: 2.1244713788259837px;
+        transform: rotate(-5.928999086466465deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-72 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -33.35722844049886px;
+        right: 2.10035078413339px;
+        transform: rotate(-10.615254267389426deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-73 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -32.87850002849725px;
+        right: 12.946950031213998px;
+        transform: rotate(13.268577482454958deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-74 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -34.06855311137122px;
+        right: 9.633281142523387px;
+        transform: rotate(6.151515481784365deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-75 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -32.04092908211059px;
+        right: -0.5915124437564767px;
+        transform: rotate(-11.510333612256545deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-76 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -35.04563057149417px;
+        right: 14.173675981618324px;
+        transform: rotate(-11.400352375578853deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-77 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -35.93578306353047px;
+        right: -11.202167764936068px;
+        transform: rotate(-11.928611831551315deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-78 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -32.51453067586514px;
+        right: -0.04899087961081783px;
+        transform: rotate(-11.012021436143687deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-79 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -34.238788085627924px;
+        right: 4.150667307855262px;
+        transform: rotate(12.168524835723694deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-80 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -35.08367750289332px;
+        right: -7.213188487029862px;
+        transform: rotate(9.280160770585947deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-81 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -38.381588295989125px;
+        right: 6.3550736419208px;
+        transform: rotate(-10.574335082117415deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-82 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -35.874353811072716px;
+        right: 9.364240613231907px;
+        transform: rotate(-2.358838367516549deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-83 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -31.29844633695408px;
+        right: 5.493908844081496px;
+        transform: rotate(2.001824727874247deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-84 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -32.435212280138295px;
+        right: -1.5451482527991534px;
+        transform: rotate(9.052652618601382deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-85 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -35.442265177632194px;
+        right: 8.024440373731636px;
+        transform: rotate(-7.813764452417306deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-86 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -37.64596371685527px;
+        right: -5.268015177150762px;
+        transform: rotate(14.465496069656943deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-87 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -31.7419711874815px;
+        right: 12.644638075244874px;
+        transform: rotate(8.268532255368463deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-88 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -37.30352948371282px;
+        right: 12.735179929519813px;
+        transform: rotate(-12.541542934534695deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-89 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -32.00818821614141px;
+        right: 0.5872792639084601px;
+        transform: rotate(-5.150873393677779deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-90 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -34.28844663062327px;
+        right: -0.15386139281055122px;
+        transform: rotate(-11.745572740303722deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-91 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -31.599545713190096px;
+        right: -11.800888577844571px;
+        transform: rotate(-10.248051820474942deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-92 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -39.70366365597854px;
+        right: -11.496279563615403px;
+        transform: rotate(-8.678494208939382deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-93 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -36.886472438180654px;
+        right: 7.723838715366206px;
+        transform: rotate(-10.547741151939025deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-94 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -37.512097531481615px;
+        right: -13.612485918727295px;
+        transform: rotate(9.817461126353521deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-95 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -38.34515642393741px;
+        right: -14.767809282597755px;
+        transform: rotate(1.1630891707980986deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-96 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -32.3135623070109px;
+        right: -13.240947155417064px;
+        transform: rotate(-7.76702956875301deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-97 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -33.43921313974018px;
+        right: -10.857736926862156px;
+        transform: rotate(2.7882165622913deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-98 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -30.094009397382678px;
+        right: -9.537283585835217px;
+        transform: rotate(-14.59294141160343deg);
+        opacity: 0;
+    }
+}
+    
+@keyframes card-voting-99 {
+    0% {
+        top: 0px;
+        right: 0px;
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        top: -30.649532201720795px;
+        right: -2.6293067320728056px;
+        transform: rotate(-9.739254052990358deg);
+        opacity: 0;
+    }
+}
+    

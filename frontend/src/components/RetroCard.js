@@ -1,15 +1,7 @@
 import React from "react";
 import * as R from "ramda";
 
-import { Card, Icon, Input, Tag } from "antd";
-import TimeAgo from "react-timeago";
-
-const IconText = ({ type, text = "", ...otherProps }) => (
-    <span {...otherProps}>
-        <Icon type={type} style={{ marginRight: 8 }} />
-        {text}
-    </span>
-);
+import { Input } from "antd";
 
 class RetroCard extends React.Component {
     constructor(props) {
@@ -53,6 +45,7 @@ class RetroCard extends React.Component {
         var effect = {
             expired: false,
             key: this.id,
+            randomId: Math.floor(Math.random() * 99),
         };
         this.id += 1;
 
@@ -108,7 +101,7 @@ class RetroCard extends React.Component {
 
     render() {
         const { id, votes } = this.props.data;
-        const { onNewVote, onSetStatus } = this.props;
+        const { isDragging, onNewVote, onSetStatus } = this.props;
         const numVotes = R.sum(R.pluck("count")(votes));
 
         let body = <p>{this.props.data.message}</p>;
@@ -117,88 +110,61 @@ class RetroCard extends React.Component {
                 <Input.TextArea
                     onChange={this.handleMessageChange}
                     onBlur={this.toggleEditing}
+                    className="card-input"
                     rows={4}
                     value={this.state.message}
                 />
             );
         }
 
-        this.voteIcon = (
-            <span>
-                <IconText
-                    type="like-o"
-                    style={{ position: "relative" }}
-                    text={numVotes}
-                    onClick={onNewVote(id)}
-                />
+        const vote = (
+            <div className="card-action-clap" onClick={onNewVote(id)}>
+                <div>
+                    <span role="img" aria-label="clap">
+                        👏
+                    </span>{" "}
+                    <span className="card-action-count">{numVotes}</span>
+                </div>
+
                 {this.state.effects.map(effect => {
                     if (effect.expired) return null;
                     return (
-                        <IconText
-                            type="like-o"
-                            className="vote-effect"
-                            style={{
-                                position: "absolute",
-                                top: "0px",
-                                left: "0px",
-                                pointerEvents: "none",
-                            }}
-                            key={effect.key}
-                            text={numVotes}
-                        />
+                        <div id={effect.key} key={effect.key}>
+                            <div
+                                className="vote-effect"
+                                style={{
+                                    animation: `card-voting-${
+                                        effect.randomId
+                                    } 400ms ease forwards`,
+                                }}
+                            >
+                                <span role="img" aria-label="clap">
+                                    👏
+                                </span>{" "}
+                                <span className="card-action-count">
+                                    {numVotes}
+                                </span>
+                            </div>
+                        </div>
                     );
                 })}
-            </span>
+            </div>
         );
 
-        let actions = [
-            this.voteIcon,
-            <IconText type="message" text="0" />,
-            <IconText
-                type={this.state.isEditing ? "save" : "edit"}
-                onClick={this.toggleEditing}
-            />,
-        ];
-
-        if (this.hasNoStatus()) {
-            actions = [
-                ...actions,
-                <IconText
-                    type="play-circle-o"
-                    onClick={onSetStatus("InProgress", id)}
-                />,
-            ];
-        } else if (this.isInProgress()) {
-            actions = [
-                ...actions,
-                <IconText
-                    type="check-circle"
-                    onClick={onSetStatus("Discussed", id)}
-                />,
-            ];
-        }
-
         return (
-            <Card
+            <div
                 id={`card-${id}`}
-                actions={actions}
-                className="card"
+                className={`card ${isDragging && "card-dragging"}`}
                 style={{
-                    width: this.props.cardWidth || "100%",
-                    backgroundColor: this.props.colour,
+                    borderTop: `6px solid ${this.props.colour}`,
                 }}
             >
-                {body}
-
-                <div>
-                    {this.isInProgress() && (
-                        <Tag>
-                            In Discussion:{" "}
-                            <TimeAgo date={this.getCurrentStatus().created} />
-                        </Tag>
-                    )}
+                <div onDoubleClick={this.toggleEditing} className="card-body">
+                    {body}
                 </div>
-            </Card>
+
+                {vote}
+            </div>
         );
     }
 }

@@ -95,6 +95,12 @@
     padding: 0 .5rem;
 }
 
+.columns-wrapper {
+    display: flex;
+    flex: 1;
+    overflow: auto;
+}
+
 .column {
     display: flex;
     flex-direction: column;
@@ -120,42 +126,55 @@
         display: flex;
         flex-direction: column;
         flex: 1;
-        overflow: auto;
         padding: .5rem;
         border-radius: 6px;
     }
 
-    .ant-list-item {
-        padding: .5rem 0 !important;
-    }
+/* New styles */
+.card {
+    background: #fff;
+    border-radius: 8px;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    /*border-top: 6px solid #ff4d4f;*/
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
+    min-height: 100px;
+    margin-bottom: 1.5rem;
+    padding-bottom: 2rem;
+    padding: 1rem;
+    display: flex;
+    flex:1;
+    position: relative;
+    transition: all .3s cubic-bezier(.4,0,.2,1);
+}
 
-@keyframes card-voting {
-    0% {
-        top: 0px;
-        opacity: 1;
-    }
-    100% {
-        top: -35px;
-        opacity: 0;
-    }
+.card-dragging {
+    box-shadow: 0 3px 16px rgba(0, 0, 0, 0.2);
+    transform: scale(1.05, 1.05) rotate(1deg);
+}
+
+.card-action-clap {
+    border-left: 1px solid rgba(0, 0, 0, 0.05);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    border-radius: 0 0 0 6px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    padding: 0.3rem;
+    position: absolute;
+    right: 0;
+    top: 0;
 }
 
 .vote-effect {
-    animation: card-voting 400ms ease;
     animation-fill-mode: forwards;
+    position: absolute;
+    pointer-events: none;
 }
 
-.ant-card-actions > li > span:hover {
-    color: #000000a8 !important;
-    text-shadow: 0 0 0px black !important;
+.card-input {
+    box-shadow: none !important;
+    border: none !important;
 }
 
-.ant-card-actions>li:not(:last-child) {
-    border-right: none !important;
-}
-
-.ant-card-actions {
-    background-color: rgba(255,255,255,0.1) !important;
-    box-shadow: 0 -2px 20px rgba(0,0,0,0.08);
-    border-top: 1px solid #fffbfa5e !important;
+.card-body {
+    flex: 1;
 }
