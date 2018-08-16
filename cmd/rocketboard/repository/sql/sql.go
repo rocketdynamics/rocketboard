@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/jmoiron/sqlx"
+	"math"
 
 	"github.com/arachnys/rocketboard/cmd/rocketboard/model"
 )
@@ -26,7 +27,8 @@ CREATE TABLE IF NOT EXISTS cards (
   retrospectiveId TEXT,
   message TEXT,
   creator TEXT,
-  column TEXT
+  column TEXT,
+  idx INTEGER
 );
 CREATE TABLE IF NOT EXISTS votes (
   id TEXT PRIMARY KEY,
@@ -43,6 +45,9 @@ CREATE TABLE IF NOT EXISTS statuses (
   type INTEGER
 );
 `
+
+// Space elements by 2^15, which allows for 15 divisions before re-sorting
+var IDX_SPACING = int(math.Exp2(15))
 
 func NewRepository(db *sql.DB) *sqlRepository {
 	_, err := db.Exec(schema)
@@ -65,25 +70,50 @@ func (db *sqlRepository) GetRetrospectiveById(id string) (*model.Retrospective, 
 
 func (db *sqlRepository) NewCard(c *model.Card) error {
 	var count int
+	var max int
 	err := db.Get(&count, `SELECT COUNT(*) FROM cards WHERE retrospectiveId=?`, c.RetrospectiveId)
 	if err != nil {
 		return err
+	}
+	err = db.Get(&max, `SELECT max(idx) FROM cards WHERE retrospectiveId=? AND column=?`, c.RetrospectiveId, c.Column)
+	if err != nil {
+		max = 0
 	}
 
 	if count > 100 {
 		return fmt.Errorf("too many cards")
 	}
+	c.Index = max + IDX_SPACING
 
 	_, err = db.NamedExec(`INSERT INTO cards
-      (id, created, updated, retrospectiveId, message, creator, column)
-    VALUES (:id, :created, :updated, :retrospectiveId, :message, :creator, :column)
+      (id, created, updated, retrospectiveId, message, creator, column, idx)
+    VALUES (:id, :created, :updated, :retrospectiveId, :message, :creator, :column, :idx)
   `, c)
 	return err
 }
 
 func (db *sqlRepository) UpdateCard(c *model.Card) error {
-	_, err := db.NamedExec(`UPDATE cards
-    SET updated=:updated, retrospectiveId=:retrospectiveId, message=:message, creator=:creator, column=:column
+	if c.Index < 0 {
+		return fmt.Errorf("Cannot move to negative index")
+	}
+
+	cs := []*model.Card{}
+	err := db.Select(&cs, "SELECT * FROM cards WHERE retrospectiveId=? AND column = ? AND id != ? ORDER BY idx ASC", c.RetrospectiveId, c.Column, c.Id)
+	if err != nil {
+		return err
+	}
+
+	if len(cs) <= c.Index {
+		c.Index = cs[len(cs)-1].Index + IDX_SPACING
+	} else if c.Index == 0 {
+		c.Index = cs[0].Index - IDX_SPACING
+	} else {
+		fmt.Println("moving to", c.Index, cs[c.Index], cs[c.Index-1])
+		c.Index = (cs[c.Index].Index + cs[c.Index-1].Index) / 2
+	}
+
+	_, err = db.NamedExec(`UPDATE cards
+    SET updated=:updated, retrospectiveId=:retrospectiveId, message=:message, creator=:creator, column=:column, idx=:idx
     WHERE id=:id
   `, c)
 	return err
@@ -97,7 +127,7 @@ func (db *sqlRepository) GetCardById(id string) (*model.Card, error) {
 
 func (db *sqlRepository) GetCardsByRetrospectiveId(id string) ([]*model.Card, error) {
 	cs := []*model.Card{}
-	err := db.Select(&cs, "SELECT * FROM cards WHERE retrospectiveId=?", id)
+	err := db.Select(&cs, "SELECT * FROM cards WHERE retrospectiveId=? ORDER BY idx ASC", id)
 	return cs, err
 }
 

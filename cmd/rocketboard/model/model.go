@@ -29,6 +29,8 @@ type Card struct {
 	Message string
 	Creator string
 	Column  string
+
+	Index int `db:"idx"`
 }
 
 func (t *StatusType) UnmarshalGQL(v interface{}) error {

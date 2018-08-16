@@ -26,6 +26,7 @@ export const GET_RETROSPECTIVE = gql`
                     voter
                     count
                 }
+                index
             }
         }
     }
@@ -38,8 +39,8 @@ export const ADD_CARD = gql`
 `;
 
 export const MOVE_CARD = gql`
-    mutation MoveCard($id: ID!, $column: String!) {
-        moveCard(id: $id, column: $column)
+    mutation MoveCard($id: ID!, $column: String!, $index: Int!) {
+        moveCard(id: $id, column: $column, index: $index)
     }
 `;
 
@@ -83,6 +84,7 @@ export const CARD_SUBSCRIPTION = gql`
                 count
                 voter
             }
+            index
         }
     }
 `;

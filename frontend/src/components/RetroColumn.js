@@ -77,11 +77,11 @@ class _RetroColumn extends React.Component {
                             ref={provided.innerRef}
                             {...provided.droppableProps}
                         >
-                            {cards.map(item => (
+                            {cards.map((item, index) => (
                                 <Draggable
                                     key={`${title}-${item.id}`}
                                     draggableId={`${item.id}`}
-                                    index={item.id}
+                                    index={index}
                                 >
                                     {(provided, snapshot) => (
                                         <div

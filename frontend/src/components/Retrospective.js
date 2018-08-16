@@ -15,6 +15,7 @@ import {
 } from "../queries";
 
 const DEFAULT_BOARDS = ["Positive", "Mixed", "Negative"];
+const IDX_SPACING = 2 ** 15;
 
 const DEFAULT_COLOURS = {
     Positive: "#bae637",
@@ -71,7 +72,7 @@ class _Retrospective extends React.Component {
                 },
                 optimisticResponse: {
                     __typename: "Mutation",
-                    addCardToRetrospective: "pending-id",
+                    addCardToRetrospective: Math.random().toString().substr(2),
                 },
                 update: (proxy, { data: { addCardToRetrospective } }) => {
                     const data = proxy.readQuery({
@@ -79,11 +80,17 @@ class _Retrospective extends React.Component {
                         variables: { id },
                     });
 
+                    const columnIndexes = R.pipe(
+                        R.pluck("index"),
+                        R.filter(R.propEq("column", column)),
+                    );
+                    const maxIndex = Math.max(0, ...columnIndexes(data.retrospectiveById.cards));
                     data.retrospectiveById.cards.push({
                         __typename: "Card",
                         id: addCardToRetrospective,
                         votes: [],
                         statuses: [],
+                        index: maxIndex + IDX_SPACING,
                         ...newCard,
                     });
 
@@ -110,29 +117,25 @@ class _Retrospective extends React.Component {
     handleMoveCard = result => {
         const id = this.getRetrospectiveId();
 
-        const { draggableId, destination, source } = result;
+        const { draggableId, destination } = result;
         if (!destination) {
             return;
         }
 
         const cardId = draggableId;
-        const originalColumn = source.droppableId;
         const column = destination.droppableId;
-
-        if (originalColumn === column) {
-            return;
-        }
 
         this.props.moveCard({
             variables: {
                 id: cardId,
                 column,
+                index: destination.index,
             },
             optimisticResponse: {
                 __typename: "Mutation",
-                moveCard: column,
+                moveCard: {position: destination.index},
             },
-            update: (proxy, { data: { addCardToRetrospective } }) => {
+            update: (proxy, { data: { moveCard } }) => {
                 const data = proxy.readQuery({
                     query: GET_RETROSPECTIVE,
                     variables: { id },
@@ -142,6 +145,25 @@ class _Retrospective extends React.Component {
                     existingCards
                 );
                 existingCards[targetCardIndex].column = column;
+                const columnCards = R.filter(R.propEq("column", column), data.retrospectiveById.cards);
+                const otherCards = R.filter((c) => c.id !== cardId, columnCards);
+
+                var index = moveCard;
+                if (moveCard.position !== undefined) {
+                    if (otherCards.length === 0) {
+                        index = IDX_SPACING;
+                    } else if (moveCard.position >= otherCards.length) {
+                        index = otherCards[otherCards.length - 1].index + IDX_SPACING;
+                    } else if (otherCards[moveCard.position].id === cardId) {
+                        index = otherCards[moveCard.position].index;
+                    } else if (moveCard.position === 0) {
+                        index = otherCards[0].index - IDX_SPACING;
+                    } else {
+                        index = Math.floor(otherCards[moveCard.position].index + otherCards[moveCard.position-1].index) / 2;
+                    }
+                }
+                existingCards[targetCardIndex].index = index;
+                data.retrospectiveById.cards = R.sortBy(R.prop("index"), existingCards);
                 proxy.writeQuery({
                     query: GET_RETROSPECTIVE,
                     variables: { id },
@@ -209,7 +231,7 @@ class _Retrospective extends React.Component {
                     __typename: "Mutation",
                     updateStatus: {
                         __typename: "Status",
-                        id: "pending-id",
+                        id: Math.random(),
                         created: new Date(),
                         cardId,
                         type: status,

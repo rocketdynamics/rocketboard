@@ -10,7 +10,7 @@ type rocketboardService interface {
 	StartRetrospective(string) (string, error)
 	GetRetrospectiveById(string) (*model.Retrospective, error)
 	AddCardToRetrospective(string, string, string, string) (string, error)
-	MoveCard(string, string) error
+	MoveCard(string, string, int) error
 	UpdateMessage(string, string) error
 	GetCardsForRetrospective(string) ([]*model.Card, error)
 	GetCardById(string) (*model.Card, error)
@@ -93,13 +93,13 @@ func (r *mutationResolver) StartRetrospective(ctx context.Context, name *string)
 	return r.s.StartRetrospective(*name)
 }
 
-func (r *mutationResolver) MoveCard(ctx context.Context, id string, column string) (string, error) {
-	if err := r.s.MoveCard(id, column); err != nil {
-		return "", err
+func (r *mutationResolver) MoveCard(ctx context.Context, id string, column string, index int) (int, error) {
+	if err := r.s.MoveCard(id, column, index); err != nil {
+		return -1, err
 	}
 	c, _ := r.s.GetCardById(id)
 	r.sendCardToSubs(c)
-	return column, nil
+	return c.Index, nil
 }
 
 func (r *mutationResolver) UpdateMessage(ctx context.Context, id string, message string) (string, error) {

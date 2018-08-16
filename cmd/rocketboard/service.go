@@ -106,13 +106,14 @@ func (s *rocketboardService) AddCardToRetrospective(rId string, column string, m
 	return id, nil
 }
 
-func (s *rocketboardService) MoveCard(id string, column string) error {
+func (s *rocketboardService) MoveCard(id string, column string, index int) error {
 	c, err := s.db.GetCardById(id)
 	if err != nil {
 		return err
 	}
 
 	c.Column = column
+	c.Index = index
 
 	return s.db.UpdateCard(c)
 }
