@@ -5,6 +5,8 @@ image:
   tag: stable
   pullPolicy: IfNotPresent
 
+include-qa-annotations: true
+
 ingress:
   enabled: true
   path: /

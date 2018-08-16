@@ -7,10 +7,12 @@ metadata:
     chart: {{ template "rocketboard.chart" . }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
+{{- if index .Values "include-qa-annotations" }}
   annotations:
     com.arachnys.qa-portal.host: {{ index .Values "oauth2-proxy" "ingress" "hosts" 0 }}
     com.arachnys.qa-portal.app: {{ template "rocketboard.name" . }}
     com.arachnys.qa-portal.version: "{{ .Values.image.tag }}"
+{{- end }}
 spec:
   type: ClusterIP
   ports:
