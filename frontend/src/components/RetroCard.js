@@ -146,6 +146,7 @@ class RetroCard extends React.Component {
             <div>
                 <p style={this.state.isEditing ? hiddenStyle : visibleStyle}>
                     {this.props.data.message}
+                    {this.props.data.index}
                 </p>
                 <Input.TextArea
                     style={this.state.isEditing ? visibleStyle : hiddenStyle}
