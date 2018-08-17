@@ -26,9 +26,6 @@ ingress:
 oauth2-proxy:
   replicaCount: 1
 
-  image:
-    tag: "2.2.1-alpha"
-
   service:
     port: 4180
 
