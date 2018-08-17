@@ -5,3 +5,6 @@ dependencies:
   - name: cockroachdb
     version: 1.2.2
     repository: https://kubernetes-charts.storage.googleapis.com/
+  - name: nats
+    version: 0.0.6
+    repository: "https://kubernetes-charts.storage.googleapis.com/"

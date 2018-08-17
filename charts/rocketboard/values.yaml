@@ -7,6 +7,31 @@ image:
 
 include-qa-annotations: true
 
+nats:
+  replicaCount: 1
+
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 256Mi
+
+  auth:
+    enabled: false
+
+persistence:
+  enabled: false
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 512Mi
+
 ingress:
   enabled: true
   path: /
@@ -64,4 +89,3 @@ oauth2-proxy:
     upstream: "http://rocketboard"
     http-address: "0.0.0.0:4180"
 
-resources: {}
