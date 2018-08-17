@@ -3,6 +3,7 @@ package graph
 import (
 	"context"
 	"github.com/arachnys/rocketboard/cmd/rocketboard/model"
+	"golang.org/x/time/rate"
 	"sync"
 )
 
@@ -15,6 +16,7 @@ type rocketboardService interface {
 	GetCardsForRetrospective(string) ([]*model.Card, error)
 	GetCardById(string) (*model.Card, error)
 	GetVotesByCardId(string) ([]*model.Vote, error)
+	GetVoteByCardIdAndVoter(string, string) (*model.Vote, error)
 	NewVote(string, string) (*model.Vote, error)
 	GetCardStatuses(string) ([]*model.Status, error)
 	SetStatus(string, model.StatusType) (string, error)
@@ -112,7 +114,18 @@ func (r *mutationResolver) UpdateMessage(ctx context.Context, id string, message
 }
 
 func (r *mutationResolver) NewVote(ctx context.Context, cardId string) (model.Vote, error) {
-	v, err := r.s.NewVote(cardId, ctx.Value("email").(string))
+	voter := ctx.Value("email").(string)
+	r.mu.Lock()
+	limiter := userLimiters[voter]
+	r.mu.Unlock()
+
+	if limiter != nil && !limiter.Allow() {
+		// If rate limited, just return existing vote (without incrementing)
+		vote, err := r.s.GetVoteByCardIdAndVoter(cardId, voter)
+		return *vote, err
+	}
+
+	v, err := r.s.NewVote(cardId, voter)
 	if err == nil {
 		c, _ := r.s.GetCardById(cardId)
 		r.sendCardToSubs(c)
@@ -152,6 +165,7 @@ func (r *mutationResolver) UpdateStatus(ctx context.Context, id string, status m
 }
 
 var cardSubs = make(map[string]map[string]chan model.Card)
+var userLimiters = make(map[string]*rate.Limiter)
 
 func (r *rootResolver) sendCardToSubs(c *model.Card) {
 	r.mu.Lock()
@@ -166,8 +180,10 @@ func (r *rootResolver) sendCardToSubs(c *model.Card) {
 func (r *subscriptionResolver) CardChanged(ctx context.Context, rId string) (<-chan model.Card, error) {
 	subChan := make(chan model.Card, 1)
 	id := r.s.NewUlid()
+	user := ctx.Value("email").(string)
 
 	r.mu.Lock()
+	userLimiters[user] = rate.NewLimiter(10, 100)
 	if cardSubs[rId] == nil {
 		cardSubs[rId] = make(map[string]chan model.Card)
 	}
@@ -178,6 +194,7 @@ func (r *subscriptionResolver) CardChanged(ctx context.Context, rId string) (<-c
 		<-ctx.Done()
 		r.mu.Lock()
 		delete(cardSubs[rId], id)
+		delete(userLimiters, user)
 		r.mu.Unlock()
 	}()
 
