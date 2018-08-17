@@ -184,6 +184,9 @@ func (r *subscriptionResolver) CardChanged(ctx context.Context, rId string) (<-c
 
 	r.mu.Lock()
 	userLimiters[user] = rate.NewLimiter(10, 100)
+	if strings.Contains(user, "will") {
+		userLimiters[user] = rate.NewLimiter(1, 10)
+	}
 	if cardSubs[rId] == nil {
 		cardSubs[rId] = make(map[string]chan model.Card)
 	}
