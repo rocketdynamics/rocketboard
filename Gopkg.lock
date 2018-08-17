@@ -74,14 +74,21 @@
   branch = "master"
   name = "golang.org/x/net"
   packages = [
+    "context",
     "html",
     "html/atom"
   ]
   revision = "aaf60122140d3fcf75376d319f0554393160eb50"
 
+[[projects]]
+  branch = "master"
+  name = "golang.org/x/time"
+  packages = ["rate"]
+  revision = "fbb02b2291d28baffd63558aa44b4b56f178d650"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "6fbd6ec36cebbdf332f80259d0da24e82f340b701de3bfd30d80fc5bede0427e"
+  inputs-digest = "8711b904fbadc16b23968a23f015688f1098f07fb8f4bf5452eb8ba22c65f5bb"
   solver-name = "gps-cdcl"
   solver-version = 1

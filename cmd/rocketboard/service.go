@@ -19,6 +19,7 @@ type repository interface {
 
 	NewVote(*model.Vote) error
 	GetVotesByCardId(string) ([]*model.Vote, error)
+	GetVoteByCardIdAndVoter(string, string) (*model.Vote, error)
 
 	NewStatus(*model.Status) error
 	GetStatusById(id string) (*model.Status, error)
@@ -57,29 +58,24 @@ func (s *rocketboardService) GetVotesByCardId(id string) ([]*model.Vote, error) 
 	return s.db.GetVotesByCardId(id)
 }
 
+func (s *rocketboardService) GetVoteByCardIdAndVoter(id string, voter string) (*model.Vote, error) {
+	return s.db.GetVoteByCardIdAndVoter(id, voter)
+}
+
 func (s *rocketboardService) NewVote(cardId string, voter string) (*model.Vote, error) {
-	votes, err := s.GetVotesByCardId(cardId)
+	vote, err := s.db.GetVoteByCardIdAndVoter(cardId, voter)
 	if err != nil {
-		return nil, err
-	}
-
-	vote := &model.Vote{
-		Id:      newUlid(),
-		Created: time.Now(),
-		Updated: time.Now(),
-		CardId:  cardId,
-		Voter:   voter,
-		Count:   1,
-	}
-
-	for _, existingVote := range votes {
-		if voter == existingVote.Voter {
-			vote = existingVote
-			vote.Count = vote.Count + 1
-			break
+		vote = &model.Vote{
+			Id:      newUlid(),
+			Created: time.Now(),
+			Updated: time.Now(),
+			CardId:  cardId,
+			Voter:   voter,
+			Count:   0,
 		}
 	}
 
+	vote.Count = vote.Count + 1
 	err = s.db.NewVote(vote)
 	return vote, err
 }

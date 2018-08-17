@@ -110,7 +110,6 @@ func (db *sqlRepository) UpdateCard(c *model.Card) error {
 	} else if c.Index == 0 {
 		c.Index = cs[0].Index - IDX_SPACING
 	} else {
-		fmt.Println("moving to", c.Index, cs[c.Index], cs[c.Index-1])
 		c.Index = (cs[c.Index].Index + cs[c.Index-1].Index) / 2
 	}
 
@@ -146,6 +145,12 @@ func (db *sqlRepository) GetVotesByCardId(id string) ([]*model.Vote, error) {
 	vs := []*model.Vote{}
 	err := db.Select(&vs, "SELECT * FROM votes WHERE cardId=?", id)
 	return vs, err
+}
+
+func (db *sqlRepository) GetVoteByCardIdAndVoter(id string, voter string) (*model.Vote, error) {
+	v := model.Vote{}
+	err := db.Get(&v, "SELECT * FROM votes WHERE cardId=? AND voter=?", id, voter)
+	return &v, err
 }
 
 func (db *sqlRepository) NewStatus(s *model.Status) error {
