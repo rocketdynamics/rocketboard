@@ -22,8 +22,7 @@ class RetroCard extends React.Component {
             this.inputRef.current.textAreaRef.blur();
         }
         return true;
-    }
-
+    };
 
     setEditingOn = e => {
         e.preventDefault();
@@ -37,7 +36,7 @@ class RetroCard extends React.Component {
             }, 1);
             this.setState({ isEditing: true });
         }
-    }
+    };
 
     setEditingOff = e => {
         e.preventDefault();
@@ -48,13 +47,13 @@ class RetroCard extends React.Component {
             });
             this.setState({ isEditing: false });
         }
-    }
+    };
 
     handleMessageChange = e => {
         this.setState({ message: e.target.value });
     };
 
-    createVoteEffect = (numVotes) => {
+    createVoteEffect = numVotes => {
         // Prevent lag on effect spam
         if (this.state.effects.length > 100) {
             return;
@@ -141,11 +140,13 @@ class RetroCard extends React.Component {
         const { isDragging, onNewVote, onSetStatus } = this.props;
         const numVotes = R.sum(R.pluck("count")(votes));
 
-        const hiddenStyle = {display: "none"};
-        const visibleStyle = {display: "block"};
+        const hiddenStyle = { display: "none" };
+        const visibleStyle = { display: "block" };
         let body = (
             <div>
-                <p style={this.state.isEditing ? hiddenStyle : visibleStyle}>{this.props.data.message}</p>
+                <p style={this.state.isEditing ? hiddenStyle : visibleStyle}>
+                    {this.props.data.message}
+                </p>
                 <Input.TextArea
                     style={this.state.isEditing ? visibleStyle : hiddenStyle}
                     onChange={this.handleMessageChange}
@@ -232,6 +233,8 @@ class RetroCard extends React.Component {
             >
                 <div onDoubleClick={this.setEditingOn} className="card-body">
                     {body}
+
+                    <small>{this.props.data.creator}</small>
                 </div>
 
                 <div className="card-actions">{statusAction}</div>

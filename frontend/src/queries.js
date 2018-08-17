@@ -17,6 +17,7 @@ export const GET_RETROSPECTIVE = gql`
                 id
                 message
                 column
+                creator
                 statuses {
                     id
                     created
@@ -75,6 +76,7 @@ export const CARD_SUBSCRIPTION = gql`
             id
             message
             column
+            creator
             statuses {
                 id
                 created
