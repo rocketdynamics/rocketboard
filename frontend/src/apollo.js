@@ -7,6 +7,7 @@ import { ApolloLink } from "apollo-link";
 const wsUri = new URL(window.location.href);
 wsUri.protocol = wsUri.protocol.startsWith("https") ? "wss" : "ws";
 wsUri.pathname = "/query";
+wsUri.hash = "";
 
 const client = new ApolloClient({
     link: ApolloLink.from([
