@@ -14,24 +14,41 @@ class RetroCard extends React.Component {
         };
         this.id = 0;
         this.cleanupTimeout = null;
+        this.inputRef = React.createRef();
     }
 
-    toggleEditing = e => {
-        e.preventDefault();
+    onKeyDown = (e, data) => {
+        if (e.key === "Enter") {
+            this.inputRef.current.textAreaRef.blur();
+        }
+        return true;
+    }
 
-        if (this.state.isEditing && this.props.onMessageUpdated) {
+
+    setEditingOn = e => {
+        e.preventDefault();
+        if (!this.state.editing) {
+            this.setState({
+                message: this.props.data.message,
+            });
+            setTimeout(() => {
+                this.inputRef.current.textAreaRef.focus();
+                this.inputRef.current.textAreaRef.select();
+            }, 1);
+            this.setState({ isEditing: true });
+        }
+    }
+
+    setEditingOff = e => {
+        e.preventDefault();
+        if (!this.state.editing) {
             this.props.onMessageUpdated({
                 cardId: this.props.data.id,
                 message: this.state.message,
             });
-        } else if (!this.state.isEditing) {
-            this.setState({
-                message: this.props.data.message,
-            });
+            this.setState({ isEditing: false });
         }
-
-        this.setState({ isEditing: !this.state.isEditing });
-    };
+    }
 
     handleMessageChange = e => {
         this.setState({ message: e.target.value });
@@ -124,18 +141,23 @@ class RetroCard extends React.Component {
         const { isDragging, onNewVote, onSetStatus } = this.props;
         const numVotes = R.sum(R.pluck("count")(votes));
 
-        let body = <p>{this.props.data.message}</p>;
-        if (this.state.isEditing) {
-            body = (
+        const hiddenStyle = {display: "none"};
+        const visibleStyle = {display: "block"};
+        let body = (
+            <div>
+                <p style={this.state.isEditing ? hiddenStyle : visibleStyle}>{this.props.data.message}</p>
                 <Input.TextArea
+                    style={this.state.isEditing ? visibleStyle : hiddenStyle}
                     onChange={this.handleMessageChange}
-                    onBlur={this.toggleEditing}
+                    onBlur={this.setEditingOff}
+                    onKeyDown={this.onKeyDown}
                     className="card-input"
                     rows={4}
+                    ref={this.inputRef}
                     value={this.state.message}
                 />
-            );
-        }
+            </div>
+        );
 
         const vote = (
             <div className="card-action-clap" onClick={onNewVote(id)}>
@@ -208,7 +230,7 @@ class RetroCard extends React.Component {
                     borderTop: `6px solid ${this.props.colour}`,
                 }}
             >
-                <div onDoubleClick={this.toggleEditing} className="card-body">
+                <div onDoubleClick={this.setEditingOn} className="card-body">
                     {body}
                 </div>
 
