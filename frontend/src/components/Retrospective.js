@@ -32,18 +32,18 @@ class _LiveRetrospective extends React.Component {
             document: CARD_SUBSCRIPTION,
             variables: { rId: id },
             updateQuery: (prev, { subscriptionData: { data } }) => {
-                const newCard = data.cardChanged;
                 const existingCards = prev.retrospectiveById.cards;
 
-                if (!R.find(R.propEq("id", newCard.id))(existingCards)) {
-                    return {
-                        ...prev,
-                        retrospectiveById: {
-                            ...prev.retrospectiveById,
-                            cards: [...existingCards, newCard],
-                        },
-                    };
-                }
+                return {
+                    ...prev,
+                    retrospectiveById: {
+                        ...prev.retrospectiveById,
+                        cards: R.sortBy(
+                            R.prop("index"),
+                            existingCards
+                        ),
+                    },
+                };
             },
         });
     }
