@@ -13,8 +13,44 @@ import { Layout, Menu } from "antd";
 import "./App.css";
 import "./Effects.css";
 import "antd/dist/antd.css";
+import md5 from "md5";
 
 const { Header, Content, Footer } = Layout;
+
+
+class OnlineUsers extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            users: []
+        };
+    }
+
+    componentWillMount() {
+        this.props.holder.setOnlineUsers = this.setOnlineUsers;
+    }
+
+    setOnlineUsers = (users) => {
+        this.setState({
+            users: users
+        });
+    }
+
+    render() {
+        if (this.state.users.length === 0) return null;
+        return (
+            <Menu.Item
+                key="users"
+                onItemHover={() => {}}
+            >
+                Online Users:
+                {this.state.users.map((user) => {
+                    return <img key={user} className="userAvatar" title={user} src={`https://gravatar.com/avatar/${user}?d=identicon`}/>
+                })}
+            </Menu.Item>
+        );
+    }
+}
 
 class App extends React.Component {
     onLaunch = async () => {
@@ -23,6 +59,10 @@ class App extends React.Component {
     };
 
     render() {
+        var onlineUsersCallbackHolder = {
+            setOnlineUsers: () => {}
+        };
+
         return (
             <Layout className="layout">
                 <Header className="header">
@@ -31,6 +71,7 @@ class App extends React.Component {
                     </h1>
 
                     <Menu mode="horizontal" className="menu">
+                        <OnlineUsers holder={onlineUsersCallbackHolder}/>
                         <Menu.Item
                             key="launch"
                             className="action-launch"
@@ -46,7 +87,7 @@ class App extends React.Component {
 
                 <Content className="content">
                     <Switch>
-                        <Route path="/:id/" component={RetrospectivePage} />
+                        <Route path="/:id/" component={(props) => (<RetrospectivePage {...props} setOnlineUsersHolder={onlineUsersCallbackHolder}/>)}/>
                         <Route path="/" component={HomePage} />
                     </Switch>
                 </Content>
