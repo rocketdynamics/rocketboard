@@ -45,7 +45,7 @@ class OnlineUsers extends React.Component {
             >
                 Online Users:
                 {this.state.users.map((user) => {
-                    return <img key={user} className="userAvatar" title={user} src={`https://gravatar.com/avatar/${user}?d=identicon`}/>
+                    return <img key={user} className="userAvatar" title={user} src={`https://gravatar.com/avatar/${md5(user)}?d=identicon`}/>
                 })}
             </Menu.Item>
         );
