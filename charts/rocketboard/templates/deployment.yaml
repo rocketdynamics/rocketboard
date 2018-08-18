@@ -48,6 +48,10 @@ spec:
             - name: ROCKET_DATABASE_URI
               value: postgres://root@{{ template "rocketboard.fullname" . }}-cockroachdb-public:26257/rocket?sslmode=disable
 {{- end }}
+            - name: ROCKET_DATA_DIR
+              value: /data
+            - name: NATS_ADDR
+              value: nats://{{ template "rocketboard.fullname" . }}-nats-client:4222
           ports:
             - name: http
               containerPort: 5000

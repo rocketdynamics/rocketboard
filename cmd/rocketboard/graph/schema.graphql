@@ -18,6 +18,7 @@ type RootMutation {
 
 type Subscription {
   cardChanged(rId: String!): Card!
+  retroChanged(rId: String!): Retrospective!
 }
 
 enum StatusType {
@@ -33,6 +34,8 @@ type Retrospective {
     name: String
 
     cards: [Card]
+
+    onlineUsers: [String]
 }
 
 type Card {

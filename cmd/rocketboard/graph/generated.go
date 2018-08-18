@@ -44,6 +44,7 @@ type CardResolver interface {
 }
 type RetrospectiveResolver interface {
 	Cards(ctx context.Context, obj *model.Retrospective) ([]*model.Card, error)
+	OnlineUsers(ctx context.Context, obj *model.Retrospective) ([]*string, error)
 }
 type RootMutationResolver interface {
 	StartRetrospective(ctx context.Context, name *string) (string, error)
@@ -58,6 +59,7 @@ type RootQueryResolver interface {
 }
 type SubscriptionResolver interface {
 	CardChanged(ctx context.Context, rId string) (<-chan model.Card, error)
+	RetroChanged(ctx context.Context, rId string) (<-chan model.Retrospective, error)
 }
 
 type executableSchema struct {
@@ -391,6 +393,8 @@ func (ec *executionContext) _Retrospective(ctx context.Context, sel ast.Selectio
 			out.Values[i] = ec._Retrospective_name(ctx, field, obj)
 		case "cards":
 			out.Values[i] = ec._Retrospective_cards(ctx, field, obj)
+		case "onlineUsers":
+			out.Values[i] = ec._Retrospective_onlineUsers(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -499,6 +503,44 @@ func (ec *executionContext) _Retrospective_cards(ctx context.Context, field grap
 					return graphql.Null
 				}
 				return ec._Card(ctx, field.Selections, res[idx1])
+			}())
+		}
+		return arr1
+	})
+}
+
+func (ec *executionContext) _Retrospective_onlineUsers(ctx context.Context, field graphql.CollectedField, obj *model.Retrospective) graphql.Marshaler {
+	ctx = graphql.WithResolverContext(ctx, &graphql.ResolverContext{
+		Object: "Retrospective",
+		Args:   nil,
+		Field:  field,
+	})
+	return graphql.Defer(func() (ret graphql.Marshaler) {
+		defer func() {
+			if r := recover(); r != nil {
+				userErr := ec.Recover(ctx, r)
+				ec.Error(ctx, userErr)
+				ret = graphql.Null
+			}
+		}()
+
+		resTmp := ec.FieldMiddleware(ctx, func(ctx context.Context) (interface{}, error) {
+			return ec.resolvers.Retrospective().OnlineUsers(ctx, obj)
+		})
+		if resTmp == nil {
+			return graphql.Null
+		}
+		res := resTmp.([]*string)
+		arr1 := graphql.Array{}
+		for idx1 := range res {
+			arr1 = append(arr1, func() graphql.Marshaler {
+				rctx := graphql.GetResolverContext(ctx)
+				rctx.PushIndex(idx1)
+				defer rctx.Pop()
+				if res[idx1] == nil {
+					return graphql.Null
+				}
+				return graphql.MarshalString(*res[idx1])
 			}())
 		}
 		return arr1
@@ -1028,6 +1070,8 @@ func (ec *executionContext) _Subscription(ctx context.Context, sel ast.Selection
 	switch fields[0].Name {
 	case "cardChanged":
 		return ec._Subscription_cardChanged(ctx, fields[0])
+	case "retroChanged":
+		return ec._Subscription_retroChanged(ctx, fields[0])
 	default:
 		panic("unknown field " + strconv.Quote(fields[0].Name))
 	}
@@ -1059,6 +1103,36 @@ func (ec *executionContext) _Subscription_cardChanged(ctx context.Context, field
 		}
 		var out graphql.OrderedMap
 		out.Add(field.Alias, func() graphql.Marshaler { return ec._Card(ctx, field.Selections, &res) }())
+		return &out
+	}
+}
+
+func (ec *executionContext) _Subscription_retroChanged(ctx context.Context, field graphql.CollectedField) func() graphql.Marshaler {
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["rId"]; ok {
+		var err error
+		arg0, err = graphql.UnmarshalString(tmp)
+		if err != nil {
+			ec.Error(ctx, err)
+			return nil
+		}
+	}
+	args["rId"] = arg0
+	ctx = graphql.WithResolverContext(ctx, &graphql.ResolverContext{Field: field})
+	results, err := ec.resolvers.Subscription().RetroChanged(ctx, args["rId"].(string))
+	if err != nil {
+		ec.Error(ctx, err)
+		return nil
+	}
+	return func() graphql.Marshaler {
+		res, ok := <-results
+		if !ok {
+			return nil
+		}
+		var out graphql.OrderedMap
+		out.Add(field.Alias, func() graphql.Marshaler { return ec._Retrospective(ctx, field.Selections, &res) }())
 		return &out
 	}
 }
@@ -2108,6 +2182,7 @@ type RootMutation {
 
 type Subscription {
   cardChanged(rId: String!): Card!
+  retroChanged(rId: String!): Retrospective!
 }
 
 enum StatusType {
@@ -2123,6 +2198,8 @@ type Retrospective {
     name: String
 
     cards: [Card]
+
+    onlineUsers: [String]
 }
 
 type Card {

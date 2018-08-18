@@ -3,8 +3,6 @@ package graph
 import (
 	"context"
 	"github.com/arachnys/rocketboard/cmd/rocketboard/model"
-	"golang.org/x/time/rate"
-	"strings"
 	"sync"
 )
 
@@ -78,6 +76,13 @@ func (r *rootResolver) RootQuery() RootQueryResolver {
 func (r *retrospectiveResolver) Cards(ctx context.Context, obj *model.Retrospective) ([]*model.Card, error) {
 	cards, _ := r.s.GetCardsForRetrospective(obj.Id)
 	return cards, nil
+}
+func (r *retrospectiveResolver) OnlineUsers(ctx context.Context, obj *model.Retrospective) ([]*string, error) {
+	users := make([]*string, 0)
+	for user := range userLimiters {
+		users = append(users, &user)
+	}
+	return users, nil
 }
 
 func (r *cardResolver) Statuses(ctx context.Context, obj *model.Card) ([]*model.Status, error) {
@@ -163,44 +168,4 @@ func (r *mutationResolver) UpdateStatus(ctx context.Context, id string, status m
 	}()
 
 	return *s, nil
-}
-
-var cardSubs = make(map[string]map[string]chan model.Card)
-var userLimiters = make(map[string]*rate.Limiter)
-
-func (r *rootResolver) sendCardToSubs(c *model.Card) {
-	r.mu.Lock()
-	if c != nil && cardSubs[c.RetrospectiveId] != nil {
-		for _, subChan := range cardSubs[c.RetrospectiveId] {
-			subChan <- *c
-		}
-	}
-	r.mu.Unlock()
-}
-
-func (r *subscriptionResolver) CardChanged(ctx context.Context, rId string) (<-chan model.Card, error) {
-	subChan := make(chan model.Card, 1)
-	id := r.s.NewUlid()
-	user := ctx.Value("email").(string)
-
-	r.mu.Lock()
-	userLimiters[user] = rate.NewLimiter(10, 100)
-	if strings.Contains(user, "will") {
-		userLimiters[user] = rate.NewLimiter(1, 10)
-	}
-	if cardSubs[rId] == nil {
-		cardSubs[rId] = make(map[string]chan model.Card)
-	}
-	cardSubs[rId][id] = subChan
-	r.mu.Unlock()
-
-	go func() {
-		<-ctx.Done()
-		r.mu.Lock()
-		delete(cardSubs[rId], id)
-		delete(userLimiters, user)
-		r.mu.Unlock()
-	}()
-
-	return subChan, nil
 }

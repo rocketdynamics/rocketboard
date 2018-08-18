@@ -12,6 +12,7 @@ import {
     NEW_VOTE,
     UPDATE_STATUS,
     CARD_SUBSCRIPTION,
+    RETRO_SUBSCRIPTION,
 } from "../queries";
 
 const DEFAULT_BOARDS = ["Positive", "Mixed", "Negative"];
@@ -25,9 +26,14 @@ const DEFAULT_COLOURS = {
 
 class _LiveRetrospective extends React.Component {
     onCardChanged = null;
+    onRetroChanged = null;
 
     componentDidMount() {
         const { id } = this.props;
+        this.onRetroChanged = this.props.subscribe({
+            document: RETRO_SUBSCRIPTION,
+            variables: { rId: id },
+        });
         this.onCardChanged = this.props.subscribe({
             document: CARD_SUBSCRIPTION,
             variables: { rId: id },
@@ -324,6 +330,7 @@ class _Retrospective extends React.Component {
                                 id={id}
                                 subscribe={subscribeToMore}
                             >
+                                <p>online: {data.retrospectiveById.onlineUsers}</p>
                                 <DragDropContext
                                     onDragEnd={this.handleMoveCard}
                                     onDragUpdate={this.cardDragUpdate}
