@@ -21,7 +21,7 @@ ingress:
         - rocketboard.arachnys.com
 
 cockroachdb:
-  enabled: true
+  enabled: false
   Replicas: 1
   Storage: 10Gi
   Resources:
