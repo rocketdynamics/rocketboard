@@ -2,5 +2,8 @@ dependencies:
 - name: oauth2-proxy
   repository: https://chartmuseum:***REMOVED***@chartmuseum.k8s-dev.arachnys.com/
   version: 0.5.3
-digest: sha256:1cc0f33599c0b48e576e0163b2fb342a3e7fa93ebb15443c77e94e40b2364380
-generated: 2018-08-17T10:38:44.10513138+01:00
+- name: cockroachdb
+  repository: https://kubernetes-charts.storage.googleapis.com/
+  version: 1.2.2
+digest: sha256:65111d28af61c83284c5eab5b01a68290070c8849e3eba0345afabc3ab6cfeb0
+generated: 2018-08-19T11:52:26.523169439+01:00

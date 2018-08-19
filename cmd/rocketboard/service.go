@@ -25,6 +25,8 @@ type repository interface {
 	NewStatus(*model.Status) error
 	GetStatusById(id string) (*model.Status, error)
 	GetStatusesByCardId(string) ([]*model.Status, error)
+
+	Healthcheck() error
 }
 
 type rocketboardService struct {
@@ -162,6 +164,10 @@ func (s *rocketboardService) SetStatus(id string, t model.StatusType) (string, e
 
 func (s *rocketboardService) NewUlid() string {
 	return newUlid()
+}
+
+func (s *rocketboardService) Healthcheck() error {
+	return s.db.Healthcheck()
 }
 
 func newUlid() string {
