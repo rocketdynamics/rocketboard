@@ -11,7 +11,6 @@ import (
 	"os"
 	"regexp"
 	"strings"
-	"time"
 )
 
 func WithEmail(base http.Handler) http.Handler {
@@ -51,15 +50,10 @@ func main() {
 	svc := NewRocketboardService(repository)
 
 	http.Handle("/query-playground", handler.Playground("Rocketboard", "/query"))
-	http.HandleFunc("/retrospective/new", func(w http.ResponseWriter, r *http.Request) {
-		name := "Retrospective " + time.Now().Format("2006-01-02")
-		id, err := svc.StartRetrospective(name)
-		if err != nil {
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-
-		http.Redirect(w, r, "/retrospective/"+id, http.StatusFound)
+	http.HandleFunc("/healthcheck", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		svc.Healthcheck()
+		w.Write([]byte("OK"))
 	})
 
 	http.Handle("/query", WithEmail(handler.GraphQL(

@@ -199,3 +199,8 @@ func (db *sqlRepository) GetStatusesByCardId(id string) ([]*model.Status, error)
 	err := db.Select(&ss, "SELECT * FROM statuses WHERE cardid=$1", id)
 	return ss, err
 }
+
+func (db *sqlRepository) Healthcheck() error {
+	_, err := db.Exec(`SELECT COUNT(*) FROM repositories`)
+	return err
+}
