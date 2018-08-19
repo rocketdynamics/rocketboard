@@ -2,6 +2,7 @@ package graph
 
 import (
 	"context"
+	"github.com/nats-io/gnatsd/server"
 	"github.com/nats-io/go-nats"
 	"github.com/vmihailenco/msgpack"
 	"golang.org/x/time/rate"
@@ -26,9 +27,31 @@ var nc *nats.Conn
 var subChannels = make(map[string]map[string]chan model.Card)
 var userLimiters = make(map[string]*CountedLimiter)
 
+func startLocalNats() {
+	opts := server.Options{}
+
+	// Create the server with appropriate options.
+	s := server.New(&opts)
+
+	// Configure the logger based on the flags
+	s.ConfigureLogger()
+
+	// Start things up. Block here until done.
+	if err := server.Run(s); err != nil {
+		server.PrintAndDie(err.Error())
+	}
+}
+
 func InitMessageQueue() {
 	var err error
-	nc, err = nats.Connect(os.Getenv("NATS_ADDR"))
+	nats_addr := os.Getenv("NATS_ADDR")
+	if nats_addr == "" {
+		log.Println("No NATS_ADDR specified, starting local nats")
+		go startLocalNats()
+		nats_addr = "nats://localhost:4222"
+	}
+
+	nc, err = nats.Connect(nats_addr)
 	if err != nil {
 		log.Fatal("could not connect to nats")
 	}
