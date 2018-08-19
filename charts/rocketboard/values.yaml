@@ -7,9 +7,6 @@ image:
 
 include-qa-annotations: true
 
-persistence:
-  enabled: false
-
 ingress:
   enabled: true
   path: /
@@ -22,6 +19,15 @@ ingress:
     - secretName: arachnys-wildcard-tls
       hosts:
         - rocketboard.arachnys.com
+
+cockroachdb:
+  enabled: true
+  Replicas: 1
+  Storage: 10Gi
+  Resources:
+    requests:
+      cpu: "100m"
+      memory: "512Mi"
 
 oauth2-proxy:
   replicaCount: 1

@@ -26,24 +26,32 @@ spec:
     spec:
       imagePullSecrets:
         - name: arachnys-docker
-{{- if index .Values.persistence.enabled }}
-      volumes:
-        - name: rocketboard-data
-          persistentVolumeClaim:
-            claimName: {{ template "rocketboard.fullname" . }}
+{{- if index .Values.cockroachdb.enabled }}
+      initContainers:
+        - name: {{ .Chart.Name }}-initdb
+          image: "postgres:10-alpine"
+          command:
+          - bash
+          - -c
+          args:
+          - |
+            psql "$ROCKET_DATABASE_ROOT_URI" -c "CREATE DATABASE rocket" || echo "Ignoring Error"
+            psql "$ROCKET_DATABASE_URI" -c "select 1"
+          env:
+            - name: ROCKET_DATABASE_ROOT_URI
+              value: postgres://root@{{ template "rocketboard.fullname" . }}-cockroachdb-public:26257/?sslmode=disable
+            - name: ROCKET_DATABASE_URI
+              value: postgres://root@{{ template "rocketboard.fullname" . }}-cockroachdb-public:26257/rocket?sslmode=disable
 {{- end }}
       containers:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-{{- if index .Values.persistence.enabled }}
-          volumeMounts:
-          - mountPath: "/data"
-            name: rocketboard-data
-{{- end }}
+{{- if index .Values.cockroachdb.enabled }}
           env:
-            - name: ROCKET_DATA_DIR
-              value: /data
+            - name: ROCKET_DATABASE_URI
+              value: postgres://root@{{ template "rocketboard.fullname" . }}-cockroachdb-public:26257/rocket?sslmode=disable
+{{- end }}
           ports:
             - name: http
               containerPort: 5000

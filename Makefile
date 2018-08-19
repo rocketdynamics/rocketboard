@@ -26,7 +26,7 @@ deploy:
 	${HELM} upgrade --install --force ${APP_NAME} charts/${APP_NAME} \
 		--set-string image.tag=${VERSION} \
 		--set include-qa-annotations=false \
-		--set persistence.enabled=true \
+		--set cockroachdb.enabled=true \
 		--wait
 
 deploy/qa:
