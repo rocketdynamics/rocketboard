@@ -20,9 +20,15 @@ ingress:
       hosts:
         - rocketboard.arachnys.com
 
+strategy:
+  type: RollingUpdate
+  rollingUpdate:
+    maxSurge: 0
+    maxUnavailable: 1
+
 cockroachdb:
   enabled: false
-  Replicas: 1
+  Replicas: 3
   Storage: 10Gi
   Resources:
     requests:
