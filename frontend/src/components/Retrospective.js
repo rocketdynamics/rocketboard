@@ -44,7 +44,7 @@ class _LiveRetrospective extends React.Component {
                     retrospectiveById: {
                         ...prev.retrospectiveById,
                         cards: R.sortBy(
-                            R.prop("index"),
+                            R.prop("position"),
                             existingCards
                         ),
                     },
@@ -88,7 +88,7 @@ class _Retrospective extends React.Component {
                     });
 
                     const columnIndexes = R.pipe(
-                        R.pluck("index"),
+                        R.pluck("position"),
                         R.filter(R.propEq("column", column))
                     );
                     const maxIndex = Math.max(
@@ -101,7 +101,7 @@ class _Retrospective extends React.Component {
                         creator: "Unknown",
                         votes: [],
                         statuses: [],
-                        index: maxIndex + IDX_SPACING,
+                        position: maxIndex + IDX_SPACING,
                         ...newCard,
                     });
 
@@ -144,7 +144,7 @@ class _Retrospective extends React.Component {
             },
             optimisticResponse: {
                 __typename: "Mutation",
-                moveCard: { position: destination.index },
+                moveCard: { index: destination.index },
             },
             update: (proxy, { data: { moveCard } }) => {
                 const data = proxy.readQuery({
@@ -162,29 +162,29 @@ class _Retrospective extends React.Component {
                 );
                 const otherCards = R.filter(c => c.id !== cardId, columnCards);
 
-                var index = moveCard;
-                if (moveCard.position !== undefined) {
+                var position = moveCard;
+                if (moveCard.index !== undefined) {
                     if (otherCards.length === 0) {
-                        index = IDX_SPACING;
-                    } else if (moveCard.position >= otherCards.length) {
-                        index =
-                            otherCards[otherCards.length - 1].index +
+                        position = IDX_SPACING;
+                    } else if (moveCard.index >= otherCards.length) {
+                        position =
+                            otherCards[otherCards.length - 1].position +
                             IDX_SPACING;
-                    } else if (otherCards[moveCard.position].id === cardId) {
-                        index = otherCards[moveCard.position].index;
-                    } else if (moveCard.position === 0) {
-                        index = otherCards[0].index - IDX_SPACING;
+                    } else if (otherCards[moveCard.index].id === cardId) {
+                        position = otherCards[moveCard.index].position;
+                    } else if (moveCard.index === 0) {
+                        position = otherCards[0].position - IDX_SPACING;
                     } else {
-                        index =
+                        position =
                             Math.floor(
-                                otherCards[moveCard.position].index +
-                                    otherCards[moveCard.position - 1].index
+                                otherCards[moveCard.index].position +
+                                    otherCards[moveCard.index - 1].position
                             ) / 2;
                     }
                 }
-                existingCards[targetCardIndex].index = index;
+                existingCards[targetCardIndex].position = position;
                 data.retrospectiveById.cards = R.sortBy(
-                    R.prop("index"),
+                    R.prop("position"),
                     existingCards
                 );
                 proxy.writeQuery({

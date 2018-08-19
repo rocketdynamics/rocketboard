@@ -1,10 +1,13 @@
 package sql
 
 import (
-	"database/sql"
 	"fmt"
 	"github.com/jmoiron/sqlx"
 	"math"
+	"net/url"
+
+	_ "github.com/lib/pq"
+	_ "github.com/mattn/go-sqlite3"
 
 	"github.com/arachnys/rocketboard/cmd/rocketboard/model"
 )
@@ -16,32 +19,32 @@ type sqlRepository struct {
 var schema = `
 CREATE TABLE IF NOT EXISTS retrospectives (
   id TEXT PRIMARY KEY,
-  created DATETIME,
-  updated DATETIME,
+  created TIMESTAMP,
+  updated TIMESTAMP,
   name TEXT
 );
 CREATE TABLE IF NOT EXISTS cards (
   id TEXT PRIMARY KEY,
-  created DATETIME,
-  updated DATETIME,
-  retrospectiveId TEXT,
+  created TIMESTAMP,
+  updated TIMESTAMP,
+  retrospectiveid TEXT,
   message TEXT,
   creator TEXT,
-  column TEXT,
-  idx INTEGER
+  "column" TEXT,
+  position INTEGER
 );
 CREATE TABLE IF NOT EXISTS votes (
   id TEXT PRIMARY KEY,
-  created DATETIME,
-  updated DATETIME,
-  cardId TEXT,
+  created TIMESTAMP,
+  updated TIMESTAMP,
+  cardid TEXT,
   voter TEXT,
   count INTEGER
 );
 CREATE TABLE IF NOT EXISTS statuses (
   id TEXT PRIMARY KEY,
-  created DATETIME,
-  cardId  TEXT,
+  created TIMESTAMP,
+  cardid  TEXT,
   type INTEGER
 );
 `
@@ -49,12 +52,25 @@ CREATE TABLE IF NOT EXISTS statuses (
 // Space elements by 2^15, which allows for 15 divisions before re-sorting
 var IDX_SPACING = int(math.Exp2(15))
 
-func NewRepository(db *sql.DB) *sqlRepository {
-	_, err := db.Exec(schema)
+func NewRepository(dbURI string) (*sqlRepository, error) {
+	url, err := url.Parse(dbURI)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
-	return &sqlRepository{sqlx.NewDb(db, "sqlite3")}
+	dbDriver := url.Scheme
+	if dbDriver == "sqlite3" {
+		url.Scheme = ""
+	}
+	db, err := sqlx.Open(dbDriver, url.String())
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = db.Exec(schema)
+	if err != nil {
+		return nil, err
+	}
+	return &sqlRepository{db}, nil
 }
 
 func (db *sqlRepository) NewRetrospective(r *model.Retrospective) error {
@@ -64,18 +80,18 @@ func (db *sqlRepository) NewRetrospective(r *model.Retrospective) error {
 
 func (db *sqlRepository) GetRetrospectiveById(id string) (*model.Retrospective, error) {
 	var r model.Retrospective
-	err := db.Get(&r, "SELECT * FROM retrospectives WHERE id=?", id)
+	err := db.Get(&r, "SELECT * FROM retrospectives WHERE id=$1", id)
 	return &r, err
 }
 
 func (db *sqlRepository) NewCard(c *model.Card) error {
 	var count int
 	var max int
-	err := db.Get(&count, `SELECT COUNT(*) FROM cards WHERE retrospectiveId=?`, c.RetrospectiveId)
+	err := db.Get(&count, `SELECT COUNT(*) FROM cards WHERE retrospectiveid=$1`, c.RetrospectiveId)
 	if err != nil {
 		return err
 	}
-	err = db.Get(&max, `SELECT max(idx) FROM cards WHERE retrospectiveId=? AND column=?`, c.RetrospectiveId, c.Column)
+	err = db.Get(&max, `SELECT max(position) FROM cards WHERE retrospectiveid=$1 AND "column"=$2`, c.RetrospectiveId, c.Column)
 	if err != nil {
 		max = 0
 	}
@@ -83,38 +99,49 @@ func (db *sqlRepository) NewCard(c *model.Card) error {
 	if count > 100 {
 		return fmt.Errorf("too many cards")
 	}
-	c.Index = max + IDX_SPACING
+	c.Position = max + IDX_SPACING
 
 	_, err = db.NamedExec(`INSERT INTO cards
-      (id, created, updated, retrospectiveId, message, creator, column, idx)
-    VALUES (:id, :created, :updated, :retrospectiveId, :message, :creator, :column, :idx)
+      (id, created, updated, retrospectiveid, message, creator, "column", position)
+    VALUES (:id, :created, :updated, :retrospectiveid, :message, :creator, :column, :position)
   `, c)
 	return err
 }
 
-func (db *sqlRepository) UpdateCard(c *model.Card) error {
-	if c.Index < 0 {
-		return fmt.Errorf("Cannot move to negative index")
-	}
-
+func (db *sqlRepository) MoveCard(c *model.Card, column string, index int) error {
 	cs := []*model.Card{}
-	err := db.Select(&cs, "SELECT * FROM cards WHERE retrospectiveId=? AND column = ? AND id != ? ORDER BY idx ASC", c.RetrospectiveId, c.Column, c.Id)
+	err := db.Select(&cs, `SELECT * FROM cards WHERE retrospectiveid=$1 AND "column"=$2 AND id!=$3 ORDER BY position ASC`, c.RetrospectiveId, column, c.Id)
 	if err != nil {
 		return err
 	}
 
-	if len(cs) == 0 {
-		c.Index = IDX_SPACING
-	} else if len(cs) <= c.Index {
-		c.Index = cs[len(cs)-1].Index + IDX_SPACING
-	} else if c.Index == 0 {
-		c.Index = cs[0].Index - IDX_SPACING
-	} else {
-		c.Index = (cs[c.Index].Index + cs[c.Index-1].Index) / 2
+	if index < 0 {
+		return fmt.Errorf("Cannot move to negative index")
 	}
 
+	if len(cs) == 0 {
+		c.Position = IDX_SPACING
+	} else if index >= len(cs) {
+		c.Position = cs[len(cs)-1].Position + IDX_SPACING
+	} else if index == 0 {
+		c.Position = cs[0].Position - IDX_SPACING
+	} else {
+		c.Position = (cs[index].Position + cs[index-1].Position) / 2
+	}
+
+	c.Column = column
+
 	_, err = db.NamedExec(`UPDATE cards
-    SET updated=:updated, retrospectiveId=:retrospectiveId, message=:message, creator=:creator, column=:column, idx=:idx
+    SET updated=:updated, retrospectiveid=:retrospectiveid, message=:message, creator=:creator, "column"=:column, position=:position
+    WHERE id=:id
+  `, c)
+
+	return err
+}
+
+func (db *sqlRepository) UpdateCard(c *model.Card) error {
+	_, err := db.NamedExec(`UPDATE cards
+    SET updated=:updated, retrospectiveid=:retrospectiveid, message=:message, creator=:creator, "column"=:column, position=:position
     WHERE id=:id
   `, c)
 	return err
@@ -122,20 +149,20 @@ func (db *sqlRepository) UpdateCard(c *model.Card) error {
 
 func (db *sqlRepository) GetCardById(id string) (*model.Card, error) {
 	var c model.Card
-	err := db.Get(&c, "SELECT * FROM cards WHERE id=?", id)
+	err := db.Get(&c, "SELECT * FROM cards WHERE id=$1", id)
 	return &c, err
 }
 
 func (db *sqlRepository) GetCardsByRetrospectiveId(id string) ([]*model.Card, error) {
 	cs := []*model.Card{}
-	err := db.Select(&cs, "SELECT * FROM cards WHERE retrospectiveId=? ORDER BY idx ASC", id)
+	err := db.Select(&cs, "SELECT * FROM cards WHERE retrospectiveid=$1 ORDER BY position ASC", id)
 	return cs, err
 }
 
 func (db *sqlRepository) NewVote(v *model.Vote) error {
 	_, err := db.NamedExec(`INSERT INTO votes
-      (id, created, updated, cardId, voter, count)
-    VALUES (:id, :created, :updated, :cardId, :voter, :count)
+      (id, created, updated, cardid, voter, count)
+    VALUES (:id, :created, :updated, :cardid, :voter, :count)
     ON CONFLICT(id) DO UPDATE SET updated=:updated, count=:count
   `, v)
 	return err
@@ -143,32 +170,32 @@ func (db *sqlRepository) NewVote(v *model.Vote) error {
 
 func (db *sqlRepository) GetVotesByCardId(id string) ([]*model.Vote, error) {
 	vs := []*model.Vote{}
-	err := db.Select(&vs, "SELECT * FROM votes WHERE cardId=?", id)
+	err := db.Select(&vs, "SELECT * FROM votes WHERE cardid=$1", id)
 	return vs, err
 }
 
 func (db *sqlRepository) GetVoteByCardIdAndVoter(id string, voter string) (*model.Vote, error) {
 	v := model.Vote{}
-	err := db.Get(&v, "SELECT * FROM votes WHERE cardId=? AND voter=?", id, voter)
+	err := db.Get(&v, "SELECT * FROM votes WHERE cardid=$1 AND voter=$2", id, voter)
 	return &v, err
 }
 
 func (db *sqlRepository) NewStatus(s *model.Status) error {
 	_, err := db.NamedExec(`INSERT INTO statuses
-      (id, created, cardId, type)
-    VALUES (:id, :created, :cardId, :type)
+      (id, created, cardid, type)
+    VALUES (:id, :created, :cardid, :type)
   `, s)
 	return err
 }
 
 func (db *sqlRepository) GetStatusById(id string) (*model.Status, error) {
 	var s model.Status
-	err := db.Get(&s, "SELECT * FROM statuses WHERE id=?", id)
+	err := db.Get(&s, "SELECT * FROM statuses WHERE id=$1", id)
 	return &s, err
 }
 
 func (db *sqlRepository) GetStatusesByCardId(id string) ([]*model.Status, error) {
 	ss := []*model.Status{}
-	err := db.Select(&ss, "SELECT * FROM statuses WHERE cardId=?", id)
+	err := db.Select(&ss, "SELECT * FROM statuses WHERE cardid=$1", id)
 	return ss, err
 }

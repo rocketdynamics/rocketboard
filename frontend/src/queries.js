@@ -27,7 +27,7 @@ export const GET_RETROSPECTIVE = gql`
                     voter
                     count
                 }
-                index
+                position
             }
         }
     }
@@ -86,7 +86,7 @@ export const CARD_SUBSCRIPTION = gql`
                 count
                 voter
             }
-            index
+            position
         }
     }
 `;

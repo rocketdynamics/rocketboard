@@ -24,13 +24,13 @@ type Card struct {
 	Created time.Time
 	Updated time.Time
 
-	RetrospectiveId string `db:"retrospectiveId"`
+	RetrospectiveId string
 
 	Message string
 	Creator string
 	Column  string
 
-	Index int `db:"idx"`
+	Position int
 }
 
 func (t *StatusType) UnmarshalGQL(v interface{}) error {
@@ -61,7 +61,7 @@ type Status struct {
 	Id string
 
 	Created time.Time
-	CardId  string `db:"cardId"`
+	CardId  string
 
 	Type StatusType
 }
@@ -72,7 +72,7 @@ type Vote struct {
 	Created time.Time
 	Updated time.Time
 
-	CardId string `db:"cardId"`
+	CardId string
 
 	Voter string
 	Count int

@@ -163,8 +163,8 @@ func (ec *executionContext) _Card(ctx context.Context, sel ast.SelectionSet, obj
 			out.Values[i] = ec._Card_statuses(ctx, field, obj)
 		case "votes":
 			out.Values[i] = ec._Card_votes(ctx, field, obj)
-		case "index":
-			out.Values[i] = ec._Card_index(ctx, field, obj)
+		case "position":
+			out.Values[i] = ec._Card_position(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -351,7 +351,7 @@ func (ec *executionContext) _Card_votes(ctx context.Context, field graphql.Colle
 	})
 }
 
-func (ec *executionContext) _Card_index(ctx context.Context, field graphql.CollectedField, obj *model.Card) graphql.Marshaler {
+func (ec *executionContext) _Card_position(ctx context.Context, field graphql.CollectedField, obj *model.Card) graphql.Marshaler {
 	rctx := graphql.GetResolverContext(ctx)
 	rctx.Object = "Card"
 	rctx.Args = nil
@@ -359,7 +359,7 @@ func (ec *executionContext) _Card_index(ctx context.Context, field graphql.Colle
 	rctx.PushField(field.Alias)
 	defer rctx.Pop()
 	resTmp := ec.FieldMiddleware(ctx, func(ctx context.Context) (interface{}, error) {
-		return obj.Index, nil
+		return obj.Position, nil
 	})
 	if resTmp == nil {
 		return graphql.Null
@@ -2136,7 +2136,7 @@ type Card {
     statuses: [Status]
     votes: [Vote]
 
-    index: Int
+    position: Int
 }
 
 type Vote {
