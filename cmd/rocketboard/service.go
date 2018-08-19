@@ -14,6 +14,7 @@ type repository interface {
 
 	NewCard(*model.Card) error
 	UpdateCard(*model.Card) error
+	MoveCard(*model.Card, string, int) error
 	GetCardById(string) (*model.Card, error)
 	GetCardsByRetrospectiveId(string) ([]*model.Card, error)
 
@@ -108,10 +109,7 @@ func (s *rocketboardService) MoveCard(id string, column string, index int) error
 		return err
 	}
 
-	c.Column = column
-	c.Index = index
-
-	return s.db.UpdateCard(c)
+	return s.db.MoveCard(c, column, index)
 }
 
 func (s *rocketboardService) UpdateMessage(id string, message string) error {

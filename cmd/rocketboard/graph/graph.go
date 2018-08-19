@@ -102,7 +102,7 @@ func (r *mutationResolver) MoveCard(ctx context.Context, id string, column strin
 	}
 	c, _ := r.s.GetCardById(id)
 	r.sendCardToSubs(c)
-	return c.Index, nil
+	return c.Position, nil
 }
 
 func (r *mutationResolver) UpdateMessage(ctx context.Context, id string, message string) (string, error) {

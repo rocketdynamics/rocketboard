@@ -46,7 +46,7 @@ type Card {
     statuses: [Status]
     votes: [Vote]
 
-    index: Int
+    position: Int
 }
 
 type Vote {
