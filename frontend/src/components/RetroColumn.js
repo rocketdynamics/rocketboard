@@ -11,12 +11,31 @@ import { Droppable, Draggable } from "react-beautiful-dnd";
 import { Button } from "antd";
 
 class _RetroColumn extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            newCard: undefined,
+        };
+    }
+
     handleAdd = e => {
         e.preventDefault();
-        if (this.props.onNewCard) {
-            this.props.onNewCard("New Card");
-        }
+        this.setState({
+            newCard: {
+                id: "newCard",
+                votes: [],
+                statuses: [],
+                isNew: true,
+            }
+        })
     };
+
+    handleNewCardUpdated = ({ cardId, message }) => {
+        this.setState({newCard: undefined});
+        if (this.props.onNewCard && message !== "") {
+            this.props.onNewCard(message);
+        }
+    }
 
     handleMessageUpdated = ({ cardId, message }) => {
         this.props.updateMessage({
@@ -50,12 +69,19 @@ class _RetroColumn extends React.Component {
     };
 
     shouldComponentUpdate(nextProps, nextState) {
-        // Update if cards changes
-        return !R.equals(nextProps.cards, this.props.cards);
+        // Update if cards or state changes
+        return !(
+            R.equals(nextProps.cards, this.props.cards) && R.equals(nextState, this.state)
+        )
     }
 
     render() {
-        const { cards, title, colour, onNewVote, onSetStatus } = this.props;
+        const { title, colour, onNewVote, onSetStatus } = this.props;
+        // Defensive copy of cards to allow us to push the new card
+        const cards = this.props.cards.slice();
+        if (this.state.newCard !== undefined) {
+            cards.push(this.state.newCard);
+        }
 
         return (
             <div className="column">
@@ -91,13 +117,16 @@ class _RetroColumn extends React.Component {
                                         >
                                             <RetroCard
                                                 onMessageUpdated={
-                                                    this.handleMessageUpdated
+                                                    item.isNew ?
+                                                        this.handleNewCardUpdated :
+                                                        this.handleMessageUpdated
                                                 }
                                                 isDragging={snapshot.isDragging}
                                                 data={item}
                                                 onNewVote={onNewVote}
                                                 onSetStatus={onSetStatus}
                                                 colour={colour}
+                                                isNew={item.isNew === true}
                                             />
                                         </div>
                                     )}
