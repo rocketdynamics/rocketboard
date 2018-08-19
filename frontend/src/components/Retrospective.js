@@ -324,13 +324,14 @@ class _Retrospective extends React.Component {
                         );
                     }
 
+                    this.props.setOnlineUsersHolder.setOnlineUsers(data.retrospectiveById.onlineUsers);
+
                     return (
                         <div className="page-retrospective">
                             <_LiveRetrospective
                                 id={id}
                                 subscribe={subscribeToMore}
                             >
-                                <p>online: {data.retrospectiveById.onlineUsers}</p>
                                 <DragDropContext
                                     onDragEnd={this.handleMoveCard}
                                     onDragUpdate={this.cardDragUpdate}
