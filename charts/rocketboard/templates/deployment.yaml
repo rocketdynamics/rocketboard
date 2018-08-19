@@ -38,6 +38,8 @@ spec:
               value: postgres://root@{{ template "rocketboard.fullname" . }}-cockroachdb-public:26257/?sslmode=disable
             - name: ROCKET_DATABASE_URI
               value: postgres://root@{{ template "rocketboard.fullname" . }}-cockroachdb-public:26257/rocket?sslmode=disable
+            - name: PGCONNECT_TIMEOUT
+              value: 3
 {{- end }}
       containers:
         - name: {{ .Chart.Name }}
