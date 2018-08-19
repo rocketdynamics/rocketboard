@@ -48,6 +48,7 @@ func main() {
 		log.Fatal(err)
 	}
 	svc := NewRocketboardService(repository)
+	graph.InitMessageQueue()
 
 	http.Handle("/query-playground", handler.Playground("Rocketboard", "/query"))
 	http.HandleFunc("/healthcheck", func(w http.ResponseWriter, r *http.Request) {

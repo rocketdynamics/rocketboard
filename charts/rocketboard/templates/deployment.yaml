@@ -43,11 +43,13 @@ spec:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-{{- if index .Values.cockroachdb.enabled }}
           env:
+{{- if index .Values.cockroachdb.enabled }}
             - name: ROCKET_DATABASE_URI
               value: postgres://root@{{ template "rocketboard.fullname" . }}-cockroachdb-public:26257/rocket?sslmode=disable
 {{- end }}
+            - name: NATS_ADDR
+              value: nats://{{ template "rocketboard.fullname" . }}-nats-client:4222
           ports:
             - name: http
               containerPort: 5000

@@ -13,6 +13,7 @@ export const GET_RETROSPECTIVE = gql`
             name
             created
             updated
+            onlineUsers
             cards {
                 id
                 message
@@ -87,6 +88,16 @@ export const CARD_SUBSCRIPTION = gql`
                 voter
             }
             position
+        }
+    }
+`;
+
+export const RETRO_SUBSCRIPTION = gql`
+    subscription OnRetroChanged($rId: String!) {
+        retroChanged(rId: $rId) {
+            id
+            name
+            onlineUsers
         }
     }
 `;

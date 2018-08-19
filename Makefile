@@ -46,7 +46,8 @@ deploy/qa:
         --set-string image.tag=${VERSION} \
         --set oauth2-proxy.extraArgs.upstream="http://${HELM_RELEASE_QA}" \
         -f charts/${APP_NAME}/values.yaml \
-        --wait
+        --wait \
+        --force
 
 gqlgen:
 	cd cmd/rocketboard && gqlgen
