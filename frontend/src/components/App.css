@@ -226,3 +226,67 @@
     height: 60%;
     padding: 0 5px;
 }
+
+.ant-layout-content {
+    position: relative;
+}
+
+.retrospective-loading {
+    position: absolute;
+    z-index: 10000;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background-color: #fffbfa;
+    text-align: center;
+    font-family: 'Play', sans-serif;
+    pointer-events: none;
+}
+
+    .retrospective-loading .loading-text {
+        transform: translate(-50%, -50%);
+        left: 50%;
+        top: 30%;
+        position: absolute;
+        font-size: 40px;
+        font-weight: 800;
+    }
+
+    @keyframes retro-loading-finished {
+        0% {
+            opacity: 1;
+        }
+        50% {
+            opacity: 1;
+        }
+        100% {
+            opacity: 0;
+        }
+    }
+    @keyframes retro-loading-text {
+        0% {
+            top: 30%;
+            left: 50%;
+            opacity: 1;
+        }
+        50% {
+            top: calc(30% - 50px);
+            left: 50%;
+            opacity: 0;
+        }
+        100% {
+            top: calc(30% - 50px);
+            left: 50%;
+            opacity: 0;
+        }
+    }
+
+    .retrospective-loading.loading-finished {
+        animation: retro-loading-finished 2000ms ease forwards
+    }
+
+    .retrospective-loading.loading-finished .loading-text {
+        animation: retro-loading-text 2000ms ease forwards
+    }
+

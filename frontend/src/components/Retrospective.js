@@ -302,32 +302,20 @@ class _Retrospective extends React.Component {
         return (
             <Query query={GET_RETROSPECTIVE} variables={{ id }}>
                 {({ loading, error, data, subscribeToMore }) => {
-                    if (loading) {
-                        return (
-                            <h2>
-                                Preparing for Take-Off{" "}
-                                <span role="img" aria-label="rocket">
-                                    🚀
-                                </span>
-                            </h2>
-                        );
-                    }
 
                     if (!R.prop(["retrospectiveById"], data)) {
-                        return (
-                            <h2>
-                                Rocketboard not found{" "}
-                                <span role="img" aria-label="broken heart">
-                                    💔
-                                </span>
-                            </h2>
-                        );
+                        data.retrospectiveById = {};
                     }
 
                     this.props.setOnlineUsersHolder.setOnlineUsers(data.retrospectiveById.onlineUsers);
 
                     return (
                         <div className="page-retrospective">
+                            <div className={"retrospective-loading" + (loading ? "" : " loading-finished")}>
+                                <pre className="loading-text">
+                                    R  O  C  K  E  T  B  O  A  R  D
+                                </pre>
+                            </div>
                             <_LiveRetrospective
                                 id={id}
                                 subscribe={subscribeToMore}
