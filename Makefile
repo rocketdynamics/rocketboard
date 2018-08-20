@@ -25,7 +25,7 @@ test:
 			--target backend-builder \
 			.
 
-	docker run --rm -it \
+	docker run --rm  \
 		${PRODUCTION_IMAGE_NAME}:${VERSION}-test \
 		go test -race ./... -cover
 
