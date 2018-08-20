@@ -12,9 +12,18 @@ class RetroCard extends React.Component {
             message: "",
             effects: [],
         };
+        if (props.isNew) {
+            this.state.isEditing = true;
+        }
         this.id = 0;
         this.cleanupTimeout = null;
         this.inputRef = React.createRef();
+    }
+
+    componentDidMount() {
+        if (this.props.isNew) {
+            this.inputRef.current.textAreaRef.focus();
+        }
     }
 
     onKeyDown = (e, data) => {
@@ -26,27 +35,23 @@ class RetroCard extends React.Component {
 
     setEditingOn = e => {
         e.preventDefault();
-        if (!this.state.editing) {
-            this.setState({
-                message: this.props.data.message,
-            });
-            setTimeout(() => {
-                this.inputRef.current.textAreaRef.focus();
-                this.inputRef.current.textAreaRef.select();
-            }, 1);
-            this.setState({ isEditing: true });
-        }
+        this.setState({
+            message: this.props.data.message,
+        });
+        setTimeout(() => {
+            this.inputRef.current.textAreaRef.focus();
+            this.inputRef.current.textAreaRef.select();
+        }, 1);
+        this.setState({ isEditing: true });
     };
 
     setEditingOff = e => {
         e.preventDefault();
-        if (!this.state.editing) {
-            this.props.onMessageUpdated({
-                cardId: this.props.data.id,
-                message: this.state.message,
-            });
-            this.setState({ isEditing: false });
-        }
+        this.props.onMessageUpdated({
+            cardId: this.props.data.id,
+            message: this.state.message,
+        });
+        this.setState({ isEditing: false });
     };
 
     handleMessageChange = e => {
@@ -152,6 +157,7 @@ class RetroCard extends React.Component {
                     onChange={this.handleMessageChange}
                     onBlur={this.setEditingOff}
                     onKeyDown={this.onKeyDown}
+                    placeholder="Retrospective item..."
                     className="card-input"
                     rows={4}
                     ref={this.inputRef}
@@ -237,7 +243,9 @@ class RetroCard extends React.Component {
                     <small>{this.props.data.creator}</small>
                 </div>
 
-                <div className="card-actions">{statusAction}</div>
+                {!this.props.isNew && (
+                    <div className="card-actions">{statusAction}</div>
+                )}
 
                 {!this.hasNoStatus() && (
                     <div
@@ -248,7 +256,9 @@ class RetroCard extends React.Component {
                     </div>
                 )}
 
-                {vote}
+                {!this.props.isNew && (
+                    vote
+                )}
             </div>
         );
     }
