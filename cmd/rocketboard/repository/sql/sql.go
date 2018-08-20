@@ -163,7 +163,7 @@ func (db *sqlRepository) NewVote(v *model.Vote) error {
 	_, err := db.NamedExec(`INSERT INTO votes
       (id, created, updated, cardid, voter, count)
     VALUES (:id, :created, :updated, :cardid, :voter, :count)
-    ON CONFLICT(id) DO UPDATE SET updated=:updated, count=:count
+    ON CONFLICT(id) DO UPDATE SET updated=:updated, count=count + 1
   `, v)
 	return err
 }
