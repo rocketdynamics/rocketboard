@@ -111,11 +111,11 @@ func (db *sqlRepository) NewCard(c *model.Card) error {
 
 func (db *sqlRepository) reorderColumn(rId string, column string) {
 	tx := db.MustBegin()
-	defer tx.Commit()
+	defer tx.Rollback()
 	cs := []*model.Card{}
 	err := tx.Select(&cs, `SELECT * FROM cards WHERE retrospectiveid=$1 AND "column"=$2 ORDER BY position ASC`, rId, column)
 	if err != nil {
-		log.Println("Error reordering", err)
+		log.Println("ERROR: Error reordering", err)
 	}
 
 	for i, c := range cs {
@@ -129,6 +129,10 @@ func (db *sqlRepository) reorderColumn(rId string, column string) {
 		if err != nil {
 			log.Println("ERROR: Failed to reorder card indexes", err)
 		}
+	}
+	err = tx.Commit()
+	if err != nil {
+		log.Println("ERROR: Error reordering", err)
 	}
 }
 
