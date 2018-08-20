@@ -12,9 +12,6 @@ class RetroCard extends React.Component {
             message: "",
             effects: [],
         };
-        if (props.isNew) {
-            this.state.isEditing = true;
-        }
         this.id = 0;
         this.cleanupTimeout = null;
         this.inputRef = React.createRef();
@@ -22,7 +19,7 @@ class RetroCard extends React.Component {
 
     componentDidMount() {
         if (this.props.isNew) {
-            this.inputRef.current.textAreaRef.focus();
+            this.setEditingOn();
         }
     }
 
@@ -34,7 +31,6 @@ class RetroCard extends React.Component {
     };
 
     setEditingOn = e => {
-        e.preventDefault();
         this.setState({
             message: this.props.data.message,
         });
@@ -46,7 +42,6 @@ class RetroCard extends React.Component {
     };
 
     setEditingOff = e => {
-        e.preventDefault();
         this.props.onMessageUpdated({
             cardId: this.props.data.id,
             message: this.state.message,
