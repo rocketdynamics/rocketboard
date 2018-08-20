@@ -79,9 +79,11 @@ func (r *retrospectiveResolver) Cards(ctx context.Context, obj *model.Retrospect
 }
 func (r *retrospectiveResolver) OnlineUsers(ctx context.Context, obj *model.Retrospective) ([]*string, error) {
 	users := make([]*string, 0)
+	r.mu.Lock()
 	for user := range userLimiters {
 		users = append(users, &user)
 	}
+	r.mu.Unlock()
 	return users, nil
 }
 
