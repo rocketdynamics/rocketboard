@@ -74,10 +74,11 @@ func (s *rocketboardService) NewVote(cardId string, voter string) (*model.Vote, 
 			Updated: time.Now(),
 			CardId:  cardId,
 			Voter:   voter,
-			Count:   1,
+			Count:   0,
 		}
 	}
 
+	vote.Count += 1
 	vote.Updated = time.Now()
 	err = s.db.NewVote(vote)
 	return vote, err
