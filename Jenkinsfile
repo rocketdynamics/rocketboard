@@ -22,6 +22,10 @@ node("docker") {
     sh "make version > .git/commit-id"
     def commit_id = readFile('.git/commit-id').trim()
 
+    stage('test') {
+        sh "VERSION=$commit_id make test"
+    }
+
     stage('build') {
         sh "VERSION=$commit_id make build"
     }

@@ -18,6 +18,16 @@ build:
 			-f ${PRODUCTION_IMAGE_FILE} \
 			-t ${PRODUCTION_IMAGE_NAME}:${VERSION} \
 			.
+test:
+	docker build --rm \
+			-f ${PRODUCTION_IMAGE_FILE} \
+			-t ${PRODUCTION_IMAGE_NAME}:${VERSION}-test \
+			--target backend-builder \
+			.
+
+	docker run --rm -it \
+		${PRODUCTION_IMAGE_NAME}:${VERSION}-test \
+		go test -race ./... -cover
 
 publish:
 	docker push ${PRODUCTION_IMAGE_NAME}:${VERSION}
