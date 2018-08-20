@@ -140,7 +140,7 @@ func (db *sqlRepository) MoveCard(c *model.Card, column string, index int) error
 	cs := []*model.Card{}
 	tx := db.MustBegin()
 	defer tx.Rollback()
-	err := tx.Select(&cs, `SELECT * FROM cards WHERE retrospectiveid=$1 AND "column"=$2 AND id!=$3 ORDER BY position ASC`, c.RetrospectiveId, column, c.Id)
+	err := tx.Select(&cs, `SELECT * FROM cards WHERE retrospectiveid=$1 AND "column"=$2 AND id!=$3 ORDER BY position ASC LIMIT $4`, c.RetrospectiveId, column, c.Id, index+1)
 	if err != nil {
 		return err
 	}
