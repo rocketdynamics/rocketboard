@@ -23,11 +23,12 @@ class _RetroColumn extends React.Component {
         this.setState({
             newCard: {
                 id: "newCard",
+                message: "",
                 votes: [],
                 statuses: [],
                 isNew: true,
             }
-        })
+        });
     };
 
     handleNewCardUpdated = ({ cardId, message }) => {
