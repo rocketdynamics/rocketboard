@@ -3,6 +3,7 @@ package sql
 import (
 	"fmt"
 	"github.com/jmoiron/sqlx"
+	"log"
 	"math"
 	"net/url"
 
@@ -108,9 +109,34 @@ func (db *sqlRepository) NewCard(c *model.Card) error {
 	return err
 }
 
+func (db *sqlRepository) reorderColumn(rId string, column string) {
+	tx := db.MustBegin()
+	defer tx.Commit()
+	cs := []*model.Card{}
+	err := tx.Select(&cs, `SELECT * FROM cards WHERE retrospectiveid=$1 AND "column"=$2 ORDER BY position ASC`, rId, column)
+	if err != nil {
+		log.Println("Error reordering", err)
+	}
+
+	for i, c := range cs {
+		c.Position = IDX_SPACING * (i + 1)
+
+		_, err := tx.NamedExec(`UPDATE cards
+      SET updated=:updated, retrospectiveid=:retrospectiveid, message=:message, creator=:creator, "column"=:column, position=:position
+      WHERE id=:id
+    `, c)
+
+		if err != nil {
+			log.Println("ERROR: Failed to reorder card indexes", err)
+		}
+	}
+}
+
 func (db *sqlRepository) MoveCard(c *model.Card, column string, index int) error {
 	cs := []*model.Card{}
-	err := db.Select(&cs, `SELECT * FROM cards WHERE retrospectiveid=$1 AND "column"=$2 AND id!=$3 ORDER BY position ASC`, c.RetrospectiveId, column, c.Id)
+	tx := db.MustBegin()
+	defer tx.Rollback()
+	err := tx.Select(&cs, `SELECT * FROM cards WHERE retrospectiveid=$1 AND "column"=$2 AND id!=$3 ORDER BY position ASC`, c.RetrospectiveId, column, c.Id)
 	if err != nil {
 		return err
 	}
@@ -131,10 +157,16 @@ func (db *sqlRepository) MoveCard(c *model.Card, column string, index int) error
 
 	c.Column = column
 
-	_, err = db.NamedExec(`UPDATE cards
+	tx.NamedExec(`UPDATE cards
     SET updated=:updated, retrospectiveid=:retrospectiveid, message=:message, creator=:creator, "column"=:column, position=:position
     WHERE id=:id
   `, c)
+
+	if index > 0 && len(cs) >= index && c.Position-cs[index-1].Position < 4 || c.Position < -int(math.Exp2(30)) || c.Position > int(math.Exp2(30)) {
+		go db.reorderColumn(c.RetrospectiveId, column)
+	}
+
+	err = tx.Commit()
 
 	return err
 }

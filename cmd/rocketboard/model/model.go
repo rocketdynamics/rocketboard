@@ -33,6 +33,10 @@ type Card struct {
 	Position int
 }
 
+func (c *Card) String() string {
+	return strconv.Itoa(c.Position)
+}
+
 func (t *StatusType) UnmarshalGQL(v interface{}) error {
 	str, ok := v.(string)
 	if !ok {
