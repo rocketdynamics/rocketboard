@@ -93,6 +93,7 @@ class _RetroColumn extends React.Component {
                         onClick={this.handleAdd}
                         type="dashed"
                         icon="plus"
+                        disabled={this.state.newCard !== undefined}
                         block
                     />
                 </div>
