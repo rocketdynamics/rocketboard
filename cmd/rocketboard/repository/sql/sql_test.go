@@ -107,3 +107,19 @@ func BenchmarkMoveCard(b *testing.B) {
 		}
 	}
 }
+func BenchmarkNewVote(b *testing.B) {
+	db := newTestRepository()
+
+	vote := &model.Vote{
+		Id:      "test-vote",
+		Created: time.Now(),
+		Updated: time.Now(),
+		CardId:  "test-card-0",
+		Voter:   "voter",
+		Count:   1,
+	}
+
+	for i := 0; i < b.N; i++ {
+		db.NewVote(vote)
+	}
+}
