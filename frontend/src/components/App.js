@@ -37,7 +37,7 @@ class OnlineUsers extends React.Component {
     }
 
     render() {
-        if (this.state.users.length === 0) return null;
+        if (!this.state.users || this.state.users.length === 0) return null;
         return (
             <Menu.Item
                 key="users"
