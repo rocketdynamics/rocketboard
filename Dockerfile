@@ -1,3 +1,15 @@
+FROM golang:1.10 as backend-builder
+
+WORKDIR /go/src/github.com/arachnys/rocketboard
+RUN go get -u github.com/golang/dep/cmd/dep
+
+ADD Gopkg.lock Gopkg.toml ./
+RUN dep ensure -v -vendor-only
+RUN GOOS=linux go build -ldflags '-linkmode external -extldflags -static -w' -v ./vendor/...
+
+ADD cmd/ ./cmd/
+RUN GOOS=linux go install -ldflags '-linkmode external -extldflags -static -w' -v ./cmd/...
+
 FROM node:10 as frontend-builder
 
 WORKDIR /frontend
@@ -12,18 +24,6 @@ ADD /frontend/public ./public
 ADD /frontend/src ./src
 
 RUN yarn build
-
-FROM golang:1.10 as backend-builder
-
-WORKDIR /go/src/github.com/arachnys/rocketboard
-RUN go get -u github.com/golang/dep/cmd/dep
-
-ADD Gopkg.lock Gopkg.toml ./
-RUN dep ensure -v -vendor-only
-RUN GOOS=linux go build -ldflags '-linkmode external -extldflags -static -w' -v ./vendor/...
-
-ADD cmd/ ./cmd/
-RUN GOOS=linux go install -ldflags '-linkmode external -extldflags -static -w' -v ./cmd/...
 
 FROM alpine
 
