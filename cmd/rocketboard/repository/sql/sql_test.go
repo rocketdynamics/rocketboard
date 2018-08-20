@@ -2,18 +2,41 @@ package sql
 
 import (
 	"log"
-	"math"
+	"math/rand"
 	"testing"
 	"time"
 
 	"github.com/arachnys/rocketboard/cmd/rocketboard/model"
 )
 
+func init() {
+	rand.Seed(1337)
+}
+
 func newTestRepository() *sqlRepository {
 	db, err := NewRepository("sqlite3::memory:")
 	db.SetMaxOpenConns(1)
 	if err != nil {
 		log.Fatal(err)
+	}
+
+	err = db.NewRetrospective(&model.Retrospective{
+		Id: "test-retro",
+	})
+
+	if err != nil {
+		log.Fatal("Failed to create retro", err)
+	}
+
+	for i := 0; i < 100; i++ {
+		err := db.NewCard(&model.Card{
+			Id:              "test-card-" + string(i),
+			RetrospectiveId: "test-retro",
+			Column:          "Mixed",
+		})
+		if err != nil {
+			log.Fatal("Failed to create card", err)
+		}
 	}
 	return db
 }
@@ -22,11 +45,11 @@ func TestNewVote(t *testing.T) {
 	db := newTestRepository()
 
 	vote := &model.Vote{
-		Id:      "id",
+		Id:      "test-vote",
 		Created: time.Now(),
 		Updated: time.Now(),
-		CardId:  "id",
-		Voter:   "id",
+		CardId:  "test-card-0",
+		Voter:   "voter",
 		Count:   1,
 	}
 
@@ -58,31 +81,9 @@ func TestNewVote(t *testing.T) {
 func TestCardSorting(t *testing.T) {
 	db := newTestRepository()
 
-	err := db.NewRetrospective(&model.Retrospective{
-		Id: "test-retro",
-	})
-
-	if err != nil {
-		t.Fatal("Failed to create retro", err)
-	}
-
-	for i := 0; i < 3; i++ {
-		err := db.NewCard(&model.Card{
-			Id:              "test-card-" + string(i),
-			RetrospectiveId: "test-retro",
-			Column:          "Mixed",
-		})
-		if err != nil {
-			t.Fatal("Failed to create card", err)
-		}
-	}
-
 	for i := 0; i < 50; i++ {
-		cards, err := db.GetCardsByRetrospectiveId("test-retro")
-		if len(cards) < 3 || err != nil {
-			t.Fatal("Failed to get cards for retro", err)
-		}
-		err = db.MoveCard(cards[0], "Mixed", 1)
+		cards, _ := db.GetCardsByRetrospectiveId("test-retro")
+		err := db.MoveCard(cards[0], "Mixed", 1)
 		if err != nil {
 			t.Fatal("Failed to move card", err)
 		}
@@ -91,30 +92,18 @@ func TestCardSorting(t *testing.T) {
 			t.Fatal("Card didn't move correctly after", i, "swaps")
 		}
 	}
+}
+
+func BenchmarkMoveCard(b *testing.B) {
+	db := newTestRepository()
 
 	cards, _ := db.GetCardsByRetrospectiveId("test-retro")
-	cards[0].Position = -2147480000
-	err = db.UpdateCard(cards[0])
-	if err != nil {
-		t.Fatal("Failed to set card position", err)
-	}
-
-	for i := 0; i < 1000; i++ {
-		cards, err := db.GetCardsByRetrospectiveId("test-retro")
-		if len(cards) < 3 || err != nil {
-			t.Fatal("Failed to get cards for retro", err)
-		}
-		err = db.MoveCard(cards[1], "Mixed", 0)
+	for i := 0; i < b.N; i++ {
+		from := rand.Intn(len(cards))
+		to := rand.Intn(len(cards))
+		err := db.MoveCard(cards[from], "Mixed", to)
 		if err != nil {
-			t.Fatal("Failed to move card", err)
+			b.Fatal("Failed to move card", err)
 		}
-		newCards, _ := db.GetCardsByRetrospectiveId("test-retro")
-		if newCards[0].Id != cards[1].Id {
-			t.Fatal("Card didn't move correctly after", i, "swaps")
-		}
-	}
-	cards, _ = db.GetCardsByRetrospectiveId("test-retro")
-	if cards[0].Position < math.MinInt32 {
-		t.Error("Card has position outside int32 range:", cards[0].Position)
 	}
 }
