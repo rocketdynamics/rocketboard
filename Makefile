@@ -28,7 +28,7 @@ deploy:
 		--set include-qa-annotations=false \
 		--set cockroachdb.enabled=true \
 		--set replicaCount=3 \
-		--set strategy.rollingUpdate.maxSurge=1 \
+		--set strategy.rollingUpdate.maxSurge=3 \
 		--set strategy.rollingUpdate.maxUnavailable=0 \
 		--wait
 
