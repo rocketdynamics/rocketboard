@@ -13,7 +13,8 @@ spec:
     matchLabels:
       app: {{ template "rocketboard.name" . }}
       release: {{ .Release.Name }}
-{{ toYaml .Values.strategy | indent 2 }}
+  strategy:
+{{ toYaml .Values.strategy | indent 4 }}
   template:
     metadata:
       labels:

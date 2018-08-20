@@ -29,7 +29,7 @@ deploy:
 		--set cockroachdb.enabled=true \
 		--set replicaCount=3 \
 		--set strategy.rollingUpdate.maxSurge=3 \
-		--set strategy.rollingUpdate.maxUnavailable=0 \
+		--set strategy.rollingUpdate.maxUnavailable=0% \
 		--wait
 
 deploy/qa:
