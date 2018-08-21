@@ -141,10 +141,12 @@
     margin-bottom: 1.5rem;
     padding-bottom: 2rem;
     padding: 1rem;
+    padding-top: 2rem;
     display: flex;
     flex:1;
     position: relative;
     transition: all .3s cubic-bezier(.4,0,.2,1);
+    font-weight: bold;
 }
 
 .card-dragging {
@@ -152,19 +154,25 @@
     transform: scale(1.05, 1.05) rotate(1deg);
 }
 
-.card-reaction {
-    cursor: pointer;
-    font-size: 0.8rem;
-    top: -1rem;
-    right: -1rem;
-    position: relative;
-    float: right;
-    white-space: nowrap;
+.card-reactions {
+    position: absolute;
+    right: 0;
+    top: 0;
 }
 
-    .card-reaction > .emoji {
-        padding: 5px;
+    .card-reaction {
+        cursor: pointer;
+        font-size: 0.8rem;
+        top: 0.2rem;
+        right: 0.2rem;
+        position: relative;
+        float: right;
+        white-space: nowrap;
     }
+
+        .card-reaction > .emoji {
+            padding: 5px;
+        }
 
 .card-reaction:hover::after {
     content: "";
