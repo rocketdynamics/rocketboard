@@ -40,7 +40,6 @@ CREATE TABLE IF NOT EXISTS votes (
   updated TIMESTAMP,
   cardid TEXT,
   voter TEXT,
-  emoji TEXT,
   count INTEGER
 );
 CREATE TABLE IF NOT EXISTS statuses (
@@ -49,6 +48,11 @@ CREATE TABLE IF NOT EXISTS statuses (
   cardid  TEXT,
   type INTEGER
 );
+`
+
+var migrations = `
+ALTER TABLE votes ADD
+  emoji TEXT DEFAULT("clap");
 `
 
 // Space elements by 2^15, which allows for 15 divisions before re-sorting
@@ -72,6 +76,7 @@ func NewRepository(dbURI string) (*sqlRepository, error) {
 	if err != nil {
 		return nil, err
 	}
+	db.Exec(migrations)
 	return &sqlRepository{db}, nil
 }
 
