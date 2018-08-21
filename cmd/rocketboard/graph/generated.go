@@ -51,7 +51,7 @@ type RootMutationResolver interface {
 	AddCardToRetrospective(ctx context.Context, id string, column *string, message *string) (string, error)
 	MoveCard(ctx context.Context, id string, column string, index int) (int, error)
 	UpdateMessage(ctx context.Context, id string, message string) (string, error)
-	NewVote(ctx context.Context, cardId string) (model.Vote, error)
+	NewVote(ctx context.Context, cardId string, emoji string) (model.Vote, error)
 	UpdateStatus(ctx context.Context, id string, status model.StatusType) (model.Status, error)
 }
 type RootQueryResolver interface {
@@ -778,6 +778,16 @@ func (ec *executionContext) _RootMutation_newVote(ctx context.Context, field gra
 		}
 	}
 	args["cardId"] = arg0
+	var arg1 string
+	if tmp, ok := rawArgs["emoji"]; ok {
+		var err error
+		arg1, err = graphql.UnmarshalString(tmp)
+		if err != nil {
+			ec.Error(ctx, err)
+			return graphql.Null
+		}
+	}
+	args["emoji"] = arg1
 	rctx := graphql.GetResolverContext(ctx)
 	rctx.Object = "RootMutation"
 	rctx.Args = args
@@ -785,7 +795,7 @@ func (ec *executionContext) _RootMutation_newVote(ctx context.Context, field gra
 	rctx.PushField(field.Alias)
 	defer rctx.Pop()
 	resTmp := ec.FieldMiddleware(ctx, func(ctx context.Context) (interface{}, error) {
-		return ec.resolvers.RootMutation().NewVote(ctx, args["cardId"].(string))
+		return ec.resolvers.RootMutation().NewVote(ctx, args["cardId"].(string), args["emoji"].(string))
 	})
 	if resTmp == nil {
 		return graphql.Null
@@ -1160,6 +1170,8 @@ func (ec *executionContext) _Vote(ctx context.Context, sel ast.SelectionSet, obj
 			out.Values[i] = ec._Vote_cardId(ctx, field, obj)
 		case "voter":
 			out.Values[i] = ec._Vote_voter(ctx, field, obj)
+		case "emoji":
+			out.Values[i] = ec._Vote_emoji(ctx, field, obj)
 		case "count":
 			out.Values[i] = ec._Vote_count(ctx, field, obj)
 		default:
@@ -1247,6 +1259,23 @@ func (ec *executionContext) _Vote_voter(ctx context.Context, field graphql.Colle
 	defer rctx.Pop()
 	resTmp := ec.FieldMiddleware(ctx, func(ctx context.Context) (interface{}, error) {
 		return obj.Voter, nil
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	return graphql.MarshalString(res)
+}
+
+func (ec *executionContext) _Vote_emoji(ctx context.Context, field graphql.CollectedField, obj *model.Vote) graphql.Marshaler {
+	rctx := graphql.GetResolverContext(ctx)
+	rctx.Object = "Vote"
+	rctx.Args = nil
+	rctx.Field = field
+	rctx.PushField(field.Alias)
+	defer rctx.Pop()
+	resTmp := ec.FieldMiddleware(ctx, func(ctx context.Context) (interface{}, error) {
+		return obj.Emoji, nil
 	})
 	if resTmp == nil {
 		return graphql.Null
@@ -2176,7 +2205,7 @@ type RootMutation {
     addCardToRetrospective(id: ID!, column: String, message: String): String!
     moveCard(id: ID!, column: String!, index: Int!): Int!
     updateMessage(id: ID!, message: String!): String!
-    newVote(cardId: ID!): Vote!
+    newVote(cardId: ID!, emoji: String!): Vote!
     updateStatus(id: ID!, status: StatusType!): Status!
 }
 
@@ -2222,6 +2251,7 @@ type Vote {
     updated: Time
     cardId: String
     voter: String
+    emoji: String
     count: Int
 }
 

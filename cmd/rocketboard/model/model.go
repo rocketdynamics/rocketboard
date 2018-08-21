@@ -79,5 +79,6 @@ type Vote struct {
 	CardId string
 
 	Voter string
+	Emoji string
 	Count int
 }

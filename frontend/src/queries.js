@@ -27,6 +27,7 @@ export const GET_RETROSPECTIVE = gql`
                 votes {
                     voter
                     count
+                    emoji
                 }
                 position
             }
@@ -63,10 +64,11 @@ export const UPDATE_STATUS = gql`
 `;
 
 export const NEW_VOTE = gql`
-    mutation($cardId: ID!) {
-        newVote(cardId: $cardId) {
+    mutation($cardId: ID!, $emoji: String!) {
+        newVote(cardId: $cardId, emoji: $emoji) {
             count
             voter
+            emoji
         }
     }
 `;
@@ -86,6 +88,7 @@ export const CARD_SUBSCRIPTION = gql`
             votes {
                 count
                 voter
+                emoji
             }
             position
         }

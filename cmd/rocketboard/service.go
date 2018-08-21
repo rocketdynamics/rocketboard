@@ -20,7 +20,7 @@ type repository interface {
 
 	NewVote(*model.Vote) error
 	GetVotesByCardId(string) ([]*model.Vote, error)
-	GetVoteByCardIdAndVoter(string, string) (*model.Vote, error)
+	GetVoteByCardIdAndVoterAndEmoji(string, string, string) (*model.Vote, error)
 
 	NewStatus(*model.Status) error
 	GetStatusById(id string) (*model.Status, error)
@@ -66,15 +66,23 @@ func (s *rocketboardService) GetRetrospectiveById(id string) (*model.Retrospecti
 }
 
 func (s *rocketboardService) GetVotesByCardId(id string) ([]*model.Vote, error) {
-	return s.db.GetVotesByCardId(id)
+	votes, err := s.db.GetVotesByCardId(id)
+	if err == nil {
+		for _, v := range votes {
+			if v.Emoji == "" {
+				v.Emoji = "clap"
+			}
+		}
+	}
+	return votes, err
 }
 
-func (s *rocketboardService) GetVoteByCardIdAndVoter(id string, voter string) (*model.Vote, error) {
-	return s.db.GetVoteByCardIdAndVoter(id, voter)
+func (s *rocketboardService) GetVoteByCardIdAndVoterAndEmoji(id string, voter string, emoji string) (*model.Vote, error) {
+	return s.db.GetVoteByCardIdAndVoterAndEmoji(id, voter, emoji)
 }
 
-func (s *rocketboardService) NewVote(cardId string, voter string) (*model.Vote, error) {
-	vote, err := s.db.GetVoteByCardIdAndVoter(cardId, voter)
+func (s *rocketboardService) NewVote(cardId string, voter string, emoji string) (*model.Vote, error) {
+	vote, err := s.db.GetVoteByCardIdAndVoterAndEmoji(cardId, voter, emoji)
 	if err != nil {
 		vote = &model.Vote{
 			Id:      newUlid(),
@@ -82,6 +90,7 @@ func (s *rocketboardService) NewVote(cardId string, voter string) (*model.Vote, 
 			Updated: time.Now(),
 			CardId:  cardId,
 			Voter:   voter,
+			Emoji:   emoji,
 			Count:   0,
 		}
 	}
@@ -89,6 +98,9 @@ func (s *rocketboardService) NewVote(cardId string, voter string) (*model.Vote, 
 	vote.Count += 1
 	vote.Updated = time.Now()
 	err = s.db.NewVote(vote)
+	if vote.Emoji == "" {
+		vote.Emoji = emoji
+	}
 	return vote, err
 }
 

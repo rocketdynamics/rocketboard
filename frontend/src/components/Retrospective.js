@@ -202,13 +202,14 @@ class _Retrospective extends React.Component {
         });
     };
 
-    handleNewVote = cardId => {
+    handleNewVote = (cardId, emoji) => {
         return () => {
             const id = this.getRetrospectiveId();
 
             this.props.newVote({
                 variables: {
                     cardId,
+                    emoji,
                 },
                 optimisticResponse: {
                     __typename: "Mutation",
@@ -216,6 +217,7 @@ class _Retrospective extends React.Component {
                         __typename: "Vote",
                         count: 1,
                         voter: Math.random(),
+                        emoji: emoji,
                     },
                 },
                 update: (proxy, { data: { newVote } }) => {
@@ -230,7 +232,7 @@ class _Retrospective extends React.Component {
                     );
                     const card = existingCards[targetCardIndex];
                     const targetVoteIndex = R.findIndex(
-                        R.propEq("voter", newVote.voter)
+                        R.both(R.propEq("emoji", newVote.emoji), R.propEq("voter", newVote.voter))
                     )(card.votes);
                     var vote = card.votes[targetVoteIndex];
                     if (vote === undefined) {

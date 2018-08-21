@@ -4,6 +4,12 @@ import * as R from "ramda";
 import { Icon, Input, Tooltip } from "antd";
 import Timer from "./Timer";
 
+const EMOJI_MAP = {
+    "clap": "👏",
+    "unicorn": "🦄",
+    "rocket": "🚀",
+}
+
 class RetroCard extends React.Component {
     constructor(props) {
         super(props);
@@ -53,7 +59,7 @@ class RetroCard extends React.Component {
         this.setState({ message: e.target.value });
     };
 
-    createVoteEffect = numVotes => {
+    createVoteEffect = (numVotes, emoji) => {
         // Prevent lag on effect spam
         if (this.state.effects.length > 100) {
             return;
@@ -64,6 +70,7 @@ class RetroCard extends React.Component {
             key: this.id,
             randomId: Math.floor(Math.random() * 100),
             numVotes: numVotes,
+            emoji: emoji,
         };
         this.id += 1;
 
@@ -89,11 +96,20 @@ class RetroCard extends React.Component {
     };
 
     componentWillReceiveProps(nextProps) {
-        const numVotes = R.sum(R.pluck("count")(this.props.data.votes));
-        const nextVotes = R.sum(R.pluck("count")(nextProps.data.votes));
+        const sumVotes = R.compose(R.sum, R.pluck("count"));
+
+        const numVotes = sumVotes(this.props.data.votes);
+        const nextVotes = sumVotes(nextProps.data.votes);
 
         if (nextVotes > numVotes) {
-            this.createVoteEffect(nextVotes);
+            const votesByEmoji = R.groupBy(R.prop("emoji"), this.props.data.votes);
+            const nextVotesByEmoji = R.groupBy(R.prop("emoji"), nextProps.data.votes);
+
+            R.mapObjIndexed((i, emoji, votes) => {
+                if (sumVotes(votes[emoji] || []) > sumVotes(votesByEmoji[emoji] || [])) {
+                    this.createVoteEffect(sumVotes(votes[emoji]), emoji);
+                }
+            }, nextVotesByEmoji)
         }
     }
 
@@ -138,7 +154,8 @@ class RetroCard extends React.Component {
     render() {
         const { id, votes } = this.props.data;
         const { isDragging, onNewVote, onSetStatus } = this.props;
-        const numVotes = R.sum(R.pluck("count")(votes));
+        const sumVotes = R.compose(R.sum, R.pluck("count"));
+        const votesByEmoji = R.groupBy(R.prop("emoji"), votes);
 
         const hiddenStyle = { display: "none" };
         const visibleStyle = { display: "block" };
@@ -160,38 +177,47 @@ class RetroCard extends React.Component {
                 />
             </div>
         );
+        const voteTypes = R.uniq(R.filter((o) => {return o !== undefined}, R.pluck("emoji", votes)));
+        if (voteTypes.length === 0) {
+            voteTypes.push("clap")
+            votesByEmoji["clap"] = []
+        }
 
         const vote = (
-            <div className="card-action-clap" onClick={onNewVote(id)}>
-                <div>
-                    <span role="img" aria-label="clap">
-                        👏
-                    </span>{" "}
-                    <span className="card-action-count">{numVotes}</span>
-                </div>
+            <div className="card-reactions">
+            {voteTypes.map(emoji => (
+                <div key={emoji} className={`card-reaction reaction-${emoji}`} onClick={onNewVote(id, emoji)}>
+                    <div>
+                        <span role="img" aria-label={emoji}>
+                            {EMOJI_MAP[emoji]}
+                        </span>{" "}
+                        <span className="card-reaction-count">{sumVotes(votesByEmoji[emoji]) || 0}</span>
+                    </div>
 
-                {this.state.effects.map(effect => {
-                    if (effect.expired) return null;
-                    return (
-                        <div id={effect.key} key={effect.key}>
-                            <div
-                                className="vote-effect"
-                                style={{
-                                    animation: `card-voting-${
-                                        effect.randomId
-                                    } 800ms ease forwards`,
-                                }}
-                            >
-                                <span role="img" aria-label="clap">
-                                    👏
-                                </span>{" "}
-                                <span className="card-action-count">
-                                    {effect.numVotes}
-                                </span>
+                    {R.filter((e) => {return e.emoji === emoji}, this.state.effects).map(effect => {
+                        if (effect.expired) return null;
+                        return (
+                            <div id={effect.key} key={effect.key}>
+                                <div
+                                    className="vote-effect"
+                                    style={{
+                                        animation: `card-voting-${
+                                            effect.randomId
+                                        } 800ms ease forwards`,
+                                    }}
+                                >
+                                    <span role="img" aria-label={emoji}>
+                                        {EMOJI_MAP[emoji]}
+                                    </span>{" "}
+                                    <span className="card-reaction-count">
+                                        {effect.numVotes}
+                                    </span>
+                                </div>
                             </div>
-                        </div>
-                    );
-                })}
+                        );
+                    })}
+                </div>
+            ))}
             </div>
         );
 
