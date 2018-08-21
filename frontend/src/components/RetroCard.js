@@ -20,6 +20,7 @@ class RetroCard extends React.Component {
             isEditing: false,
             message: "",
             effects: [],
+            reactionShow: false,
         };
         this.id = 0;
         this.cleanupTimeout = null;
@@ -136,6 +137,12 @@ class RetroCard extends React.Component {
         return this.getStatusType(this.getCurrentStatus()) === "Discussed";
     };
 
+    handleReactionVisibleChange = (visible) => {
+        this.setState({
+            reactionShow: visible,
+        })
+    }
+
     getDiscussionDuration = () => {
         if (this.isInProgress()) {
             return (
@@ -218,13 +225,13 @@ class RetroCard extends React.Component {
                 </div>
             ))}
                 <div key="new" className={`card-reaction reaction-new`}>
-                    <Tooltip title={(
+                    <Tooltip trigger="click" visible={this.state.reactionShow} onVisibleChange={this.handleReactionVisibleChange} title={(
                         <span style={{cursor: "pointer"}}>
                             {R.toPairs(EMOJI_MAP).map(elem => {
                                 const emoji = elem[0];
                                 const icon = elem[1];
                                 return (
-                                    <span key={emoji} onClick={onNewVote(id, emoji)} role="img" aria-label={emoji}>
+                                    <span key={emoji} onClick={() => {this.setState({reactionShow: false}); onNewVote(id, emoji)()}} role="img" aria-label={emoji}>
                                         {icon}
                                     </span>
                             )})}

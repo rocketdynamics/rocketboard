@@ -163,6 +163,18 @@
     white-space: nowrap;
 }
 
+.card-reaction:hover::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background-color: white;
+    opacity: 0.3;
+    pointer-events: none;
+}
+
 .reaction-new .reaction-new-button::after {
     content: "+";
     right: 3px;
