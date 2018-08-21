@@ -193,7 +193,7 @@ class RetroCard extends React.Component {
             <div className="card-reactions">
             {voteTypes.map(emoji => (
                 <div key={emoji} className={`card-reaction reaction-${emoji}`} onClick={onNewVote(id, emoji)}>
-                    <div>
+                    <div className="emoji">
                         <span role="img" aria-label={emoji}>
                             {EMOJI_MAP[emoji]}
                         </span>{" "}
@@ -237,7 +237,7 @@ class RetroCard extends React.Component {
                             )})}
                         </span>
                     )}>
-                        <div>
+                        <div className="emoji">
                             <span role="img" className="reaction-new-button" aria-label="new-reaction">
                                 😀
                             </span>

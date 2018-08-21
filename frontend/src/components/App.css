@@ -162,7 +162,7 @@
     white-space: nowrap;
 }
 
-    .card-reaction > div {
+    .card-reaction > .emoji {
         padding: 5px;
     }
 
