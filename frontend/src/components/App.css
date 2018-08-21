@@ -155,13 +155,16 @@
 .card-reaction {
     cursor: pointer;
     font-size: 0.8rem;
-    padding: 5px;
     top: -1rem;
     right: -1rem;
     position: relative;
     float: right;
     white-space: nowrap;
 }
+
+    .card-reaction > div {
+        padding: 5px;
+    }
 
 .card-reaction:hover::after {
     content: "";

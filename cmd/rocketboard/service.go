@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/arachnys/rocketboard/cmd/rocketboard/model"
 	"github.com/microcosm-cc/bluemonday"
 	"github.com/oklog/ulid"
@@ -31,6 +32,15 @@ type repository interface {
 
 type rocketboardService struct {
 	db repository
+}
+
+var VALID_EMOJIS = map[string]bool{
+	"clap":    true,
+	"unicorn": true,
+	"rocket":  true,
+	"vomit":   true,
+	"+1":      true,
+	"tada":    true,
 }
 
 func sanitizeString(str string) string {
@@ -82,6 +92,9 @@ func (s *rocketboardService) GetVoteByCardIdAndVoterAndEmoji(id string, voter st
 }
 
 func (s *rocketboardService) NewVote(cardId string, voter string, emoji string) (*model.Vote, error) {
+	if !VALID_EMOJIS[emoji] {
+		return nil, fmt.Errorf("Invalid emoji")
+	}
 	vote, err := s.db.GetVoteByCardIdAndVoterAndEmoji(cardId, voter, emoji)
 	if err != nil {
 		vote = &model.Vote{

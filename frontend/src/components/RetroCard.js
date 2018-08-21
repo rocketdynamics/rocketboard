@@ -237,9 +237,11 @@ class RetroCard extends React.Component {
                             )})}
                         </span>
                     )}>
-                        <span role="img" className="reaction-new-button" aria-label="new-reaction">
-                            😀
-                        </span>
+                        <div>
+                            <span role="img" className="reaction-new-button" aria-label="new-reaction">
+                                😀
+                            </span>
+                        </div>
                     </Tooltip>
                 </div>
             </div>
