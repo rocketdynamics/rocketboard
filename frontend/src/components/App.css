@@ -163,6 +163,17 @@
     white-space: nowrap;
 }
 
+.reaction-new .reaction-new-button::after {
+    content: "+";
+    right: 3px;
+    position: absolute;
+    top: -5px;
+    font-size: 18px;
+    font-weight: bold;
+    opacity: 0.5;
+    font-family: monospace;
+}
+
 .vote-effect {
     animation-fill-mode: forwards;
     position: absolute;

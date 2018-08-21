@@ -8,6 +8,9 @@ const EMOJI_MAP = {
     "clap": "👏",
     "unicorn": "🦄",
     "rocket": "🚀",
+    "vomit": "🤮",
+    "+1": "👍",
+    "tada": "🎉",
 }
 
 class RetroCard extends React.Component {
@@ -178,10 +181,6 @@ class RetroCard extends React.Component {
             </div>
         );
         const voteTypes = R.uniq(R.filter((o) => {return o !== undefined}, R.pluck("emoji", votes)));
-        if (voteTypes.length === 0) {
-            voteTypes.push("clap")
-            votesByEmoji["clap"] = []
-        }
 
         const vote = (
             <div className="card-reactions">
@@ -218,6 +217,24 @@ class RetroCard extends React.Component {
                     })}
                 </div>
             ))}
+                <div key="new" className={`card-reaction reaction-new`}>
+                    <Tooltip title={(
+                        <span style={{cursor: "pointer"}}>
+                            {R.toPairs(EMOJI_MAP).map(elem => {
+                                const emoji = elem[0];
+                                const icon = elem[1];
+                                return (
+                                    <span key={emoji} onClick={onNewVote(id, emoji)} role="img" aria-label={emoji}>
+                                        {icon}
+                                    </span>
+                            )})}
+                        </span>
+                    )}>
+                        <span role="img" className="reaction-new-button" aria-label="new-reaction">
+                            😀
+                        </span>
+                    </Tooltip>
+                </div>
             </div>
         );
 

@@ -52,7 +52,7 @@ CREATE TABLE IF NOT EXISTS statuses (
 
 var migrations = `
 ALTER TABLE votes ADD
-  emoji TEXT DEFAULT("clap");
+  emoji TEXT DEFAULT('clap');
 `
 
 // Space elements by 2^15, which allows for 15 divisions before re-sorting
@@ -76,7 +76,10 @@ func NewRepository(dbURI string) (*sqlRepository, error) {
 	if err != nil {
 		return nil, err
 	}
-	db.Exec(migrations)
+	_, err = db.Exec(migrations)
+	if err != nil {
+		log.Println(err)
+	}
 	return &sqlRepository{db}, nil
 }
 
