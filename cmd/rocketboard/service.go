@@ -33,6 +33,14 @@ type rocketboardService struct {
 	db repository
 }
 
+func cardSanitize(c *model.Card) *model.Card {
+	if len(c.Message) > 500 {
+		c.Message = c.Message[0:500]
+	}
+	c.Message = bluemonday.UGCPolicy().Sanitize(c.Message)
+	return c
+}
+
 func NewRocketboardService(r repository) *rocketboardService {
 	return &rocketboardService{r}
 }
@@ -91,15 +99,15 @@ func (s *rocketboardService) AddCardToRetrospective(rId string, column string, m
 
 	id := newUlid()
 
-	if err := s.db.NewCard(&model.Card{
+	if err := s.db.NewCard(cardSanitize(&model.Card{
 		Id:              id,
 		Created:         time.Now(),
 		Updated:         time.Now(),
 		RetrospectiveId: rId,
-		Message:         bluemonday.UGCPolicy().Sanitize(message),
+		Message:         message,
 		Creator:         creator,
 		Column:          column,
-	}); err != nil {
+	})); err != nil {
 		return "", err
 	}
 
@@ -121,9 +129,9 @@ func (s *rocketboardService) UpdateMessage(id string, message string) error {
 		return err
 	}
 
-	c.Message = bluemonday.UGCPolicy().Sanitize(message)
+	c.Message = message
 
-	return s.db.UpdateCard(c)
+	return s.db.UpdateCard(cardSanitize(c))
 }
 
 func (s *rocketboardService) GetCardById(id string) (*model.Card, error) {
