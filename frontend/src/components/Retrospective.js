@@ -302,6 +302,11 @@ class _Retrospective extends React.Component {
         return (
             <Query query={GET_RETROSPECTIVE} variables={{ id }}>
                 {({ loading, error, data, subscribeToMore }) => {
+                    if (error) {
+                        return (
+                            <div>Error</div>
+                        )
+                    }
 
                     if (!R.prop(["retrospectiveById"], data)) {
                         data.retrospectiveById = {};
