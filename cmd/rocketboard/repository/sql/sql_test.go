@@ -50,6 +50,7 @@ func TestNewVote(t *testing.T) {
 		Updated: time.Now(),
 		CardId:  "test-card-0",
 		Voter:   "voter",
+		Emoji:   "clap",
 		Count:   1,
 	}
 
@@ -57,7 +58,7 @@ func TestNewVote(t *testing.T) {
 	if err != nil {
 		t.Fatal("Failed to create vote", err)
 	}
-	v, err := db.GetVoteByCardIdAndVoter(vote.CardId, vote.Voter)
+	v, err := db.GetVoteByCardIdAndVoterAndEmoji(vote.CardId, vote.Voter, vote.Emoji)
 	if err != nil {
 		t.Fatal("Failed to get vote", err)
 	}
@@ -69,7 +70,7 @@ func TestNewVote(t *testing.T) {
 		db.NewVote(vote)
 	}
 
-	v, err = db.GetVoteByCardIdAndVoter(vote.CardId, vote.Voter)
+	v, err = db.GetVoteByCardIdAndVoterAndEmoji(vote.CardId, vote.Voter, vote.Emoji)
 	if err != nil {
 		t.Fatal("Failed to get vote", err)
 	}
