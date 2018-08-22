@@ -141,7 +141,7 @@
     margin-bottom: 1.5rem;
     padding-bottom: 2rem;
     padding: 1rem;
-    padding-top: 2rem;
+    padding-top: 1rem;
     display: flex;
     flex:1;
     position: relative;
@@ -172,7 +172,8 @@
     }
 
         .card-reaction > .emoji {
-            padding: 5px;
+            padding-left: 3px;
+            padding-right: 5px;
         }
 
 .card-reaction:hover::after {
