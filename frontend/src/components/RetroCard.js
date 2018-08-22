@@ -13,7 +13,7 @@ const EMOJI_MAP = {
     "tada": "🎉",
 }
 
-class RetroCard extends React.Component {
+class RetroCard extends React.PureComponent {
     constructor(props) {
         super(props);
         this.state = {
