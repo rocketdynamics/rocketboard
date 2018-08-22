@@ -35,7 +35,7 @@ type Retrospective {
 
     cards: [Card]
 
-    onlineUsers: [String]
+    onlineUsers: [String!]
 }
 
 type Card {

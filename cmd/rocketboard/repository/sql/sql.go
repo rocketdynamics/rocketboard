@@ -48,6 +48,17 @@ CREATE TABLE IF NOT EXISTS statuses (
   cardid  TEXT,
   type INTEGER
 );
+CREATE TABLE IF NOT EXISTS observations (
+  user TEXT,
+  retrospectiveid TEXT,
+  connectionid TEXT,
+  firstseen TIMESTAMP,
+  lastseen TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS obs_retro ON observations(retrospectiveid);
+CREATE UNIQUE INDEX IF NOT EXISTS obs_connectionid ON observations(connectionid);
+CREATE INDEX IF NOT EXISTS obs_firstseen ON observations(firstseen);
+CREATE INDEX IF NOT EXISTS obs_lastseen ON observations(lastseen);
 `
 
 var migrations = `

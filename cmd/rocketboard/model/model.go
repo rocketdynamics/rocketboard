@@ -82,3 +82,11 @@ type Vote struct {
 	Emoji string
 	Count int
 }
+
+type Observation struct {
+	User            string
+	RetrospectiveId string
+	ConnectionId    string
+	FirstSeen       time.Time
+	LastSeen        time.Time
+}

@@ -24,8 +24,15 @@ type rocketboardService interface {
 	NewUlid() string
 }
 
+type observationStore interface {
+	Observe(string, string, string) error
+	GetActiveUsers(string) []string
+	ClearObservations(string)
+}
+
 type rootResolver struct {
 	s  rocketboardService
+	o  observationStore
 	mu sync.Mutex
 }
 
@@ -49,8 +56,8 @@ type queryResolver struct {
 	*rootResolver
 }
 
-func NewResolver(s rocketboardService) ResolverRoot {
-	return &rootResolver{s, sync.Mutex{}}
+func NewResolver(s rocketboardService, o observationStore) ResolverRoot {
+	return &rootResolver{s, o, sync.Mutex{}}
 }
 
 func (r *rootResolver) Card() CardResolver {
@@ -77,14 +84,8 @@ func (r *retrospectiveResolver) Cards(ctx context.Context, obj *model.Retrospect
 	cards, _ := r.s.GetCardsForRetrospective(obj.Id)
 	return cards, nil
 }
-func (r *retrospectiveResolver) OnlineUsers(ctx context.Context, obj *model.Retrospective) ([]*string, error) {
-	users := make([]*string, 0)
-	r.mu.Lock()
-	for user := range userLimiters {
-		users = append(users, &user)
-	}
-	r.mu.Unlock()
-	return users, nil
+func (r *retrospectiveResolver) OnlineUsers(ctx context.Context, obj *model.Retrospective) ([]string, error) {
+	return r.o.GetActiveUsers(obj.Id), nil
 }
 
 func (r *cardResolver) Statuses(ctx context.Context, obj *model.Card) ([]*model.Status, error) {

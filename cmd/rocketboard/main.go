@@ -32,6 +32,9 @@ func WithEmail(base http.Handler) http.Handler {
 				}
 			}
 		}
+		if os.Getenv("DEBUG") == "1" && r.FormValue("email") != "" {
+			email = r.FormValue("email")
+		}
 		ctx = context.WithValue(ctx, "email", email)
 		r = r.WithContext(ctx)
 		base.ServeHTTP(w, r)
@@ -48,6 +51,7 @@ func main() {
 		log.Fatal(err)
 	}
 	svc := NewRocketboardService(repository)
+	obs := NewObservationStore(repository)
 	graph.InitMessageQueue()
 
 	http.Handle("/query-playground", handler.Playground("Rocketboard", "/query"))
@@ -59,7 +63,7 @@ func main() {
 
 	http.Handle("/query", WithEmail(handler.GraphQL(
 		graph.NewExecutableSchema(graph.Config{
-			Resolvers: graph.NewResolver(svc),
+			Resolvers: graph.NewResolver(svc, obs),
 		}),
 	)))
 

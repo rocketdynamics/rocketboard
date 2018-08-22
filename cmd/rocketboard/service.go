@@ -28,6 +28,14 @@ type repository interface {
 	GetStatusesByCardId(string) ([]*model.Status, error)
 
 	Healthcheck() error
+
+	observationStore
+}
+
+type observationStore interface {
+	Observe(string, string, string) error
+	GetActiveUsers(string) []string
+	ClearObservations(string)
 }
 
 type rocketboardService struct {
@@ -54,6 +62,10 @@ func sanitizeString(str string) string {
 
 func NewRocketboardService(r repository) *rocketboardService {
 	return &rocketboardService{r}
+}
+
+func NewObservationStore(r repository) observationStore {
+	return r
 }
 
 func (s *rocketboardService) StartRetrospective(name string) (string, error) {

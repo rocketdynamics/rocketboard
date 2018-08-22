@@ -44,7 +44,7 @@ type CardResolver interface {
 }
 type RetrospectiveResolver interface {
 	Cards(ctx context.Context, obj *model.Retrospective) ([]*model.Card, error)
-	OnlineUsers(ctx context.Context, obj *model.Retrospective) ([]*string, error)
+	OnlineUsers(ctx context.Context, obj *model.Retrospective) ([]string, error)
 }
 type RootMutationResolver interface {
 	StartRetrospective(ctx context.Context, name *string) (string, error)
@@ -530,17 +530,14 @@ func (ec *executionContext) _Retrospective_onlineUsers(ctx context.Context, fiel
 		if resTmp == nil {
 			return graphql.Null
 		}
-		res := resTmp.([]*string)
+		res := resTmp.([]string)
 		arr1 := graphql.Array{}
 		for idx1 := range res {
 			arr1 = append(arr1, func() graphql.Marshaler {
 				rctx := graphql.GetResolverContext(ctx)
 				rctx.PushIndex(idx1)
 				defer rctx.Pop()
-				if res[idx1] == nil {
-					return graphql.Null
-				}
-				return graphql.MarshalString(*res[idx1])
+				return graphql.MarshalString(res[idx1])
 			}())
 		}
 		return arr1
@@ -2228,7 +2225,7 @@ type Retrospective {
 
     cards: [Card]
 
-    onlineUsers: [String]
+    onlineUsers: [String!]
 }
 
 type Card {

@@ -8,6 +8,8 @@ import (
 	"golang.org/x/time/rate"
 	"log"
 	"os"
+	"reflect"
+	"time"
 
 	"github.com/arachnys/rocketboard/cmd/rocketboard/model"
 )
@@ -67,11 +69,31 @@ func (r *rootResolver) sendRetroToSubs(retro *model.Retrospective) {
 	nc.Publish("retros-"+retro.Id, b)
 }
 
+func (r *rootResolver) sendRetroToSubsById(rId string) {
+	retro, _ := r.s.GetRetrospectiveById(rId)
+	b, _ := msgpack.Marshal(retro)
+	nc.Publish("retros-"+retro.Id, b)
+}
+
 func (r *subscriptionResolver) CardChanged(ctx context.Context, rId string) (<-chan model.Card, error) {
 	cardChan := make(chan model.Card, 100)
 
 	user := ctx.Value("email").(string)
+	id := r.s.NewUlid()
+	observationTicker := time.NewTicker(5 * time.Second)
 	r.mu.Lock()
+	go func() {
+		lastUsers := make([]string, 0)
+		// Instant first tick pattern.
+		for ; true; <-observationTicker.C {
+			r.o.Observe(id, user, rId)
+			users := r.o.GetActiveUsers(rId)
+			if !reflect.DeepEqual(users, lastUsers) {
+				lastUsers = users
+				r.sendRetroToSubsById(rId)
+			}
+		}
+	}()
 	if userLimiters[user] != nil {
 		userLimiters[user].Count += 1
 	} else {
@@ -96,23 +118,16 @@ func (r *subscriptionResolver) CardChanged(ctx context.Context, rId string) (<-c
 		}
 	}(natsChan, cardChan)
 
-	// Send the retro subscription to notify of new online user.
-	retro, err := r.s.GetRetrospectiveById(rId)
-	if err == nil {
-		r.sendRetroToSubs(retro)
-	}
-
 	go func() {
 		<-ctx.Done()
+		observationTicker.Stop()
+		r.o.ClearObservations(connectionId)
+		// Re-send retro to subs to update online users.
+		r.sendRetroToSubsById(rId)
 		r.mu.Lock()
 		userLimiters[user].Count -= 1
 		if userLimiters[user].Count == 0 {
 			delete(userLimiters, user)
-			// Send the retro subscription to notify of new offline user.
-			retro, err := r.s.GetRetrospectiveById(rId)
-			if err == nil {
-				r.sendRetroToSubs(retro)
-			}
 		}
 		r.mu.Unlock()
 		sub.Unsubscribe()
@@ -141,6 +156,9 @@ func (r *subscriptionResolver) RetroChanged(ctx context.Context, rId string) (<-
 			retroChan <- retro
 		}
 	}(natsChan, retroChan)
+
+	// Send initial retro update incase we missed something
+	r.sendRetroToSubsById(rId)
 
 	go func() {
 		<-ctx.Done()
