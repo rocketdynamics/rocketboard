@@ -35,12 +35,13 @@ type rocketboardService struct {
 }
 
 var VALID_EMOJIS = map[string]bool{
-	"clap":    true,
-	"unicorn": true,
-	"rocket":  true,
-	"vomit":   true,
-	"+1":      true,
-	"tada":    true,
+	"clap":     true,
+	"unicorn":  true,
+	"rocket":   true,
+	"vomit":    true,
+	"+1":       true,
+	"tada":     true,
+	"sauropod": true,
 }
 
 func sanitizeString(str string) string {

@@ -11,6 +11,7 @@ const EMOJI_MAP = {
     "vomit": "🤮",
     "+1": "👍",
     "tada": "🎉",
+    "sauropod": "🦕",
 }
 
 class RetroCard extends React.PureComponent {
