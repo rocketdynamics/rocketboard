@@ -50,6 +50,11 @@ CREATE TABLE IF NOT EXISTS statuses (
 );
 `
 
+var migrations = `
+ALTER TABLE votes ADD
+  emoji TEXT DEFAULT('clap');
+`
+
 // Space elements by 2^15, which allows for 15 divisions before re-sorting
 var IDX_SPACING = int(math.Exp2(15))
 
@@ -70,6 +75,10 @@ func NewRepository(dbURI string) (*sqlRepository, error) {
 	_, err = db.Exec(schema)
 	if err != nil {
 		return nil, err
+	}
+	_, err = db.Exec(migrations)
+	if err != nil {
+		log.Println(err)
 	}
 	return &sqlRepository{db}, nil
 }
@@ -197,8 +206,8 @@ func (db *sqlRepository) GetCardsByRetrospectiveId(id string) ([]*model.Card, er
 
 func (db *sqlRepository) NewVote(v *model.Vote) error {
 	_, err := db.NamedExec(`INSERT INTO votes
-      (id, created, updated, cardid, voter, count)
-    VALUES (:id, :created, :updated, :cardid, :voter, :count)
+      (id, created, updated, cardid, voter, emoji, count)
+    VALUES (:id, :created, :updated, :cardid, :voter, :emoji, :count)
     ON CONFLICT(id) DO UPDATE SET updated=:updated, count=votes.count + 1
   `, v)
 	return err
@@ -210,9 +219,9 @@ func (db *sqlRepository) GetVotesByCardId(id string) ([]*model.Vote, error) {
 	return vs, err
 }
 
-func (db *sqlRepository) GetVoteByCardIdAndVoter(id string, voter string) (*model.Vote, error) {
+func (db *sqlRepository) GetVoteByCardIdAndVoterAndEmoji(id string, voter string, emoji string) (*model.Vote, error) {
 	v := model.Vote{}
-	err := db.Get(&v, "SELECT * FROM votes WHERE cardid=$1 AND voter=$2", id, voter)
+	err := db.Get(&v, "SELECT * FROM votes WHERE cardid=$1 AND voter=$2 AND emoji=$3", id, voter, emoji)
 	return &v, err
 }
 

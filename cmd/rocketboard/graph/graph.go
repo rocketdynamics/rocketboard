@@ -15,8 +15,8 @@ type rocketboardService interface {
 	GetCardsForRetrospective(string) ([]*model.Card, error)
 	GetCardById(string) (*model.Card, error)
 	GetVotesByCardId(string) ([]*model.Vote, error)
-	GetVoteByCardIdAndVoter(string, string) (*model.Vote, error)
-	NewVote(string, string) (*model.Vote, error)
+	GetVoteByCardIdAndVoterAndEmoji(string, string, string) (*model.Vote, error)
+	NewVote(string, string, string) (*model.Vote, error)
 	GetCardStatuses(string) ([]*model.Status, error)
 	SetStatus(string, model.StatusType) (string, error)
 	GetStatusById(string) (*model.Status, error)
@@ -121,7 +121,7 @@ func (r *mutationResolver) UpdateMessage(ctx context.Context, id string, message
 	return message, nil
 }
 
-func (r *mutationResolver) NewVote(ctx context.Context, cardId string) (model.Vote, error) {
+func (r *mutationResolver) NewVote(ctx context.Context, cardId string, emoji string) (model.Vote, error) {
 	voter := ctx.Value("email").(string)
 	r.mu.Lock()
 	limiter := userLimiters[voter]
@@ -129,11 +129,11 @@ func (r *mutationResolver) NewVote(ctx context.Context, cardId string) (model.Vo
 
 	if limiter != nil && !limiter.Allow() {
 		// If rate limited, just return existing vote (without incrementing)
-		vote, err := r.s.GetVoteByCardIdAndVoter(cardId, voter)
+		vote, err := r.s.GetVoteByCardIdAndVoterAndEmoji(cardId, voter, emoji)
 		return *vote, err
 	}
 
-	v, err := r.s.NewVote(cardId, voter)
+	v, err := r.s.NewVote(cardId, voter, emoji)
 	if err == nil {
 		c, _ := r.s.GetCardById(cardId)
 		r.sendCardToSubs(c)

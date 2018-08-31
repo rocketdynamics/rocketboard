@@ -141,10 +141,13 @@
     margin-bottom: 1.5rem;
     padding-bottom: 2rem;
     padding: 1rem;
+    padding-top: 18px;
     display: flex;
     flex:1;
     position: relative;
     transition: all .3s cubic-bezier(.4,0,.2,1);
+    font-weight: bold;
+    min-width: 310px;
 }
 
 .card-dragging {
@@ -152,17 +155,48 @@
     transform: scale(1.05, 1.05) rotate(1deg);
 }
 
-.card-action-clap {
-    border-left: 1px solid rgba(0, 0, 0, 0.05);
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-    border-radius: 0 0 0 6px;
-    cursor: pointer;
-    font-size: 0.8rem;
-    padding: 5px;
+.card-reactions {
     position: absolute;
     right: 0;
     top: 0;
-    white-space: nowrap;
+}
+
+    .card-reaction {
+        cursor: pointer;
+        font-size: 0.8rem;
+        top: 0.2rem;
+        right: 0.2rem;
+        position: relative;
+        float: right;
+        white-space: nowrap;
+    }
+
+        .card-reaction > .emoji {
+            padding-left: 3px;
+            padding-right: 5px;
+        }
+
+.card-reaction:hover::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background-color: white;
+    opacity: 0.3;
+    pointer-events: none;
+}
+
+.reaction-new .reaction-new-button::after {
+    content: "+";
+    right: 3px;
+    position: absolute;
+    top: -5px;
+    font-size: 18px;
+    font-weight: bold;
+    opacity: 0.5;
+    font-family: monospace;
 }
 
 .vote-effect {
