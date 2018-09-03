@@ -52,6 +52,21 @@ func (t StatusType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(t.String()))
 }
 
+func (t *UserStateType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	var err error
+	*t, err = UserStateTypeString(str)
+	return err
+}
+
+func (t UserStateType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(t.String()))
+}
+
 type StatusType int
 
 const (
@@ -61,6 +76,14 @@ const (
 	Archived
 )
 
+type UserStateType int
+
+const (
+	Unknown UserStateType = iota
+	Hidden
+	Visible
+)
+
 type Status struct {
 	Id string
 
@@ -68,6 +91,11 @@ type Status struct {
 	CardId  string
 
 	Type StatusType
+}
+
+type UserState struct {
+	User  string
+	State UserStateType
 }
 
 type Vote struct {
@@ -87,6 +115,7 @@ type Observation struct {
 	User            string
 	RetrospectiveId string
 	ConnectionId    string
+	State           UserStateType
 	FirstSeen       time.Time
 	LastSeen        time.Time
 }

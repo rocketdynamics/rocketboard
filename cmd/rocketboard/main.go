@@ -6,6 +6,7 @@ import (
 	"github.com/99designs/gqlgen/handler"
 	"github.com/arachnys/rocketboard/cmd/rocketboard/graph"
 	rocketSql "github.com/arachnys/rocketboard/cmd/rocketboard/repository/sql"
+	"github.com/arachnys/rocketboard/cmd/rocketboard/utils"
 	"log"
 	"net/http"
 	"os"
@@ -36,6 +37,7 @@ func WithEmail(base http.Handler) http.Handler {
 			email = r.FormValue("email")
 		}
 		ctx = context.WithValue(ctx, "email", email)
+		ctx = context.WithValue(ctx, "connectionId", utils.NewUlid())
 		r = r.WithContext(ctx)
 		base.ServeHTTP(w, r)
 	})

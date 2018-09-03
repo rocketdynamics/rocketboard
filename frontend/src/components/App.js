@@ -43,9 +43,18 @@ class OnlineUsers extends React.Component {
                 key="users"
                 onItemHover={() => {}}
             >
-                Online Users:
+                <span style={{paddingRight: "5px"}}>
+                    Online Users:
+                </span>
                 {this.state.users.map((user) => {
-                    return <img key={user} className="userAvatar" title={user} src={`https://gravatar.com/avatar/${md5(user)}?d=identicon`}/>
+                    return (
+                        <div className={`userAvatar userState${user.state}`}>
+                            <img
+                                key={user.user}
+                                title={user.user}
+                                src={`https://gravatar.com/avatar/${md5(user.user)}?d=identicon`}/>
+                        </div>
+                    )
                 })}
             </Menu.Item>
         );

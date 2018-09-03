@@ -11,6 +11,7 @@ import {
     MOVE_CARD,
     NEW_VOTE,
     UPDATE_STATUS,
+    SEND_HEARTBEAT,
     CARD_SUBSCRIPTION,
     RETRO_SUBSCRIPTION,
 } from "../queries";
@@ -66,6 +67,26 @@ class _LiveRetrospective extends React.Component {
 
 class _Retrospective extends React.Component {
     isSubscribed = false;
+    heartbeatInterval = null;
+
+    componentDidMount() {
+        const id = this.getRetrospectiveId();
+        const heartbeat = () => {
+            const state = {
+                "visible": "Visible",
+                "hidden": "Hidden",
+            }[document.visibilityState] || "Unknown";
+            this.props.sendHeartbeat({
+                variables: {
+                    rId: id,
+                    state: state,
+                }
+            })
+        };
+        document.addEventListener("visibilitychange", heartbeat)
+        this.heartbeatInterval = setInterval(heartbeat, 5000);
+        heartbeat();
+    }
 
     getRetrospectiveId = () => {
         return R.path(["params", "id"], this.props.match);
@@ -374,5 +395,6 @@ export default compose(
     graphql(ADD_CARD, { name: "addCard" }),
     graphql(MOVE_CARD, { name: "moveCard" }),
     graphql(NEW_VOTE, { name: "newVote" }),
-    graphql(UPDATE_STATUS, { name: "updateStatus" })
+    graphql(UPDATE_STATUS, { name: "updateStatus" }),
+    graphql(SEND_HEARTBEAT, { name: "sendHeartbeat" })
 )(_Retrospective);

@@ -20,13 +20,11 @@ type rocketboardService interface {
 	GetCardStatuses(string) ([]*model.Status, error)
 	SetStatus(string, model.StatusType) (string, error)
 	GetStatusById(string) (*model.Status, error)
-
-	NewUlid() string
 }
 
 type observationStore interface {
-	Observe(string, string, string) error
-	GetActiveUsers(string) []string
+	Observe(string, string, string, string) (bool, error)
+	GetActiveUsers(string) []model.UserState
 	ClearObservations(string)
 }
 
@@ -84,7 +82,7 @@ func (r *retrospectiveResolver) Cards(ctx context.Context, obj *model.Retrospect
 	cards, _ := r.s.GetCardsForRetrospective(obj.Id)
 	return cards, nil
 }
-func (r *retrospectiveResolver) OnlineUsers(ctx context.Context, obj *model.Retrospective) ([]string, error) {
+func (r *retrospectiveResolver) OnlineUsers(ctx context.Context, obj *model.Retrospective) ([]model.UserState, error) {
 	return r.o.GetActiveUsers(obj.Id), nil
 }
 
@@ -171,4 +169,14 @@ func (r *mutationResolver) UpdateStatus(ctx context.Context, id string, status m
 	}()
 
 	return *s, nil
+}
+
+func (r *mutationResolver) SendHeartbeat(ctx context.Context, rId string, state string) (string, error) {
+	user := ctx.Value("email").(string)
+	connectionId := ctx.Value("connectionId").(string)
+	changed, _ := r.o.Observe(connectionId, user, rId, state)
+	if changed {
+		r.sendRetroToSubsById(rId)
+	}
+	return "", nil
 }

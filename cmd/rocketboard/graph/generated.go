@@ -44,7 +44,7 @@ type CardResolver interface {
 }
 type RetrospectiveResolver interface {
 	Cards(ctx context.Context, obj *model.Retrospective) ([]*model.Card, error)
-	OnlineUsers(ctx context.Context, obj *model.Retrospective) ([]string, error)
+	OnlineUsers(ctx context.Context, obj *model.Retrospective) ([]model.UserState, error)
 }
 type RootMutationResolver interface {
 	StartRetrospective(ctx context.Context, name *string) (string, error)
@@ -53,6 +53,7 @@ type RootMutationResolver interface {
 	UpdateMessage(ctx context.Context, id string, message string) (string, error)
 	NewVote(ctx context.Context, cardId string, emoji string) (model.Vote, error)
 	UpdateStatus(ctx context.Context, id string, status model.StatusType) (model.Status, error)
+	SendHeartbeat(ctx context.Context, rId string, state string) (string, error)
 }
 type RootQueryResolver interface {
 	RetrospectiveByID(ctx context.Context, id string) (*model.Retrospective, error)
@@ -530,14 +531,14 @@ func (ec *executionContext) _Retrospective_onlineUsers(ctx context.Context, fiel
 		if resTmp == nil {
 			return graphql.Null
 		}
-		res := resTmp.([]string)
+		res := resTmp.([]model.UserState)
 		arr1 := graphql.Array{}
 		for idx1 := range res {
 			arr1 = append(arr1, func() graphql.Marshaler {
 				rctx := graphql.GetResolverContext(ctx)
 				rctx.PushIndex(idx1)
 				defer rctx.Pop()
-				return graphql.MarshalString(res[idx1])
+				return ec._UserState(ctx, field.Selections, &res[idx1])
 			}())
 		}
 		return arr1
@@ -573,6 +574,8 @@ func (ec *executionContext) _RootMutation(ctx context.Context, sel ast.Selection
 			out.Values[i] = ec._RootMutation_newVote(ctx, field)
 		case "updateStatus":
 			out.Values[i] = ec._RootMutation_updateStatus(ctx, field)
+		case "sendHeartbeat":
+			out.Values[i] = ec._RootMutation_sendHeartbeat(ctx, field)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -838,6 +841,45 @@ func (ec *executionContext) _RootMutation_updateStatus(ctx context.Context, fiel
 	}
 	res := resTmp.(model.Status)
 	return ec._Status(ctx, field.Selections, &res)
+}
+
+func (ec *executionContext) _RootMutation_sendHeartbeat(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["rId"]; ok {
+		var err error
+		arg0, err = graphql.UnmarshalID(tmp)
+		if err != nil {
+			ec.Error(ctx, err)
+			return graphql.Null
+		}
+	}
+	args["rId"] = arg0
+	var arg1 string
+	if tmp, ok := rawArgs["state"]; ok {
+		var err error
+		arg1, err = graphql.UnmarshalString(tmp)
+		if err != nil {
+			ec.Error(ctx, err)
+			return graphql.Null
+		}
+	}
+	args["state"] = arg1
+	rctx := graphql.GetResolverContext(ctx)
+	rctx.Object = "RootMutation"
+	rctx.Args = args
+	rctx.Field = field
+	rctx.PushField(field.Alias)
+	defer rctx.Pop()
+	resTmp := ec.FieldMiddleware(ctx, func(ctx context.Context) (interface{}, error) {
+		return ec.resolvers.RootMutation().SendHeartbeat(ctx, args["rId"].(string), args["state"].(string))
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	return graphql.MarshalString(res)
 }
 
 var rootQueryImplementors = []string{"RootQuery"}
@@ -1142,6 +1184,65 @@ func (ec *executionContext) _Subscription_retroChanged(ctx context.Context, fiel
 		out.Add(field.Alias, func() graphql.Marshaler { return ec._Retrospective(ctx, field.Selections, &res) }())
 		return &out
 	}
+}
+
+var userStateImplementors = []string{"UserState"}
+
+// nolint: gocyclo, errcheck, gas, goconst
+func (ec *executionContext) _UserState(ctx context.Context, sel ast.SelectionSet, obj *model.UserState) graphql.Marshaler {
+	fields := graphql.CollectFields(ctx, sel, userStateImplementors)
+
+	out := graphql.NewOrderedMap(len(fields))
+	for i, field := range fields {
+		out.Keys[i] = field.Alias
+
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("UserState")
+		case "user":
+			out.Values[i] = ec._UserState_user(ctx, field, obj)
+		case "state":
+			out.Values[i] = ec._UserState_state(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+
+	return out
+}
+
+func (ec *executionContext) _UserState_user(ctx context.Context, field graphql.CollectedField, obj *model.UserState) graphql.Marshaler {
+	rctx := graphql.GetResolverContext(ctx)
+	rctx.Object = "UserState"
+	rctx.Args = nil
+	rctx.Field = field
+	rctx.PushField(field.Alias)
+	defer rctx.Pop()
+	resTmp := ec.FieldMiddleware(ctx, func(ctx context.Context) (interface{}, error) {
+		return obj.User, nil
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	return graphql.MarshalString(res)
+}
+
+func (ec *executionContext) _UserState_state(ctx context.Context, field graphql.CollectedField, obj *model.UserState) graphql.Marshaler {
+	rctx := graphql.GetResolverContext(ctx)
+	rctx.Object = "UserState"
+	rctx.Args = nil
+	rctx.Field = field
+	rctx.PushField(field.Alias)
+	defer rctx.Pop()
+	resTmp := ec.FieldMiddleware(ctx, func(ctx context.Context) (interface{}, error) {
+		return obj.State, nil
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(model.UserStateType)
+	return res
 }
 
 var voteImplementors = []string{"Vote"}
@@ -2204,6 +2305,7 @@ type RootMutation {
     updateMessage(id: ID!, message: String!): String!
     newVote(cardId: ID!, emoji: String!): Vote!
     updateStatus(id: ID!, status: StatusType!): Status!
+    sendHeartbeat(rId: ID!, state: String!): String!
 }
 
 type Subscription {
@@ -2217,6 +2319,17 @@ enum StatusType {
     Archived
 }
 
+enum UserStateType {
+    Unknown
+    Hidden
+    Visible
+}
+
+type UserState {
+    user: String
+    state: UserStateType
+}
+
 type Retrospective {
     id: ID!
     created: Time
@@ -2225,7 +2338,7 @@ type Retrospective {
 
     cards: [Card]
 
-    onlineUsers: [String!]
+    onlineUsers: [UserState!]
 }
 
 type Card {

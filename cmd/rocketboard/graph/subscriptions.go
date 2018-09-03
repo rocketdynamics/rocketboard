@@ -8,8 +8,6 @@ import (
 	"golang.org/x/time/rate"
 	"log"
 	"os"
-	"reflect"
-	"time"
 
 	"github.com/arachnys/rocketboard/cmd/rocketboard/model"
 )
@@ -79,21 +77,8 @@ func (r *subscriptionResolver) CardChanged(ctx context.Context, rId string) (<-c
 	cardChan := make(chan model.Card, 100)
 
 	user := ctx.Value("email").(string)
-	id := r.s.NewUlid()
-	observationTicker := time.NewTicker(5 * time.Second)
+	connectionId := ctx.Value("connectionId").(string)
 	r.mu.Lock()
-	go func() {
-		lastUsers := make([]string, 0)
-		// Instant first tick pattern.
-		for ; true; <-observationTicker.C {
-			r.o.Observe(id, user, rId)
-			users := r.o.GetActiveUsers(rId)
-			if !reflect.DeepEqual(users, lastUsers) {
-				lastUsers = users
-				r.sendRetroToSubsById(rId)
-			}
-		}
-	}()
 	if userLimiters[user] != nil {
 		userLimiters[user].Count += 1
 	} else {
@@ -120,7 +105,6 @@ func (r *subscriptionResolver) CardChanged(ctx context.Context, rId string) (<-c
 
 	go func() {
 		<-ctx.Done()
-		observationTicker.Stop()
 		r.o.ClearObservations(connectionId)
 		// Re-send retro to subs to update online users.
 		r.sendRetroToSubsById(rId)

@@ -52,6 +52,7 @@ CREATE TABLE IF NOT EXISTS observations (
   user TEXT,
   retrospectiveid TEXT,
   connectionid TEXT,
+  state INTEGER,
   firstseen TIMESTAMP,
   lastseen TIMESTAMP
 );

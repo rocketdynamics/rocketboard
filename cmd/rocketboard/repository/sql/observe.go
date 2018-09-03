@@ -7,34 +7,50 @@ import (
 	"github.com/arachnys/rocketboard/cmd/rocketboard/model"
 )
 
-func (db *sqlRepository) Observe(connectionid string, user string, retrospectiveId string) error {
+func (db *sqlRepository) getObservation(connectionid string) (*model.Observation, error) {
+	var observation model.Observation
+	err := db.Get(&observation, "SELECT * FROM observation WHERE connectionid=$1", connectionid)
+	return &observation, err
+}
+
+func (db *sqlRepository) Observe(connectionid string, user string, retrospectiveId string, state string) (bool, error) {
+	tx := db.MustBegin()
+	userState, _ := model.UserStateTypeString(state)
+
 	observation := model.Observation{
 		User:            user,
 		RetrospectiveId: retrospectiveId,
 		ConnectionId:    connectionid,
+		State:           userState,
 		FirstSeen:       time.Now(),
 		LastSeen:        time.Now(),
 	}
-	_, err := db.NamedExec(`INSERT INTO observations
-      (user, retrospectiveid, connectionid, firstseen, lastseen)
-      VALUES (:user, :retrospectiveid, :connectionid, :firstseen, :lastseen)
-      ON CONFLICT(connectionid) DO UPDATE SET lastseen=:lastseen
+	oldObservation, err := db.getObservation(connectionid)
+
+	changed := err != nil || observation.State != oldObservation.State
+
+	_, err = db.NamedExec(`INSERT INTO observations
+      (user, retrospectiveid, connectionid, state, firstseen, lastseen)
+      VALUES (:user, :retrospectiveid, :connectionid, :state, :firstseen, :lastseen)
+      ON CONFLICT(connectionid) DO UPDATE SET lastseen=:lastseen, state=:state
     `, observation)
 	if err != nil {
 		log.Println("Error saving observation", err)
 	}
-	return nil
+
+	tx.Commit()
+	return changed, err
 }
 
 func (db *sqlRepository) ClearObservations(connectionid string) {
 	db.Exec(`DELETE FROM observations WHERE connectionid=$1`, connectionid)
 }
 
-func (db *sqlRepository) GetActiveUsers(retrospectiveId string) []string {
-	var users []string
-	err := db.Select(&users, "SELECT DISTINCT user FROM observations WHERE retrospectiveid=$1 AND lastseen > $2 ORDER BY firstseen ASC", retrospectiveId, time.Now().Add(-10*time.Second))
+func (db *sqlRepository) GetActiveUsers(retrospectiveId string) []model.UserState {
+	var userStates []model.UserState
+	err := db.Select(&userStates, "SELECT DISTINCT user, max(state) as state FROM observations WHERE retrospectiveid=$1 AND lastseen > $2 GROUP BY user ORDER BY firstseen ASC", retrospectiveId, time.Now().Add(-10*time.Second))
 	if err != nil {
 		log.Println("Failed to select active users:", err)
 	}
-	return users
+	return userStates
 }
