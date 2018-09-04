@@ -9,7 +9,7 @@ import HomePage from "./Home";
 import RetrospectivePage from "./Retrospective";
 
 // Styling
-import { Layout, Menu } from "antd";
+import { Layout, Menu, Tooltip } from "antd";
 import "./App.css";
 import "./Effects.css";
 import "antd/dist/antd.css";
@@ -49,10 +49,12 @@ class OnlineUsers extends React.Component {
                 {this.state.users.map((user) => {
                     return (
                         <div key={user.user} className={`userAvatar userState${user.state}`}>
-                            <img
-                                alt={user.user}
-                                title={user.user}
-                                src={`https://gravatar.com/avatar/${md5(user.user)}?d=identicon`}/>
+                            <Tooltip trigger="hover" title={user.user}>
+                                <img
+                                    alt={user.user}
+                                    src={`https://gravatar.com/avatar/${md5(user.user)}?d=identicon`}
+                                />
+                            </Tooltip>
                         </div>
                     )
                 })}
