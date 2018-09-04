@@ -50,6 +50,8 @@ var VALID_EMOJIS = map[string]bool{
 	"+1":       true,
 	"tada":     true,
 	"sauropod": true,
+	"bomb":     true,
+	"mushroom": true,
 }
 
 func sanitizeString(str string) string {
