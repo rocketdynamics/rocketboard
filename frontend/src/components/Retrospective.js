@@ -333,9 +333,11 @@ class _Retrospective extends React.Component {
 
                     if (!R.prop(["retrospectiveById"], data)) {
                         data.retrospectiveById = {};
+                    } else {
+                        if (this.props.setOnlineUsersHolder.setOnlineUsers !== null) {
+                            this.props.setOnlineUsersHolder.setOnlineUsers(data.retrospectiveById.onlineUsers);
+                        }
                     }
-
-                    this.props.setOnlineUsersHolder.setOnlineUsers(data.retrospectiveById.onlineUsers);
 
                     return (
                         <div className="page-retrospective">

@@ -48,9 +48,9 @@ class OnlineUsers extends React.Component {
                 </span>
                 {this.state.users.map((user) => {
                     return (
-                        <div className={`userAvatar userState${user.state}`}>
+                        <div key={user.user} className={`userAvatar userState${user.state}`}>
                             <img
-                                key={user.user}
+                                alt={user.user}
                                 title={user.user}
                                 src={`https://gravatar.com/avatar/${md5(user.user)}?d=identicon`}/>
                         </div>
@@ -62,15 +62,20 @@ class OnlineUsers extends React.Component {
 }
 
 class App extends React.Component {
+    constructor(props) {
+        super(props);
+
+        this.onlineUsersCallbackHolder = {
+            setOnlineUsers: null
+        };
+    }
+
     onLaunch = async () => {
         const results = await this.props.startRetrospective();
         this.props.history.push(`/${results.data.startRetrospective}/`);
     };
 
     render() {
-        var onlineUsersCallbackHolder = {
-            setOnlineUsers: () => {}
-        };
 
         return (
             <Layout className="layout">
@@ -80,7 +85,7 @@ class App extends React.Component {
                     </h1>
 
                     <Menu mode="horizontal" className="menu">
-                        <OnlineUsers holder={onlineUsersCallbackHolder}/>
+                        <OnlineUsers holder={this.onlineUsersCallbackHolder}/>
                         <Menu.Item
                             key="launch"
                             className="action-launch"
@@ -96,7 +101,7 @@ class App extends React.Component {
 
                 <Content className="content">
                     <Switch>
-                        <Route path="/:id/" component={(props) => (<RetrospectivePage {...props} setOnlineUsersHolder={onlineUsersCallbackHolder}/>)}/>
+                        <Route path="/:id/" component={(props) => (<RetrospectivePage {...props} setOnlineUsersHolder={this.onlineUsersCallbackHolder}/>)}/>
                         <Route path="/" component={HomePage} />
                     </Switch>
                 </Content>
