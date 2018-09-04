@@ -13,7 +13,10 @@ export const GET_RETROSPECTIVE = gql`
             name
             created
             updated
-            onlineUsers
+            onlineUsers {
+                user
+                state
+            }
             cards {
                 id
                 message
@@ -73,6 +76,12 @@ export const NEW_VOTE = gql`
     }
 `;
 
+export const SEND_HEARTBEAT = gql`
+    mutation($rId: ID!, $state: String!) {
+        sendHeartbeat(rId: $rId, state: $state)
+    }
+`;
+
 export const CARD_SUBSCRIPTION = gql`
     subscription OnCardChanged($rId: String!) {
         cardChanged(rId: $rId) {
@@ -100,7 +109,10 @@ export const RETRO_SUBSCRIPTION = gql`
         retroChanged(rId: $rId) {
             id
             name
-            onlineUsers
+            onlineUsers {
+                user
+                state
+            }
         }
     }
 `;

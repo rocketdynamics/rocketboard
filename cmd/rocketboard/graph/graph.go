@@ -20,12 +20,17 @@ type rocketboardService interface {
 	GetCardStatuses(string) ([]*model.Status, error)
 	SetStatus(string, model.StatusType) (string, error)
 	GetStatusById(string) (*model.Status, error)
+}
 
-	NewUlid() string
+type observationStore interface {
+	Observe(string, string, string, string) (bool, error)
+	GetActiveUsers(string) ([]model.UserState, error)
+	ClearObservations(string)
 }
 
 type rootResolver struct {
 	s  rocketboardService
+	o  observationStore
 	mu sync.Mutex
 }
 
@@ -49,8 +54,8 @@ type queryResolver struct {
 	*rootResolver
 }
 
-func NewResolver(s rocketboardService) ResolverRoot {
-	return &rootResolver{s, sync.Mutex{}}
+func NewResolver(s rocketboardService, o observationStore) ResolverRoot {
+	return &rootResolver{s, o, sync.Mutex{}}
 }
 
 func (r *rootResolver) Card() CardResolver {
@@ -77,14 +82,8 @@ func (r *retrospectiveResolver) Cards(ctx context.Context, obj *model.Retrospect
 	cards, _ := r.s.GetCardsForRetrospective(obj.Id)
 	return cards, nil
 }
-func (r *retrospectiveResolver) OnlineUsers(ctx context.Context, obj *model.Retrospective) ([]*string, error) {
-	users := make([]*string, 0)
-	r.mu.Lock()
-	for user := range userLimiters {
-		users = append(users, &user)
-	}
-	r.mu.Unlock()
-	return users, nil
+func (r *retrospectiveResolver) OnlineUsers(ctx context.Context, obj *model.Retrospective) ([]model.UserState, error) {
+	return r.o.GetActiveUsers(obj.Id)
 }
 
 func (r *cardResolver) Statuses(ctx context.Context, obj *model.Card) ([]*model.Status, error) {
@@ -170,4 +169,14 @@ func (r *mutationResolver) UpdateStatus(ctx context.Context, id string, status m
 	}()
 
 	return *s, nil
+}
+
+func (r *mutationResolver) SendHeartbeat(ctx context.Context, rId string, state string) (string, error) {
+	user := ctx.Value("email").(string)
+	connectionId := ctx.Value("connectionId").(string)
+
+	if changed, _ := r.o.Observe(connectionId, user, rId, state); changed {
+		r.sendRetroToSubsById(rId)
+	}
+	return "", nil
 }

@@ -14,6 +14,7 @@ type RootMutation {
     updateMessage(id: ID!, message: String!): String!
     newVote(cardId: ID!, emoji: String!): Vote!
     updateStatus(id: ID!, status: StatusType!): Status!
+    sendHeartbeat(rId: ID!, state: String!): String!
 }
 
 type Subscription {
@@ -27,6 +28,17 @@ enum StatusType {
     Archived
 }
 
+enum UserStateType {
+    Unknown
+    Hidden
+    Visible
+}
+
+type UserState {
+    user: String
+    state: UserStateType
+}
+
 type Retrospective {
     id: ID!
     created: Time
@@ -35,7 +47,7 @@ type Retrospective {
 
     cards: [Card]
 
-    onlineUsers: [String]
+    onlineUsers: [UserState!]
 }
 
 type Card {

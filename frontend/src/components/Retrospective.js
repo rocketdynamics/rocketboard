@@ -11,6 +11,7 @@ import {
     MOVE_CARD,
     NEW_VOTE,
     UPDATE_STATUS,
+    SEND_HEARTBEAT,
     CARD_SUBSCRIPTION,
     RETRO_SUBSCRIPTION,
 } from "../queries";
@@ -66,6 +67,33 @@ class _LiveRetrospective extends React.Component {
 
 class _Retrospective extends React.Component {
     isSubscribed = false;
+    heartbeatInterval = null;
+    doHeartbeat = null;
+
+    componentDidMount() {
+        const id = this.getRetrospectiveId();
+        this.doHeartbeat = () => {
+            const state = {
+                "visible": "Visible",
+                "hidden": "Hidden",
+            }[document.visibilityState] || "Unknown";
+            console.log("heartbeat" + id);
+            this.props.sendHeartbeat({
+                variables: {
+                    rId: id,
+                    state: state,
+                }
+            })
+        };
+        document.addEventListener("visibilitychange", this.doHeartbeat);
+        this.heartbeatInterval = setInterval(this.doHeartbeat, 5000);
+        this.doHeartbeat();
+    }
+
+    componentWillUnmount() {
+        clearTimeout(this.heartbeatInterval);
+        document.removeEventListener("visibilitychange", this.doHeartbeat);
+    }
 
     getRetrospectiveId = () => {
         return R.path(["params", "id"], this.props.match);
@@ -312,9 +340,11 @@ class _Retrospective extends React.Component {
 
                     if (!R.prop(["retrospectiveById"], data)) {
                         data.retrospectiveById = {};
+                    } else {
+                        if (this.props.setOnlineUsersHolder.setOnlineUsers !== null) {
+                            this.props.setOnlineUsersHolder.setOnlineUsers(data.retrospectiveById.onlineUsers);
+                        }
                     }
-
-                    this.props.setOnlineUsersHolder.setOnlineUsers(data.retrospectiveById.onlineUsers);
 
                     return (
                         <div className="page-retrospective">
@@ -374,5 +404,6 @@ export default compose(
     graphql(ADD_CARD, { name: "addCard" }),
     graphql(MOVE_CARD, { name: "moveCard" }),
     graphql(NEW_VOTE, { name: "newVote" }),
-    graphql(UPDATE_STATUS, { name: "updateStatus" })
+    graphql(UPDATE_STATUS, { name: "updateStatus" }),
+    graphql(SEND_HEARTBEAT, { name: "sendHeartbeat" })
 )(_Retrospective);

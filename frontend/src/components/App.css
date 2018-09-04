@@ -256,10 +256,37 @@
 }
 
 .userAvatar {
-    border-radius: 100%;
+    padding-right: 5px;
     height: 60%;
-    padding: 0 5px;
+    display: inline-block;
 }
+
+.userAvatar img {
+    border-radius: 100%;
+    transition: all 0.6s ease;
+    height: 100%;
+}
+
+    @keyframes pulse {
+      0% {
+        box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4);
+      }
+      70% {
+          box-shadow: 0 0 0 10px rgba(255, 255, 255, 0);
+      }
+      100% {
+          box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+      }
+    }
+
+    .userAvatar.userStateVisible img {
+        animation: pulse 4s infinite;
+    }
+
+    .userAvatar.userStateHidden img {
+        filter: blur(0.5px) grayscale(50%) brightness(80%);
+        opacity: 0.7;
+    }
 
 .ant-layout-content {
     position: relative;

@@ -67,10 +67,17 @@ func (r *rootResolver) sendRetroToSubs(retro *model.Retrospective) {
 	nc.Publish("retros-"+retro.Id, b)
 }
 
+func (r *rootResolver) sendRetroToSubsById(rId string) {
+	retro, _ := r.s.GetRetrospectiveById(rId)
+	b, _ := msgpack.Marshal(retro)
+	nc.Publish("retros-"+retro.Id, b)
+}
+
 func (r *subscriptionResolver) CardChanged(ctx context.Context, rId string) (<-chan model.Card, error) {
 	cardChan := make(chan model.Card, 100)
 
 	user := ctx.Value("email").(string)
+	connectionId := ctx.Value("connectionId").(string)
 	r.mu.Lock()
 	if userLimiters[user] != nil {
 		userLimiters[user].Count += 1
@@ -96,23 +103,15 @@ func (r *subscriptionResolver) CardChanged(ctx context.Context, rId string) (<-c
 		}
 	}(natsChan, cardChan)
 
-	// Send the retro subscription to notify of new online user.
-	retro, err := r.s.GetRetrospectiveById(rId)
-	if err == nil {
-		r.sendRetroToSubs(retro)
-	}
-
 	go func() {
 		<-ctx.Done()
+		r.o.ClearObservations(connectionId)
+		// Re-send retro to subs to update online users.
+		r.sendRetroToSubsById(rId)
 		r.mu.Lock()
 		userLimiters[user].Count -= 1
 		if userLimiters[user].Count == 0 {
 			delete(userLimiters, user)
-			// Send the retro subscription to notify of new offline user.
-			retro, err := r.s.GetRetrospectiveById(rId)
-			if err == nil {
-				r.sendRetroToSubs(retro)
-			}
 		}
 		r.mu.Unlock()
 		sub.Unsubscribe()
@@ -141,6 +140,9 @@ func (r *subscriptionResolver) RetroChanged(ctx context.Context, rId string) (<-
 			retroChan <- retro
 		}
 	}(natsChan, retroChan)
+
+	// Send initial retro update incase we missed something
+	r.sendRetroToSubsById(rId)
 
 	go func() {
 		<-ctx.Done()

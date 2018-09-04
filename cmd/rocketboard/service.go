@@ -3,9 +3,8 @@ package main
 import (
 	"fmt"
 	"github.com/arachnys/rocketboard/cmd/rocketboard/model"
+	"github.com/arachnys/rocketboard/cmd/rocketboard/utils"
 	"github.com/microcosm-cc/bluemonday"
-	"github.com/oklog/ulid"
-	"math/rand"
 	"time"
 )
 
@@ -28,6 +27,14 @@ type repository interface {
 	GetStatusesByCardId(string) ([]*model.Status, error)
 
 	Healthcheck() error
+
+	observationStore
+}
+
+type observationStore interface {
+	Observe(string, string, string, string) (bool, error)
+	GetActiveUsers(string) ([]model.UserState, error)
+	ClearObservations(string)
 }
 
 type rocketboardService struct {
@@ -56,8 +63,12 @@ func NewRocketboardService(r repository) *rocketboardService {
 	return &rocketboardService{r}
 }
 
+func NewObservationStore(r repository) observationStore {
+	return r
+}
+
 func (s *rocketboardService) StartRetrospective(name string) (string, error) {
-	id := newUlid()
+	id := utils.NewUlid()
 
 	r := &model.Retrospective{
 		Id:      id,
@@ -99,7 +110,7 @@ func (s *rocketboardService) NewVote(cardId string, voter string, emoji string) 
 	vote, err := s.db.GetVoteByCardIdAndVoterAndEmoji(cardId, voter, emoji)
 	if err != nil {
 		vote = &model.Vote{
-			Id:      newUlid(),
+			Id:      utils.NewUlid(),
 			Created: time.Now(),
 			Updated: time.Now(),
 			CardId:  cardId,
@@ -123,7 +134,7 @@ func (s *rocketboardService) AddCardToRetrospective(rId string, column string, m
 		return "", err
 	}
 
-	id := newUlid()
+	id := utils.NewUlid()
 
 	if err := s.db.NewCard(&model.Card{
 		Id:              id,
@@ -182,7 +193,7 @@ func (s *rocketboardService) SetStatus(id string, t model.StatusType) (string, e
 		return "", err
 	}
 
-	statusId := newUlid()
+	statusId := utils.NewUlid()
 	status := &model.Status{
 		Id:      statusId,
 		Created: time.Now(),
@@ -197,15 +208,6 @@ func (s *rocketboardService) SetStatus(id string, t model.StatusType) (string, e
 	return statusId, nil
 }
 
-func (s *rocketboardService) NewUlid() string {
-	return newUlid()
-}
-
 func (s *rocketboardService) Healthcheck() error {
 	return s.db.Healthcheck()
-}
-
-func newUlid() string {
-	entropy := rand.New(rand.NewSource(time.Now().UnixNano()))
-	return ulid.MustNew(ulid.Now(), entropy).String()
 }

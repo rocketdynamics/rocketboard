@@ -14,3 +14,7 @@ models:
     model: github.com/arachnys/rocketboard/cmd/rocketboard/model.Status
   StatusType:
     model: github.com/arachnys/rocketboard/cmd/rocketboard/model.StatusType
+  UserStateType:
+    model: github.com/arachnys/rocketboard/cmd/rocketboard/model.UserStateType
+  UserState:
+    model: github.com/arachnys/rocketboard/cmd/rocketboard/model.UserState

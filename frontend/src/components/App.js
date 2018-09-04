@@ -9,7 +9,7 @@ import HomePage from "./Home";
 import RetrospectivePage from "./Retrospective";
 
 // Styling
-import { Layout, Menu } from "antd";
+import { Layout, Menu, Tooltip } from "antd";
 import "./App.css";
 import "./Effects.css";
 import "antd/dist/antd.css";
@@ -43,9 +43,20 @@ class OnlineUsers extends React.Component {
                 key="users"
                 onItemHover={() => {}}
             >
-                Online Users:
+                <span style={{paddingRight: "5px"}}>
+                    Online Users:
+                </span>
                 {this.state.users.map((user) => {
-                    return <img key={user} className="userAvatar" title={user} src={`https://gravatar.com/avatar/${md5(user)}?d=identicon`}/>
+                    return (
+                        <div key={user.user} className={`userAvatar userState${user.state}`}>
+                            <Tooltip trigger="hover" title={user.user}>
+                                <img
+                                    alt={user.user}
+                                    src={`https://gravatar.com/avatar/${md5(user.user)}?d=identicon`}
+                                />
+                            </Tooltip>
+                        </div>
+                    )
                 })}
             </Menu.Item>
         );
@@ -53,15 +64,20 @@ class OnlineUsers extends React.Component {
 }
 
 class App extends React.Component {
+    constructor(props) {
+        super(props);
+
+        this.onlineUsersCallbackHolder = {
+            setOnlineUsers: null
+        };
+    }
+
     onLaunch = async () => {
         const results = await this.props.startRetrospective();
         this.props.history.push(`/${results.data.startRetrospective}/`);
     };
 
     render() {
-        var onlineUsersCallbackHolder = {
-            setOnlineUsers: () => {}
-        };
 
         return (
             <Layout className="layout">
@@ -71,7 +87,7 @@ class App extends React.Component {
                     </h1>
 
                     <Menu mode="horizontal" className="menu">
-                        <OnlineUsers holder={onlineUsersCallbackHolder}/>
+                        <OnlineUsers holder={this.onlineUsersCallbackHolder}/>
                         <Menu.Item
                             key="launch"
                             className="action-launch"
@@ -87,7 +103,7 @@ class App extends React.Component {
 
                 <Content className="content">
                     <Switch>
-                        <Route path="/:id/" component={(props) => (<RetrospectivePage {...props} setOnlineUsersHolder={onlineUsersCallbackHolder}/>)}/>
+                        <Route path="/:id/" component={(props) => (<RetrospectivePage {...props} setOnlineUsersHolder={this.onlineUsersCallbackHolder}/>)}/>
                         <Route path="/" component={HomePage} />
                     </Switch>
                 </Content>

@@ -1,4 +1,4 @@
-FROM golang:1.10 as backend-builder
+FROM golang:1.11 as backend-builder
 
 WORKDIR /go/src/github.com/arachnys/rocketboard
 RUN go get -u github.com/golang/dep/cmd/dep
