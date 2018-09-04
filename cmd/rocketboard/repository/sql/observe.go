@@ -15,6 +15,7 @@ func (db *sqlRepository) getObservation(connectionid string) (*model.Observation
 
 func (db *sqlRepository) Observe(connectionid string, user string, retrospectiveId string, state string) (bool, error) {
 	tx := db.MustBegin()
+	defer tx.Commit()
 	userState, _ := model.UserStateTypeString(state)
 
 	observation := model.Observation{
@@ -38,7 +39,6 @@ func (db *sqlRepository) Observe(connectionid string, user string, retrospective
 		log.Println("Error saving observation", err)
 	}
 
-	tx.Commit()
 	return changed, err
 }
 
