@@ -225,6 +225,7 @@ class RetroCard extends React.PureComponent {
                     })}
                 </div>
             ))}
+            {Object.keys(votesByEmoji).length < 5 && (
                 <div key="new" className={`card-reaction reaction-new`}>
                     <Tooltip trigger="click" visible={this.state.reactionShow} onVisibleChange={this.handleReactionVisibleChange} title={(
                         <span style={{cursor: "pointer"}}>
@@ -245,6 +246,7 @@ class RetroCard extends React.PureComponent {
                         </div>
                     </Tooltip>
                 </div>
+            )}
             </div>
         );
 
