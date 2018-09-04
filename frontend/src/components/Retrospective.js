@@ -132,7 +132,7 @@ class _Retrospective extends React.Component {
                     data.retrospectiveById.cards.push({
                         __typename: "Card",
                         id: addCardToRetrospective,
-                        creator: "Unknown",
+                        creator: "",
                         votes: [],
                         statuses: [],
                         position: maxIndex + IDX_SPACING,

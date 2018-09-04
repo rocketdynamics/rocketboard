@@ -288,7 +288,7 @@ class RetroCard extends React.PureComponent {
                 <div onDoubleClick={this.setEditingOn} className="card-body">
                     {body}
 
-                    <small>{this.props.data.creator}</small>
+                    <small style={{transition: "all 1s ease", opacity: this.props.data.creator !== "" ? 1 : 0}}>{this.props.data.creator}</small>
                 </div>
 
                 {!this.props.isNew && (
