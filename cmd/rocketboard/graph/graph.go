@@ -24,7 +24,7 @@ type rocketboardService interface {
 
 type observationStore interface {
 	Observe(string, string, string, string) (bool, error)
-	GetActiveUsers(string) []model.UserState
+	GetActiveUsers(string) ([]model.UserState, error)
 	ClearObservations(string)
 }
 
@@ -83,7 +83,7 @@ func (r *retrospectiveResolver) Cards(ctx context.Context, obj *model.Retrospect
 	return cards, nil
 }
 func (r *retrospectiveResolver) OnlineUsers(ctx context.Context, obj *model.Retrospective) ([]model.UserState, error) {
-	return r.o.GetActiveUsers(obj.Id), nil
+	return r.o.GetActiveUsers(obj.Id)
 }
 
 func (r *cardResolver) Statuses(ctx context.Context, obj *model.Card) ([]*model.Status, error) {

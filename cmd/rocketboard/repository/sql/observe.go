@@ -46,11 +46,11 @@ func (db *sqlRepository) ClearObservations(connectionid string) {
 	db.Exec(`DELETE FROM observations WHERE connectionid=$1`, connectionid)
 }
 
-func (db *sqlRepository) GetActiveUsers(retrospectiveId string) []model.UserState {
+func (db *sqlRepository) GetActiveUsers(retrospectiveId string) ([]model.UserState, error) {
 	var userStates []model.UserState
 	err := db.Select(&userStates, "SELECT DISTINCT user, max(state) as state FROM observations WHERE retrospectiveid=$1 AND lastseen > $2 GROUP BY user ORDER BY firstseen ASC", retrospectiveId, time.Now().Add(-10*time.Second))
 	if err != nil {
 		log.Println("Failed to select active users:", err)
 	}
-	return userStates
+	return userStates, err
 }

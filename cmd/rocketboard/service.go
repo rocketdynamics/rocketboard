@@ -33,7 +33,7 @@ type repository interface {
 
 type observationStore interface {
 	Observe(string, string, string, string) (bool, error)
-	GetActiveUsers(string) []model.UserState
+	GetActiveUsers(string) ([]model.UserState, error)
 	ClearObservations(string)
 }
 
