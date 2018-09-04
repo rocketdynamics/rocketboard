@@ -237,6 +237,12 @@ func (db *sqlRepository) GetVoteByCardIdAndVoterAndEmoji(id string, voter string
 	return &v, err
 }
 
+func (db *sqlRepository) GetTotalUniqueEmojis(id string) (int, error) {
+	var count int
+	err := db.Get(&count, "SELECT COUNT(distinct emoji) FROM votes WHERE cardid=$1", id)
+	return count, err
+}
+
 func (db *sqlRepository) NewStatus(s *model.Status) error {
 	_, err := db.NamedExec(`INSERT INTO statuses
       (id, created, cardid, type)

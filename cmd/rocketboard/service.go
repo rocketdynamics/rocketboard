@@ -21,6 +21,7 @@ type repository interface {
 	NewVote(*model.Vote) error
 	GetVotesByCardId(string) ([]*model.Vote, error)
 	GetVoteByCardIdAndVoterAndEmoji(string, string, string) (*model.Vote, error)
+	GetTotalUniqueEmojis(string) (int, error)
 
 	NewStatus(*model.Status) error
 	GetStatusById(id string) (*model.Status, error)
@@ -109,6 +110,10 @@ func (s *rocketboardService) NewVote(cardId string, voter string, emoji string) 
 	}
 	vote, err := s.db.GetVoteByCardIdAndVoterAndEmoji(cardId, voter, emoji)
 	if err != nil {
+		numEmojis, err := s.db.GetTotalUniqueEmojis(cardId)
+		if err != nil || numEmojis >= 5 {
+			return nil, fmt.Errorf("Cannot create more than 5 emoji reactions")
+		}
 		vote = &model.Vote{
 			Id:      utils.NewUlid(),
 			Created: time.Now(),
