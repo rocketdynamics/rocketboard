@@ -49,7 +49,7 @@ CREATE TABLE IF NOT EXISTS statuses (
   type INTEGER
 );
 CREATE TABLE IF NOT EXISTS observations (
-  user TEXT,
+  "user" TEXT,
   retrospectiveid TEXT,
   connectionid TEXT,
   state INTEGER,

@@ -31,7 +31,7 @@ func (db *sqlRepository) Observe(connectionid string, user string, retrospective
 	changed := err != nil || observation.State != oldObservation.State
 
 	_, err = db.NamedExec(`INSERT INTO observations
-      (user, retrospectiveid, connectionid, state, firstseen, lastseen)
+      ("user", retrospectiveid, connectionid, state, firstseen, lastseen)
       VALUES (:user, :retrospectiveid, :connectionid, :state, :firstseen, :lastseen)
       ON CONFLICT(connectionid) DO UPDATE SET lastseen=:lastseen, state=:state
     `, observation)
@@ -48,7 +48,7 @@ func (db *sqlRepository) ClearObservations(connectionid string) {
 
 func (db *sqlRepository) GetActiveUsers(retrospectiveId string) ([]model.UserState, error) {
 	var userStates []model.UserState
-	err := db.Select(&userStates, "SELECT DISTINCT user, max(state) as state FROM observations WHERE retrospectiveid=$1 AND lastseen > $2 GROUP BY user ORDER BY firstseen ASC", retrospectiveId, time.Now().Add(-10*time.Second))
+	err := db.Unsafe().Select(&userStates, "SELECT DISTINCT \"user\", max(state) as state, min(firstseen) as firstseen FROM observations WHERE retrospectiveid=$1 AND lastseen > $2 GROUP BY \"user\" ORDER BY firstseen ASC", retrospectiveId, time.Now().Add(-10*time.Second))
 	if err != nil {
 		log.Println("Failed to select active users:", err)
 	}
