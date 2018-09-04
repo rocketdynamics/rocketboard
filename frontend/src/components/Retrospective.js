@@ -68,14 +68,16 @@ class _LiveRetrospective extends React.Component {
 class _Retrospective extends React.Component {
     isSubscribed = false;
     heartbeatInterval = null;
+    doHeartbeat = null;
 
     componentDidMount() {
         const id = this.getRetrospectiveId();
-        const heartbeat = () => {
+        this.doHeartbeat = () => {
             const state = {
                 "visible": "Visible",
                 "hidden": "Hidden",
             }[document.visibilityState] || "Unknown";
+            console.log("heartbeat" + id);
             this.props.sendHeartbeat({
                 variables: {
                     rId: id,
@@ -83,9 +85,14 @@ class _Retrospective extends React.Component {
                 }
             })
         };
-        document.addEventListener("visibilitychange", heartbeat)
-        this.heartbeatInterval = setInterval(heartbeat, 5000);
-        heartbeat();
+        document.addEventListener("visibilitychange", this.doHeartbeat);
+        this.heartbeatInterval = setInterval(this.doHeartbeat, 5000);
+        this.doHeartbeat();
+    }
+
+    componentWillUnmount() {
+        clearTimeout(this.heartbeatInterval);
+        document.removeEventListener("visibilitychange", this.doHeartbeat);
     }
 
     getRetrospectiveId = () => {
