@@ -174,8 +174,8 @@ func (r *mutationResolver) UpdateStatus(ctx context.Context, id string, status m
 func (r *mutationResolver) SendHeartbeat(ctx context.Context, rId string, state string) (string, error) {
 	user := ctx.Value("email").(string)
 	connectionId := ctx.Value("connectionId").(string)
-	changed, _ := r.o.Observe(connectionId, user, rId, state)
-	if changed {
+
+	if changed, _ := r.o.Observe(connectionId, user, rId, state); changed {
 		r.sendRetroToSubsById(rId)
 	}
 	return "", nil
