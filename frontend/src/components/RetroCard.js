@@ -168,6 +168,7 @@ class RetroCard extends React.PureComponent {
     render() {
         const { id, votes } = this.props.data;
         const { isDragging, onNewVote, onSetStatus } = this.props;
+        const isOptimistic = this.props.data.creator === "";
         const sumVotes = R.compose(R.sum, R.pluck("count"));
         const votesByEmoji = R.groupBy(R.prop("emoji"), votes);
 
@@ -228,7 +229,7 @@ class RetroCard extends React.PureComponent {
                     })}
                 </div>
             ))}
-            {Object.keys(votesByEmoji).length < 5 && (
+            {!isOptimistic && Object.keys(votesByEmoji).length < 5 && (
                 <div key="new" className={`card-reaction reaction-new`}>
                     <Tooltip trigger="click" visible={this.state.reactionShow} onVisibleChange={this.handleReactionVisibleChange} title={(
                         <span style={{cursor: "pointer"}}>
@@ -285,7 +286,7 @@ class RetroCard extends React.PureComponent {
         return (
             <div
                 id={`card-${id}`}
-                className={`card ${isDragging && "card-dragging"}`}
+                className={`card ${isDragging ? "card-dragging" : ""}`}
                 style={{
                     borderTop: `6px solid ${this.props.colour}`,
                 }}
@@ -293,7 +294,7 @@ class RetroCard extends React.PureComponent {
                 <div onDoubleClick={this.setEditingOn} className="card-body">
                     {body}
 
-                    <small style={{transition: "all 1s ease", opacity: this.props.data.creator !== "" ? 1 : 0}}>{this.props.data.creator}</small>
+                    <small style={{transition: "all 1s ease", opacity: !isOptimistic ? 1 : 0}}>{this.props.data.creator}</small>
                 </div>
 
                 {!this.props.isNew && (

@@ -22,12 +22,31 @@ node("docker") {
     sh "make version > .git/commit-id"
     def commit_id = readFile('.git/commit-id').trim()
 
-    stage('test') {
-        sh "VERSION=$commit_id make test"
-    }
-
     stage('build') {
         sh "VERSION=$commit_id make build"
+        sh "VERSION=$commit_id make build/frontend"
+    }
+
+    stage('test') {
+        try {
+            parallel backend: {
+                sh """VERSION=$commit_id make test"""
+            }, frontend: {
+                sh """
+                    bash -ce '
+                        CNAME="rocketboard-test-$commit_id-$BUILD_NUMBER"
+                        trap "docker rm -f \$CNAME; docker run --rm -v `pwd`/traceshots:/frontend/traceshots -w /frontend/traceshots docker.arachnys.com/rocketboard-frontend:$commit_id convert -delay 10 -loop 0 *.png animation.gif" EXIT
+                        docker run -d --name=\$CNAME docker.arachnys.com/rocketboard:$commit_id rocketboard
+                        mkdir ./traceshots && chown 999 ./traceshots
+                        docker run --rm --cap-add=SYS_ADMIN -v `pwd`/traceshots:/frontend/traceshots --init --link \$CNAME:backend -e TARGET_URL=http://backend:5000 docker.arachnys.com/rocketboard-frontend:$commit_id yarn test
+                    '
+                """
+            }
+        } finally {
+            echo "Post"
+            sh "ls -lah traceshots"
+            archiveArtifacts artifacts: 'traceshots/animation.gif', fingerprint: true
+        }
     }
 
     if (env.BRANCH_NAME ==~ /PR-\d+/) {
