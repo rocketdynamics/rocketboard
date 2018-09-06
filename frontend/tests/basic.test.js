@@ -123,6 +123,22 @@ describe('Rocketboard', () => {
     })
   })
 
+  it('should drag and drop', async() => {
+    const card = await page.$('.card');
+    const dropColumn = await page.$('.column:nth-child(1) .column-cards');
+
+    const cardBox = await card.boundingBox();
+    const dropBox = await dropColumn.boundingBox();
+    await page.mouse.move(cardBox.x + cardBox.width / 2, cardBox.y + cardBox.height / 2);
+    await page.mouse.down();
+    await page.mouse.move(dropBox.x + dropBox.width / 2, dropBox.y + 100, {steps: 10});
+    await page.mouse.up();
+
+    await allPages(async (page) => {
+      await page.waitForSelector('.column:nth-child(1) .card')
+    })
+  })
+
   it('shows online users', async() => {
     await allPages(async (page) => {
       expect(
