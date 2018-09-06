@@ -99,26 +99,23 @@ describe('Rocketboard', () => {
   })
 
   it('should allow vote spam', async () => {
-    waitClick('.reaction-new')
-    await page.waitFor(200)
-    waitClick('.ant-tooltip [aria-label=tada]')
-    await page.waitForSelector('.reaction-tada')
+    await page.waitForSelector('.reaction-sauropod')
     for( var i = 0; i < 5; i++ ) {
-      page.click('.reaction-tada')
+      page.click('.reaction-sauropod')
     }
     await allPages(async (page) => {
-      await page.waitForSelector('.reaction-tada')
+      await page.waitForSelector('.reaction-sauropod')
       await page.waitFor(() => (
-        document.querySelector('.reaction-tada .card-reaction-count').innerText === "6"
+        document.querySelector('.reaction-sauropod .card-reaction-count').innerText === "6"
       ))
     })
     // And check it works the other way around
     for( var i = 0; i < 5; i++ ) {
-      page.click('.reaction-tada')
+      page.click('.reaction-sauropod')
     }
     await allPages(async (page) => {
       await page.waitFor(() => (
-        document.querySelector('.reaction-tada .card-reaction-count').innerText === "11"
+        document.querySelector('.reaction-sauropod .card-reaction-count').innerText === "11"
       ))
     })
   })
