@@ -29,18 +29,18 @@ node("docker") {
 
     stage('test') {
         def container = "rocketboard-test-$commit_id-$BUILD_NUMBER"
-        try {
-            parallel backend: {
-                sh "VERSION=$commit_id make test"
-            }, frontend: {
+        parallel backend: {
+            sh "VERSION=$commit_id make test"
+        }, frontend: {
+            try {
                 sh "docker run -d --name=$container docker.arachnys.com/rocketboard:$commit_id rocketboard"
                 sh "mkdir ./traceshots && chown 999 ./traceshots"
                 sh "docker run --rm --cap-add=SYS_ADMIN -v `pwd`/traceshots:/frontend/traceshots --init --link $container:backend -e TARGET_URL=http://backend:5000 docker.arachnys.com/rocketboard-frontend:$commit_id yarn test"
+            } finally {
+                sh "docker rm -f $container || true"
+                sh "docker run --rm -v `pwd`/traceshots:/frontend/traceshots -w /frontend/traceshots docker.arachnys.com/rocketboard-frontend:$commit_id avconv -f image2 -i trace-screenshot-%05d.jpg testrun.mp4"
+                archiveArtifacts artifacts: 'traceshots/testrun.mp4', fingerprint: true
             }
-        } finally {
-            sh "docker rm -f $container || true"
-            sh "docker run --rm -v `pwd`/traceshots:/frontend/traceshots -w /frontend/traceshots docker.arachnys.com/rocketboard-frontend:$commit_id convert -delay 10 -loop 0 *.png animation.gif"
-            archiveArtifacts artifacts: 'traceshots/animation.gif', fingerprint: true
         }
     }
 

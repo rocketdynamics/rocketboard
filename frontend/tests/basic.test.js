@@ -42,7 +42,7 @@ describe('Rocketboard', () => {
       while(indexString.length < 5) {
         indexString = "0" + indexString
       }
-      fs.writeFile('traceshots/trace-screenshot-'+indexString+'.png', snap.args.snapshot, 'base64', function(err) {
+      fs.writeFile('traceshots/trace-screenshot-'+indexString+'.jpg', snap.args.snapshot, 'base64', function(err) {
         if (err) {
           console.log('writeFile error', err);
         }
