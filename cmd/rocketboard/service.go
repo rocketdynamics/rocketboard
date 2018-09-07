@@ -46,6 +46,7 @@ var VALID_EMOJIS = map[string]bool{
 	"clap":     true,
 	"unicorn":  true,
 	"rocket":   true,
+	"ramen":    true,
 	"vomit":    true,
 	"+1":       true,
 	"tada":     true,

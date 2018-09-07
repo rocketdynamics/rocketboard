@@ -8,6 +8,7 @@ const EMOJI_MAP = {
     "clap": "👏",
     "unicorn": "🦄",
     "rocket": "🚀",
+    "ramen": "🍜",
     "vomit": "🤮",
     "+1": "👍",
     "tada": "🎉",
