@@ -31,7 +31,7 @@ node("docker") {
         def container = "rocketboard-test-$commit_id-$BUILD_NUMBER"
         parallel backend: {
             sh "VERSION=$commit_id make test"
-        }, frontend: {
+        }, e2e: {
             try {
                 sh "docker run -d --name=$container docker.arachnys.com/rocketboard:$commit_id rocketboard"
                 sh "mkdir ./traceshots && chown 999 ./traceshots"
