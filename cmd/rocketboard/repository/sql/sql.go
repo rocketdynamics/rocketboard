@@ -79,7 +79,14 @@ func NewRepository(dbURI string) (*sqlRepository, error) {
 	if dbDriver == "sqlite3" {
 		url.Scheme = ""
 	}
-	db, err := sqlx.Open(dbDriver, url.String())
+
+	var db *sqlx.DB
+	for tries := 50; tries > 0; tries -= 1 {
+		db, err = sqlx.Open(dbDriver, url.String())
+		if err == nil {
+			break
+		}
+	}
 	if err != nil {
 		return nil, err
 	}
