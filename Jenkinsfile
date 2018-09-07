@@ -38,8 +38,9 @@ node("docker") {
                 sh "docker run --rm --cap-add=SYS_ADMIN -v `pwd`/traceshots:/frontend/traceshots --init --link $container:backend -e TARGET_URL=http://backend:5000 docker.arachnys.com/rocketboard-frontend:$commit_id yarn test"
             } finally {
                 sh "docker rm -f $container || true"
-                sh "docker run --rm -v `pwd`/traceshots:/frontend/traceshots -w /frontend/traceshots docker.arachnys.com/rocketboard-frontend:$commit_id avconv -f image2 -i trace-screenshot-%05d.jpg testrun.mp4"
-                archiveArtifacts artifacts: 'traceshots/testrun.mp4', fingerprint: true
+                sh "docker run --rm -v `pwd`/traceshots:/frontend/traceshots -w /frontend/traceshots docker.arachnys.com/rocketboard-frontend:$commit_id avconv -f image2 -i basic/trace-screenshot-%05d.jpg testrun-basic.mp4"
+                sh "docker run --rm -v `pwd`/traceshots:/frontend/traceshots -w /frontend/traceshots docker.arachnys.com/rocketboard-frontend:$commit_id avconv -f image2 -i online-users/trace-screenshot-%05d.jpg testrun-online-users.mp4"
+                archiveArtifacts artifacts: 'traceshots/testrun-*.mp4', fingerprint: true
             }
         }
     }

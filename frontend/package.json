@@ -41,7 +41,8 @@
     "redux-devtools": "^3.4.0"
   },
   "jest": {
-    "preset": "jest-puppeteer"
+    "preset": "jest-puppeteer",
+    "testEnvironment": "./tests/test-environment.js"
   },
   "proxy": {
     "/query": {

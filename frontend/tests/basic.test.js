@@ -1,26 +1,13 @@
-const fs = require('fs');
-
 describe('Rocketboard', () => {
-  var page2
-  var pages
-  var waitClick = async (selector, ...args) => {
-    try {
-      await page.waitForSelector(selector, {visible: true})
-      return page.click(selector, ...args)
-    } catch (err) {
-      console.log(err.stack);
-    }
-  }
-
   beforeAll(async () => {
+    allPages = global.allPages.bind(this)
+    waitClick = global.bindWaitClick(page)
+
     jest.setTimeout(10000)
     page2 = await browser.newPage()
-    page.setViewport({ width: 1000, height: 800 })
-    page2.setViewport({ width: 1000, height: 800 })
-    pages = [page, page2]
+    this.pages = [page, page2]
 
-    // Block all external requests for testing.
-    // Maybe in the future we should fail on all external requests?
+    // Fail on unknown external requests.
     allPages(async (page) => {
       const allowedRequests = [
         process.env.TARGET_URL,
@@ -37,43 +24,15 @@ describe('Rocketboard', () => {
       });
     })
 
-    await page.tracing.start({path: './trace.json', screenshots: true})
+    await page.tracing.start({path: './trace-basic.json', screenshots: true})
     page2.goto(process.env.TARGET_URL)
     page.goto(process.env.TARGET_URL)
   })
 
   afterAll(async () => {
     await page.tracing.stop()
-
-    const tracing = JSON.parse(fs.readFileSync('./trace.json', 'utf8'));
-
-    if (!fs.existsSync("traceshots")){
-        fs.mkdirSync("traceshots");
-    }
-    const traceScreenshots = tracing.traceEvents.filter(x => (
-        x.cat === 'disabled-by-default-devtools.screenshot' &&
-        x.name === 'Screenshot' &&
-        typeof x.args !== 'undefined' &&
-        typeof x.args.snapshot !== 'undefined'
-    ));
-    traceScreenshots.forEach(function(snap, index) {
-      var indexString = "" + index
-      while(indexString.length < 5) {
-        indexString = "0" + indexString
-      }
-      fs.writeFile('traceshots/trace-screenshot-'+indexString+'.jpg', snap.args.snapshot, 'base64', function(err) {
-        if (err) {
-          console.log('writeFile error', err);
-        }
-      });
-    });
+    extractTraceShots('./trace-basic.json', 'traceshots/basic')
   })
-
-  allPages = (callback) => {
-    return Promise.all(pages.map(async (page) => {
-      return callback.call(this, page)
-    }))
-  }
 
   it('should launch retrospective', async () => {
     waitClick('.action-launch')
