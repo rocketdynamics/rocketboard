@@ -37,15 +37,6 @@ test:
 		${PRODUCTION_IMAGE_NAME}:${VERSION}-test \
 		go test  -ldflags '-linkmode external -extldflags -static -w' ./... -cover
 
-test/frontend:
-	bash -c ' \
-		CNAME="rocketboard-test-${VERSION}-${BUILD_NUMBER}" \
-		trap "docker rm -f \$CNAME" EXIT \
-		docker run -d --name=\$CNAME docker.arachnys.com/rocketboard:${VERSION} rocketboard \
-		docker run --rm --cap-add=SYS_ADMIN --init --link \$CNAME:backend -e TARGET_URL=http://backend:5000 docker.arachnys.com/rocketboard-frontend:${VERSION} yarn test \
-	'
-
-
 publish:
 	docker push ${PRODUCTION_IMAGE_NAME}:${VERSION}
 
