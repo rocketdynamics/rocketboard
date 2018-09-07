@@ -52,6 +52,8 @@ class OnlineUsers extends React.Component {
                             <Tooltip trigger="hover" title={user.user}>
                                 <img
                                     alt={user.user}
+                                    width="38.4"
+                                    height="38.4"
                                     src={`https://gravatar.com/avatar/${md5(user.user)}?d=identicon`}
                                 />
                             </Tooltip>
