@@ -35,7 +35,7 @@ test:
 
 	docker run --rm  \
 		${PRODUCTION_IMAGE_NAME}:${VERSION}-test \
-		go test -race ./... -cover
+		go test  -ldflags '-linkmode external -extldflags -static -w' ./... -cover
 
 test/frontend:
 	bash -c ' \
