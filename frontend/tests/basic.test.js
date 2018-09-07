@@ -22,10 +22,15 @@ describe('Rocketboard', () => {
     // Block all external requests for testing.
     // Maybe in the future we should fail on all external requests?
     allPages(async (page) => {
+      const allowedRequests = [
+        process.env.TARGET_URL,
+        "gravatar.com",
+      ];
+
       await page.setRequestInterception(true);
       page.on('request', interceptedRequest => {
-        if (!interceptedRequest.url().includes(process.env.TARGET_URL)) {
-          interceptedRequest.abort();
+        if (!allowedRequests.some((str) => interceptedRequest.url().includes(str))) {
+          throw "External request made to unverified url " + interceptedRequest.url();
         } else {
           interceptedRequest.continue();
         }
