@@ -18,9 +18,23 @@ describe('Rocketboard', () => {
     page.setViewport({ width: 1000, height: 800 })
     page2.setViewport({ width: 1000, height: 800 })
     pages = [page, page2]
+
+    // Block all external requests for testing.
+    // Maybe in the future we should fail on all external requests?
+    allPages(async (page) => {
+      await page.setRequestInterception(true);
+      page.on('request', interceptedRequest => {
+        if (!interceptedRequest.url().includes(process.env.TARGET_URL)) {
+          interceptedRequest.abort();
+        } else {
+          interceptedRequest.continue();
+        }
+      });
+    })
+
     await page.tracing.start({path: './trace.json', screenshots: true})
     page2.goto(process.env.TARGET_URL)
-    await page.goto(process.env.TARGET_URL)
+    page.goto(process.env.TARGET_URL)
   })
 
   afterAll(async () => {
@@ -59,7 +73,7 @@ describe('Rocketboard', () => {
   it('should launch retrospective', async () => {
     waitClick('.action-launch')
     await page.waitForSelector('.page-retrospective')
-    await page2.goto(page.url())
+    page2.goto(page.url())
 
     await allPages(async (page) => {
       await page.waitForSelector('.page-retrospective')
@@ -102,18 +116,10 @@ describe('Rocketboard', () => {
     await page.waitForSelector('.reaction-sauropod')
     for( var i = 0; i < 5; i++ ) {
       page.click('.reaction-sauropod')
+      page2.click('.reaction-sauropod')
     }
     await allPages(async (page) => {
       await page.waitForSelector('.reaction-sauropod')
-      await page.waitFor(() => (
-        document.querySelector('.reaction-sauropod .card-reaction-count').innerText === "6"
-      ))
-    })
-    // And check it works the other way around
-    for( var i = 0; i < 5; i++ ) {
-      page.click('.reaction-sauropod')
-    }
-    await allPages(async (page) => {
       await page.waitFor(() => (
         document.querySelector('.reaction-sauropod .card-reaction-count').innerText === "11"
       ))
