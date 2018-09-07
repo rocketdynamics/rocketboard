@@ -77,7 +77,6 @@ class _Retrospective extends React.Component {
                 "visible": "Visible",
                 "hidden": "Hidden",
             }[document.visibilityState] || "Unknown";
-            console.log("heartbeat" + id);
             this.props.sendHeartbeat({
                 variables: {
                     rId: id,

@@ -21,10 +21,10 @@ func WithEmail(base http.Handler) http.Handler {
 
 		cookie, err := r.Cookie("_oauth2_proxy")
 		if err == nil {
-			parts := strings.Split(cookie.Value, ":")
+			parts := strings.Split(cookie.Value, "|")
 			if len(parts) > 0 {
 				cookieValue, err := base64.StdEncoding.DecodeString(parts[0])
-				if err != nil {
+				if err == nil {
 					re := regexp.MustCompile("email:([^\\s]+)")
 					matches := re.FindStringSubmatch(string(cookieValue))
 					if len(matches) > 1 {

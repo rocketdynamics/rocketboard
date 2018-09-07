@@ -18,6 +18,14 @@ build:
 			-f ${PRODUCTION_IMAGE_FILE} \
 			-t ${PRODUCTION_IMAGE_NAME}:${VERSION} \
 			.
+
+build/frontend:
+	docker build --rm \
+			-f ${PRODUCTION_IMAGE_FILE} \
+			-t ${PRODUCTION_IMAGE_NAME}-frontend:${VERSION} \
+			--target=frontend-builder \
+			.
+
 test:
 	docker build --rm \
 			-f ${PRODUCTION_IMAGE_FILE} \
@@ -27,7 +35,7 @@ test:
 
 	docker run --rm  \
 		${PRODUCTION_IMAGE_NAME}:${VERSION}-test \
-		go test -race ./... -cover
+		go test  -ldflags '-linkmode external -extldflags -static -w' ./... -cover
 
 publish:
 	docker push ${PRODUCTION_IMAGE_NAME}:${VERSION}

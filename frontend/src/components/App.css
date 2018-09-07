@@ -146,7 +146,6 @@
     flex:1;
     position: relative;
     transition: all .3s cubic-bezier(.4,0,.2,1);
-    font-weight: bold;
     min-width: 310px;
 }
 

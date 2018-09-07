@@ -8,6 +8,7 @@ import (
 	"golang.org/x/time/rate"
 	"log"
 	"os"
+	"time"
 
 	"github.com/arachnys/rocketboard/cmd/rocketboard/model"
 )
@@ -51,7 +52,13 @@ func InitMessageQueue() {
 		nats_addr = "nats://localhost:4222"
 	}
 
-	nc, err = nats.Connect(nats_addr)
+	for tries := 50; tries > 0; tries -= 1 {
+		nc, err = nats.Connect(nats_addr)
+		if err == nil {
+			break
+		}
+		time.Sleep(100 * time.Millisecond)
+	}
 	if err != nil {
 		log.Fatal("could not connect to nats")
 	}

@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "antd": "^3.5.4",
+    "antd": "^3.9.1",
     "apollo-boost": "^0.1.13",
     "apollo-cache-inmemory": "^1.2.7",
     "apollo-client": "^2.3.8",
@@ -22,20 +22,27 @@
     "react-dom": "^16.4.0",
     "react-refetch": "^1.0.4",
     "react-router-dom": "^4.1.2",
-    "react-scripts": "1.0.10",
+    "react-scripts": "1.1.5",
     "react-timeago": "^4.1.9",
     "subscriptions-transport-ws": "^0.9.14"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test --env=jsdom",
+    "test": "jest",
     "eject": "react-scripts eject",
     "fmt": "prettier --write '{*.js,./src/**/*.js}'"
   },
   "devDependencies": {
+    "jest": "^23.5.0",
+    "jest-puppeteer": "^3.3.1",
     "prettier": "^1.14.2",
+    "puppeteer": "^1.7.0",
     "redux-devtools": "^3.4.0"
+  },
+  "jest": {
+    "preset": "jest-puppeteer",
+    "testEnvironment": "./tests/test-environment.js"
   },
   "proxy": {
     "/query": {

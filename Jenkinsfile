@@ -22,12 +22,27 @@ node("docker") {
     sh "make version > .git/commit-id"
     def commit_id = readFile('.git/commit-id').trim()
 
-    stage('test') {
-        sh "VERSION=$commit_id make test"
-    }
-
     stage('build') {
         sh "VERSION=$commit_id make build"
+        sh "VERSION=$commit_id make build/frontend"
+    }
+
+    stage('test') {
+        def container = "rocketboard-test-$commit_id-$BUILD_NUMBER"
+        parallel backend: {
+            sh "VERSION=$commit_id make test"
+        }, e2e: {
+            try {
+                sh "docker run -d --name=$container docker.arachnys.com/rocketboard:$commit_id rocketboard"
+                sh "mkdir ./traceshots && chown 999 ./traceshots"
+                sh "docker run --rm --cap-add=SYS_ADMIN -v `pwd`/traceshots:/frontend/traceshots --init --link $container:backend -e TARGET_URL=http://backend:5000 docker.arachnys.com/rocketboard-frontend:$commit_id yarn test"
+            } finally {
+                sh "docker rm -f $container || true"
+                sh "docker run --rm -v `pwd`/traceshots:/frontend/traceshots -w /frontend/traceshots docker.arachnys.com/rocketboard-frontend:$commit_id avconv -f image2 -i basic/trace-screenshot-%05d.jpg testrun-basic.mp4"
+                sh "docker run --rm -v `pwd`/traceshots:/frontend/traceshots -w /frontend/traceshots docker.arachnys.com/rocketboard-frontend:$commit_id avconv -f image2 -i online-users/trace-screenshot-%05d.jpg testrun-online-users.mp4"
+                archiveArtifacts artifacts: 'traceshots/testrun-*.mp4', fingerprint: true
+            }
+        }
     }
 
     if (env.BRANCH_NAME ==~ /PR-\d+/) {
