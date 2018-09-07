@@ -71,7 +71,7 @@ describe('Rocketboard', () => {
 
   allPages = (callback) => {
     return Promise.all(pages.map(async (page) => {
-      await callback.call(this, page)
+      return callback.call(this, page)
     }))
   }
 
