@@ -51,6 +51,7 @@ var VALID_EMOJIS = map[string]bool{
 	"+1":       true,
 	"tada":     true,
 	"sauropod": true,
+	"poop":     true,
 	"bomb":     true,
 	"mushroom": true,
 }

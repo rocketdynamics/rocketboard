@@ -13,6 +13,7 @@ const EMOJI_MAP = {
     "+1": "👍",
     "tada": "🎉",
     "sauropod": "🦕",
+    "poop": "💩",
     "bomb": "💣",
     "mushroom": "🍄",
 }
