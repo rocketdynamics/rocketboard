@@ -124,17 +124,17 @@ class _Retrospective extends React.Component {
                         R.pluck("position"),
                         R.filter(R.propEq("column", column))
                     );
-                    const maxIndex = Math.max(
+                    const minIndex = Math.min(
                         0,
                         ...columnIndexes(data.retrospectiveById.cards)
                     );
-                    data.retrospectiveById.cards.push({
+                    data.retrospectiveById.cards.unshift({
                         __typename: "Card",
                         id: addCardToRetrospective,
                         creator: "",
                         votes: [],
                         statuses: [],
-                        position: maxIndex + IDX_SPACING,
+                        position: minIndex - IDX_SPACING,
                         ...newCard,
                     });
 

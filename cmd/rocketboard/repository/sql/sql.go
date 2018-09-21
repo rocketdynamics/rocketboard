@@ -115,20 +115,20 @@ func (db *sqlRepository) GetRetrospectiveById(id string) (*model.Retrospective, 
 
 func (db *sqlRepository) NewCard(c *model.Card) error {
 	var count int
-	var max int
+	var min int
 	err := db.Get(&count, `SELECT COUNT(*) FROM cards WHERE retrospectiveid=$1`, c.RetrospectiveId)
 	if err != nil {
 		return err
 	}
-	err = db.Get(&max, `SELECT max(position) FROM cards WHERE retrospectiveid=$1 AND "column"=$2`, c.RetrospectiveId, c.Column)
+	err = db.Get(&min, `SELECT min(position) FROM cards WHERE retrospectiveid=$1 AND "column"=$2`, c.RetrospectiveId, c.Column)
 	if err != nil {
-		max = 0
+		min = 0
 	}
 
 	if count > 100 {
 		return fmt.Errorf("too many cards")
 	}
-	c.Position = max + IDX_SPACING
+	c.Position = min - IDX_SPACING
 
 	_, err = db.NamedExec(`INSERT INTO cards
       (id, created, updated, retrospectiveid, message, creator, "column", position)
