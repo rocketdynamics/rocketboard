@@ -81,7 +81,7 @@ class _RetroColumn extends React.Component {
         // Defensive copy of cards to allow us to push the new card
         const cards = this.props.cards.slice();
         if (this.state.newCard !== undefined) {
-            cards.push(this.state.newCard);
+            cards.unshift(this.state.newCard);
         }
 
         return (
