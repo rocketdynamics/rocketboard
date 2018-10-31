@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/arachnys/rocketboard/cmd/rocketboard/model"
 	"github.com/arachnys/rocketboard/cmd/rocketboard/utils"
-	"github.com/microcosm-cc/bluemonday"
 	"time"
 )
 
@@ -60,7 +59,6 @@ func sanitizeString(str string) string {
 	if len(str) > 500 {
 		str = str[0:500]
 	}
-	str = bluemonday.UGCPolicy().Sanitize(str)
 	return str
 }
 
