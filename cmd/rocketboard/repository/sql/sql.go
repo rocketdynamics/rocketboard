@@ -62,10 +62,16 @@ CREATE INDEX IF NOT EXISTS obs_firstseen ON observations(firstseen);
 CREATE INDEX IF NOT EXISTS obs_lastseen ON observations(lastseen);
 `
 
-var migrations = `
-ALTER TABLE votes ADD
-  emoji TEXT DEFAULT('clap');
-`
+var migrations = []string{`
+  ALTER TABLE votes ADD
+    emoji TEXT DEFAULT('clap');
+  `, `
+  ALTER TABLE retrospectives ADD
+    petname TEXT;
+  UPDATE retrospectives SET petname = id WHERE petname IS NULL;
+  CREATE UNIQUE INDEX IF NOT EXISTS retro_petname on retrospectives(petname);
+  ALTER TABLE retrospectives ALTER COLUMN petname SET NOT NULL;
+`}
 
 // Space elements by 2^15, which allows for 15 divisions before re-sorting
 var IDX_SPACING = int(math.Exp2(15))
@@ -95,21 +101,30 @@ func NewRepository(dbURI string) (*sqlRepository, error) {
 	if err != nil {
 		return nil, err
 	}
-	_, err = db.Exec(migrations)
-	if err != nil {
-		log.Println(err)
+
+	for _, migration := range migrations {
+		_, err = db.Exec(migration)
+		if err != nil {
+			log.Println(err)
+		}
 	}
 	return &sqlRepository{db}, nil
 }
 
 func (db *sqlRepository) NewRetrospective(r *model.Retrospective) error {
-	_, err := db.NamedExec("INSERT INTO retrospectives (id, created, updated, name) VALUES (:id, :created, :updated, :name)", r)
+	_, err := db.NamedExec("INSERT INTO retrospectives (id, created, updated, name, petname) VALUES (:id, :created, :updated, :name, :petname)", r)
 	return err
 }
 
 func (db *sqlRepository) GetRetrospectiveById(id string) (*model.Retrospective, error) {
 	var r model.Retrospective
 	err := db.Get(&r, "SELECT * FROM retrospectives WHERE id=$1", id)
+	return &r, err
+}
+
+func (db *sqlRepository) GetRetrospectiveByPetName(petName string) (*model.Retrospective, error) {
+	var r model.Retrospective
+	err := db.Get(&r, "SELECT * FROM retrospectives WHERE petname=$1", petName)
 	return &r, err
 }
 

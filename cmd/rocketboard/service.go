@@ -4,12 +4,14 @@ import (
 	"fmt"
 	"github.com/arachnys/rocketboard/cmd/rocketboard/model"
 	"github.com/arachnys/rocketboard/cmd/rocketboard/utils"
+	"github.com/dustinkirkland/golang-petname"
 	"time"
 )
 
 type repository interface {
 	NewRetrospective(*model.Retrospective) error
 	GetRetrospectiveById(string) (*model.Retrospective, error)
+	GetRetrospectiveByPetName(string) (*model.Retrospective, error)
 
 	NewCard(*model.Card) error
 	UpdateCard(*model.Card) error
@@ -78,16 +80,21 @@ func (s *rocketboardService) StartRetrospective(name string) (string, error) {
 		Created: time.Now(),
 		Updated: time.Now(),
 		Name:    sanitizeString(name),
+		PetName: petname.Generate(3, "-"),
 	}
 	if err := s.db.NewRetrospective(r); err != nil {
 		return "", err
 	}
 
-	return id, nil
+	return r.PetName, nil
 }
 
 func (s *rocketboardService) GetRetrospectiveById(id string) (*model.Retrospective, error) {
 	return s.db.GetRetrospectiveById(id)
+}
+
+func (s *rocketboardService) GetRetrospectiveByPetName(petName string) (*model.Retrospective, error) {
+	return s.db.GetRetrospectiveByPetName(petName)
 }
 
 func (s *rocketboardService) GetVotesByCardId(id string) ([]*model.Vote, error) {

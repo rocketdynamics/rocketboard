@@ -57,6 +57,7 @@ type RootMutationResolver interface {
 }
 type RootQueryResolver interface {
 	RetrospectiveByID(ctx context.Context, id string) (*model.Retrospective, error)
+	RetrospectiveByPetName(ctx context.Context, petName string) (*model.Retrospective, error)
 }
 type SubscriptionResolver interface {
 	CardChanged(ctx context.Context, rId string) (<-chan model.Card, error)
@@ -392,6 +393,8 @@ func (ec *executionContext) _Retrospective(ctx context.Context, sel ast.Selectio
 			out.Values[i] = ec._Retrospective_updated(ctx, field, obj)
 		case "name":
 			out.Values[i] = ec._Retrospective_name(ctx, field, obj)
+		case "petName":
+			out.Values[i] = ec._Retrospective_petName(ctx, field, obj)
 		case "cards":
 			out.Values[i] = ec._Retrospective_cards(ctx, field, obj)
 		case "onlineUsers":
@@ -464,6 +467,23 @@ func (ec *executionContext) _Retrospective_name(ctx context.Context, field graph
 	defer rctx.Pop()
 	resTmp := ec.FieldMiddleware(ctx, func(ctx context.Context) (interface{}, error) {
 		return obj.Name, nil
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	return graphql.MarshalString(res)
+}
+
+func (ec *executionContext) _Retrospective_petName(ctx context.Context, field graphql.CollectedField, obj *model.Retrospective) graphql.Marshaler {
+	rctx := graphql.GetResolverContext(ctx)
+	rctx.Object = "Retrospective"
+	rctx.Args = nil
+	rctx.Field = field
+	rctx.PushField(field.Alias)
+	defer rctx.Pop()
+	resTmp := ec.FieldMiddleware(ctx, func(ctx context.Context) (interface{}, error) {
+		return obj.PetName, nil
 	})
 	if resTmp == nil {
 		return graphql.Null
@@ -901,6 +921,8 @@ func (ec *executionContext) _RootQuery(ctx context.Context, sel ast.SelectionSet
 			out.Values[i] = graphql.MarshalString("RootQuery")
 		case "retrospectiveById":
 			out.Values[i] = ec._RootQuery_retrospectiveById(ctx, field)
+		case "retrospectiveByPetName":
+			out.Values[i] = ec._RootQuery_retrospectiveByPetName(ctx, field)
 		case "__type":
 			out.Values[i] = ec._RootQuery___type(ctx, field)
 		case "__schema":
@@ -942,6 +964,47 @@ func (ec *executionContext) _RootQuery_retrospectiveById(ctx context.Context, fi
 
 		resTmp := ec.FieldMiddleware(ctx, func(ctx context.Context) (interface{}, error) {
 			return ec.resolvers.RootQuery().RetrospectiveByID(ctx, args["id"].(string))
+		})
+		if resTmp == nil {
+			return graphql.Null
+		}
+		res := resTmp.(*model.Retrospective)
+		if res == nil {
+			return graphql.Null
+		}
+		return ec._Retrospective(ctx, field.Selections, res)
+	})
+}
+
+func (ec *executionContext) _RootQuery_retrospectiveByPetName(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["petName"]; ok {
+		var err error
+		arg0, err = graphql.UnmarshalString(tmp)
+		if err != nil {
+			ec.Error(ctx, err)
+			return graphql.Null
+		}
+	}
+	args["petName"] = arg0
+	ctx = graphql.WithResolverContext(ctx, &graphql.ResolverContext{
+		Object: "RootQuery",
+		Args:   args,
+		Field:  field,
+	})
+	return graphql.Defer(func() (ret graphql.Marshaler) {
+		defer func() {
+			if r := recover(); r != nil {
+				userErr := ec.Recover(ctx, r)
+				ec.Error(ctx, userErr)
+				ret = graphql.Null
+			}
+		}()
+
+		resTmp := ec.FieldMiddleware(ctx, func(ctx context.Context) (interface{}, error) {
+			return ec.resolvers.RootQuery().RetrospectiveByPetName(ctx, args["petName"].(string))
 		})
 		if resTmp == nil {
 			return graphql.Null
@@ -2296,6 +2359,7 @@ var parsedSchema = gqlparser.MustLoadSchema(
 
 type RootQuery {
     retrospectiveById(id: ID!): Retrospective
+    retrospectiveByPetName(petName: String!): Retrospective
 }
 
 type RootMutation {
@@ -2335,6 +2399,7 @@ type Retrospective {
     created: Time
     updated: Time
     name: String
+    petName: String
 
     cards: [Card]
 

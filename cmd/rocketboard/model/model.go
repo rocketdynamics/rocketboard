@@ -15,7 +15,8 @@ type Retrospective struct {
 	Created time.Time
 	Updated time.Time
 
-	Name string
+	Name    string
+	PetName string
 }
 
 type Card struct {

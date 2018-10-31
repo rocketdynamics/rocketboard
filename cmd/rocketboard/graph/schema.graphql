@@ -5,6 +5,7 @@ schema {
 
 type RootQuery {
     retrospectiveById(id: ID!): Retrospective
+    retrospectiveByPetName(petName: String!): Retrospective
 }
 
 type RootMutation {
@@ -44,6 +45,7 @@ type Retrospective {
     created: Time
     updated: Time
     name: String
+    petName: String
 
     cards: [Card]
 

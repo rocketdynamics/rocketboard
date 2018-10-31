@@ -9,6 +9,7 @@ import (
 type rocketboardService interface {
 	StartRetrospective(string) (string, error)
 	GetRetrospectiveById(string) (*model.Retrospective, error)
+	GetRetrospectiveByPetName(string) (*model.Retrospective, error)
 	AddCardToRetrospective(string, string, string, string) (string, error)
 	MoveCard(string, string, int) error
 	UpdateMessage(string, string) error
@@ -96,6 +97,10 @@ func (r *cardResolver) Votes(ctx context.Context, obj *model.Card) ([]*model.Vot
 
 func (r *queryResolver) RetrospectiveByID(ctx context.Context, id string) (*model.Retrospective, error) {
 	return r.s.GetRetrospectiveById(id)
+}
+
+func (r *queryResolver) RetrospectiveByPetName(ctx context.Context, petName string) (*model.Retrospective, error) {
+	return r.s.GetRetrospectiveByPetName(petName)
 }
 
 func (r *mutationResolver) StartRetrospective(ctx context.Context, name *string) (string, error) {
