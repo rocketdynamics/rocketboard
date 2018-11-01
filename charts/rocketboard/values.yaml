@@ -50,6 +50,7 @@ strategy:
 
 cockroachdb:
   enabled: false
+  ImageTag: v2.1.0
   Replicas: 3
   Storage: 10Gi
   Resources:
