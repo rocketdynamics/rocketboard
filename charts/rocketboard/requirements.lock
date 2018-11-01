@@ -4,9 +4,9 @@ dependencies:
   version: 0.5.3
 - name: cockroachdb
   repository: https://kubernetes-charts.storage.googleapis.com/
-  version: 1.2.2
+  version: 2.0.2
 - name: nats
   repository: https://kubernetes-charts.storage.googleapis.com/
-  version: 0.0.6
-digest: sha256:97a31cef1d7721c43243819dd96211399e5ac2ac82fe6642c7d37daa04b66880
-generated: 2018-08-19T14:37:10.015346399+01:00
+  version: 1.1.2
+digest: sha256:de52252f0d0d48b813cee51f53c9449c699a4f7063eebfcff8ca6610e6fc0aa0
+generated: 2018-11-01T11:09:35.875414Z

@@ -1,0 +1,51 @@
+replicaCount: 3
+
+include-qa-annotations: false
+
+nats:
+  replicaCount: 3
+
+strategy:
+  type: RollingUpdate
+  rollingUpdate:
+    maxSurge: 3
+    maxUnavailable: 0
+
+cockroachdb:
+  enabled: true
+  Replicas: 3
+  Storage: 10Gi
+  Resources:
+    requests:
+      cpu: "100m"
+      memory: "512Mi"
+
+oauth2-proxy:
+  replicaCount: 1
+
+  service:
+    port: 4180
+
+  ingress:
+    enabled: true
+    path: /oauth2
+    hosts:
+      - rocketboard.arachnys.com
+    tls:
+      - secretName: arachnys-wildcard-tls
+        hosts:
+          - rocketboard.arachnys.com
+
+  config:
+    clientID: ***REMOVED***
+    clientSecret: ***REMOVED***
+    cookieSecret: ***REMOVED***
+    htpasswdFile: |
+      rocketboard:***REMOVED***
+
+  extraArgs:
+    oidc-issuer-url: "https://oauth.k8s-dev.arachnys.com"
+    provider: "oidc"
+    upstream: "http://rocketboard"
+    http-address: "0.0.0.0:4180"
+

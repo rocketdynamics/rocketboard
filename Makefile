@@ -43,11 +43,8 @@ publish:
 deploy:
 	${HELM} upgrade --install --force ${APP_NAME} charts/${APP_NAME} \
 		--set-string image.tag=${VERSION} \
-		--set include-qa-annotations=false \
-		--set cockroachdb.enabled=true \
-		--set replicaCount=3 \
-		--set strategy.rollingUpdate.maxSurge=3 \
-		--set strategy.rollingUpdate.maxUnavailable=0% \
+    -f charts/${APP_NAME}/values.yaml \
+    -f charts/${APP_NAME}/values-production.yaml \
 		--wait
 
 deploy/qa:
