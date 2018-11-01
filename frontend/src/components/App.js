@@ -7,6 +7,7 @@ import { START_RETROSPECTIVE } from "../queries";
 // Pages
 import HomePage from "./Home";
 import RetrospectivePage from "./Retrospective";
+import WithPetNameToID from "./WithPetNameToID";
 
 // Styling
 import { Layout, Menu, Tooltip } from "antd";
@@ -105,7 +106,10 @@ class App extends React.Component {
 
                 <Content className="content">
                     <Switch>
-                        <Route path="/:id/" component={(props) => (<RetrospectivePage {...props} setOnlineUsersHolder={this.onlineUsersCallbackHolder}/>)}/>
+                        <Route path="/:petName/" component={(props) => {
+                            const Component = WithPetNameToID(props.match.params.petName)(RetrospectivePage);
+                            return <Component {...props} setOnlineUsersHolder={this.onlineUsersCallbackHolder} />
+                        }}/>
                         <Route path="/" component={HomePage} />
                     </Switch>
                 </Content>

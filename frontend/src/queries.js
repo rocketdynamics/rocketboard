@@ -6,6 +6,14 @@ export const START_RETROSPECTIVE = gql`
     }
 `;
 
+export const GET_RETROSPECTIVE_ID = gql`
+    query GetRetrospectiveByPetName($petName: String!) {
+        retrospectiveByPetName(petName: $petName) {
+            id
+        }
+    }
+`
+
 export const GET_RETROSPECTIVE = gql`
     query GetRetrospective($id: ID!) {
         retrospectiveById(id: $id) {

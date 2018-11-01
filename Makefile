@@ -68,7 +68,7 @@ deploy/qa:
         --force
 
 gqlgen:
-	cd cmd/rocketboard && gqlgen
+	cd cmd/rocketboard && go run ../gqlgen/main.go
 
 version:
 	@echo "${VERSION}"

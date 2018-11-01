@@ -95,7 +95,7 @@ class _Retrospective extends React.Component {
     }
 
     getRetrospectiveId = () => {
-        return R.path(["params", "id"], this.props.match);
+        return this.props.id;
     };
 
     handleAddCard = column => {
