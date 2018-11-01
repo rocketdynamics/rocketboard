@@ -70,7 +70,6 @@ var migrations = []string{`
     petname TEXT;
   UPDATE retrospectives SET petname = id WHERE petname IS NULL;
   CREATE UNIQUE INDEX IF NOT EXISTS retro_petname on retrospectives(petname);
-  ALTER TABLE retrospectives ALTER COLUMN petname SET NOT NULL;
 `}
 
 // Space elements by 2^15, which allows for 15 divisions before re-sorting
