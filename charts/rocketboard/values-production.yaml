@@ -18,7 +18,10 @@ cockroachdb:
   Resources:
     requests:
       cpu: "100m"
-      memory: "512Mi"
+      memory: "2Gi"
+    limits:
+      cpu: "1000m"
+      memory: "2Gi"
 
 oauth2-proxy:
   replicaCount: 1
