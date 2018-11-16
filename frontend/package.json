@@ -18,7 +18,7 @@
     "ramda": "^0.25.0",
     "react": "^16.4.0",
     "react-apollo": "^2.1.11",
-    "react-beautiful-dnd": "^9.0.0",
+    "react-beautiful-dnd": "^10.0.0",
     "react-dom": "^16.4.0",
     "react-refetch": "^1.0.4",
     "react-router-dom": "^4.1.2",
