@@ -10,11 +10,12 @@ import RetrospectivePage from "./Retrospective";
 import WithPetNameToID from "./WithPetNameToID";
 
 // Styling
-import { Layout, Menu, Tooltip } from "antd";
+import { Layout, Menu, Tooltip, Modal } from "antd";
 import "./App.css";
 import "./Effects.css";
 import "antd/dist/antd.css";
 import md5 from "md5";
+import QRCode from 'qrcode.react';
 
 const { Header, Content, Footer } = Layout;
 
@@ -66,6 +67,51 @@ class OnlineUsers extends React.Component {
     }
 }
 
+class QRModal extends React.Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            showQR: false
+        };
+    }
+
+    showQRCode = (e) => {
+        e.preventDefault();
+        this.setState({showQR: true})
+        console.log("showqr")
+        return false;
+    }
+
+    hideQRCode = (e) => {
+        e.preventDefault();
+        this.setState({showQR: false})
+        console.log("hideqr")
+        return false;
+    }
+
+    render() {
+        return (
+            <div style={{display: "flex", flex: "1"}}>
+                <a onClick={this.showQRCode} href="#">
+                    <img style={{width: "40px", opacity: "0.8"}}
+                        alt="Show QR Code"
+                        title="Show QR Code"
+                        src="/qr-code.svg"/>
+                </a>
+                <Modal
+                  title="QR Code"
+                  visible={this.state.showQR}
+                  onCancel={this.hideQRCode}
+                  footer={null}
+                >
+                    <QRCode renderAs="svg" size="100%" value={window.location.href} />
+                </Modal>
+            </div>
+        )
+    }
+}
+
 class App extends React.Component {
     constructor(props) {
         super(props);
@@ -81,15 +127,14 @@ class App extends React.Component {
     };
 
     render() {
-
         return (
             <Layout className="layout">
                 <Header className="header">
                     <h1 className="logo">
                         <Link to="/">Rocketboard</Link>
                     </h1>
-
                     <Menu mode="horizontal" className="menu">
+                        <QRModal/>
                         <OnlineUsers holder={this.onlineUsersCallbackHolder}/>
                         <Menu.Item
                             key="launch"

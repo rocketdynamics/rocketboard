@@ -65,7 +65,7 @@ class _LiveRetrospective extends React.Component {
     }
 }
 
-class _Retrospective extends React.Component {
+class _Retrospective extends React.PureComponent {
     isSubscribed = false;
     heartbeatInterval = null;
     doHeartbeat = null;
