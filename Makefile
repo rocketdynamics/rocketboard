@@ -26,15 +26,14 @@ test:
 		${IMAGE_NAME}:${VERSION}-test \
 		go test  -ldflags '-linkmode external -extldflags -static -w' ./... -cover
 
-test/ci:
-	CONTAINER=rocketboard-test-${CI_JOB_ID}
-	docker run -d --name=$container ${IMAGE_NAME}:${VERSION} rocketboard
+test/e2e:
+	docker run -d --name=rocketboard-test-${TRAVIS_JOB_ID} ${IMAGE_NAME}:${VERSION} rocketboard
 
-	mkdir ./traceshots && chown 999 ./traceshots
+	mkdir -p ./traceshots && chown 999 ./traceshots
 
 	docker run --rm --cap-add=SYS_ADMIN \
 		-v `pwd`/traceshots:/frontend/traceshots \
-		--init --link ${CONTAINER}:backend \
+		--init --link rocketboard-test-${TRAVIS_JOB_ID}:backend \
 		-e TARGET_URL=http://backend:5000 \
 		${IMAGE_NAME}-frontend:${VERSION} yarn test
 
