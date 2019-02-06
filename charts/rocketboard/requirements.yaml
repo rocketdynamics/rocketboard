@@ -1,7 +1,7 @@
 dependencies:
   - name: oauth2-proxy
-    version: 0.5.3
-    repository: "@arachnys"
+    version: 0.8.0
+    repository: https://kubernetes-charts.storage.googleapis.com/
   - name: cockroachdb
     version: 2.0.2
     repository: https://kubernetes-charts.storage.googleapis.com/
