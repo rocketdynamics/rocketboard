@@ -4,4 +4,4 @@ Rocketboard
 
 Experience Rocket Growth™ in your Retrospectives
 
-![rocketboard screenshot](https://raw.githubusercontent.com/arachnys/rocketboard/branch/screenshot.png)
+![rocketboard screenshot](https://raw.githubusercontent.com/arachnys/rocketboard/gh-pages/screenshot.png)
