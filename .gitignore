@@ -1,2 +1,5 @@
 vendor/
+traceshots/
 *.db
+
+.DS_Store
