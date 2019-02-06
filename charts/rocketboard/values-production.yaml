@@ -40,11 +40,11 @@ oauth2-proxy:
           - rocketboard.arachnys.com
 
   config:
-    clientID: ***REMOVED***
-    clientSecret: ***REMOVED***
-    cookieSecret: ***REMOVED***
+    clientID: aelirhgaoy784iufajw
+    clientSecret: HHyP3BvJBRZNQODbFZhWhpkasdfjlnawei
+    cookieSecret: 0050451aaac4bdd7f5835c41436133b8bf
     htpasswdFile: |
-      rocketboard:***REMOVED***
+      rocketboard:$2y$05$T2OACR4TjxMLqY66FE6UV.dROuGpLTbdPv1cyzIlzk86JxkKuzmH2
 
   extraArgs:
     oidc-issuer-url: "https://oauth.k8s-dev.arachnys.com"
