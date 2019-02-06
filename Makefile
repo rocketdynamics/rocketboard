@@ -1,14 +1,9 @@
-APP_NAME ?= "rocketboard"
-
 VERSION ?= `git rev-parse --short HEAD`
-BRANCH_NAME ?= `git rev-parse --abbrev-ref HEAD`
-BRANCH ?= ${BRANCH_NAME}
+BRANCH ?= `git rev-parse --abbrev-ref HEAD`
 
-IMAGE_NAME ?= "docker.arachnys.com/${APP_NAME}"
+IMAGE_NAME ?= "arachnysdocker/rocketboard"
 
-HELM = docker run --rm -w /tmpdir -v "$(shell pwd)":/tmpdir -e KUBECONFIG=${KUBECONFIG} devth/helm:v2.9.1 helm
-HELM_RELEASE_QA = ${APP_NAME}-$(shell echo "${BRANCH}" | cut -c 1-20 | tr '[:upper:]' '[:lower:]')-qa
-HELM_QA_DEPLOY_URL ?= ${HELM_RELEASE_QA}.k8s-dev.arachnys.com
+HELM = docker run --rm -w /tmpdir -v "$(shell pwd)":/tmpdir -e KUBECONFIG=${KUBECONFIG} --entrypoint /helm gcr.io/kubernetes-helm/tiller:v2.11.0
 
 build:
 	docker build --rm \
