@@ -26,7 +26,7 @@ test:
 		${IMAGE_NAME}:${VERSION}-test \
 		go test  -ldflags '-linkmode external -extldflags -static -w' ./... -cover
 
-test/e2e:
+test/e2e: build build/frontend
 	docker run -d --name=rocketboard-test-${TRAVIS_JOB_ID} ${IMAGE_NAME}:${VERSION} rocketboard
 
 	mkdir -p ./traceshots && chown 999 ./traceshots
