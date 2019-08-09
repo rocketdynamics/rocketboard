@@ -1,16 +1,13 @@
 FROM golang:1.11 as backend-builder
 
-WORKDIR /go/src/github.com/arachnys/rocketboard
-RUN go get -u github.com/golang/dep/cmd/dep
-
-ADD Gopkg.lock Gopkg.toml ./
-RUN dep ensure -v -vendor-only
-RUN GOOS=linux go build -ldflags '-linkmode external -extldflags -static -w' -v ./vendor/...
+WORKDIR /src
+ADD go.mod go.sum ./
+RUN go mod download
 
 ADD cmd/ ./cmd/
 RUN GOOS=linux go install -ldflags '-linkmode external -extldflags -static -w' -v ./cmd/...
 
-FROM node:10 as frontend-builder
+FROM node:12 as frontend-builder
 
 WORKDIR /frontend
 RUN npm install -g yarn && chmod +x /usr/local/bin/yarn

@@ -10,7 +10,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/arachnys/rocketboard/cmd/rocketboard/model"
+	"github.com/rocketdynamics/rocketboard/cmd/rocketboard/model"
 )
 
 type Update struct {

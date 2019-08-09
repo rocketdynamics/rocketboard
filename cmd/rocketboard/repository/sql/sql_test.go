@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/arachnys/rocketboard/cmd/rocketboard/model"
+	"github.com/rocketdynamics/rocketboard/cmd/rocketboard/model"
 )
 
 func init() {

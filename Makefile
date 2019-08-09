@@ -1,7 +1,7 @@
 VERSION ?= `git rev-parse --short HEAD`
 BRANCH ?= `git rev-parse --abbrev-ref HEAD`
 
-IMAGE_NAME ?= "arachnysdocker/rocketboard"
+IMAGE_NAME ?= "rocketdynamics/rocketboard"
 
 HELM = docker run --rm -w /tmpdir -v "$(shell pwd)":/tmpdir -e KUBECONFIG=${KUBECONFIG} --entrypoint /helm gcr.io/kubernetes-helm/tiller:v2.11.0
 

@@ -2,7 +2,7 @@ package graph
 
 import (
 	"context"
-	"github.com/arachnys/rocketboard/cmd/rocketboard/model"
+	"github.com/rocketdynamics/rocketboard/cmd/rocketboard/model"
 	"sync"
 )
 

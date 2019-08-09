@@ -1,7 +1,7 @@
 replicaCount: 1
 
 image:
-  repository: arachnysdocker/rocketboard
+  repository: rocketdynamics/rocketboard
   tag: stable
   pullPolicy: IfNotPresent
 
@@ -36,11 +36,11 @@ ingress:
     nginx.ingress.kubernetes.io/auth-url: "https://$host/oauth2/auth"
     nginx.ingress.kubernetes.io/auth-signin: "https://$host/oauth2/start?rd=$request_uri"
   hosts:
-    - rocketboard.arachnys.com
+    - rocketboard.example.com
   tls:
-    - secretName: arachnys-wildcard-tls
+    - secretName: example-wildcard-tls
       hosts:
-        - rocketboard.arachnys.com
+        - rocketboard.example.com
 
 strategy:
   type: RollingUpdate
@@ -68,11 +68,11 @@ oauth2-proxy:
     enabled: true
     path: /oauth2
     hosts:
-      - rocketboard.arachnys.com
+      - rocketboard.example.com
     tls:
-      - secretName: arachnys-wildcard-tls
+      - secretName: example-wildcard-tls
         hosts:
-          - rocketboard.arachnys.com
+          - rocketboard.example.com
 
   config:
     clientID: ""
@@ -80,7 +80,7 @@ oauth2-proxy:
     cookieSecret: ""
 
   extraArgs:
-    oidc-issuer-url: "https://oauth.k8s-dev.arachnys.com"
+    oidc-issuer-url: "https://oauth.example.com"
     provider: "oidc"
     upstream: "http://rocketboard"
     http-address: "0.0.0.0:4180"

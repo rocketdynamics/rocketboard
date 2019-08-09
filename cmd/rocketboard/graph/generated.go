@@ -10,7 +10,7 @@ import (
 
 	graphql "github.com/99designs/gqlgen/graphql"
 	introspection "github.com/99designs/gqlgen/graphql/introspection"
-	model "github.com/arachnys/rocketboard/cmd/rocketboard/model"
+	model "github.com/rocketdynamics/rocketboard/cmd/rocketboard/model"
 	gqlparser "github.com/vektah/gqlparser"
 	ast "github.com/vektah/gqlparser/ast"
 )

@@ -4,9 +4,9 @@ import (
 	"context"
 	"encoding/base64"
 	"github.com/99designs/gqlgen/handler"
-	"github.com/arachnys/rocketboard/cmd/rocketboard/graph"
-	rocketSql "github.com/arachnys/rocketboard/cmd/rocketboard/repository/sql"
-	"github.com/arachnys/rocketboard/cmd/rocketboard/utils"
+	"github.com/rocketdynamics/rocketboard/cmd/rocketboard/graph"
+	rocketSql "github.com/rocketdynamics/rocketboard/cmd/rocketboard/repository/sql"
+	"github.com/rocketdynamics/rocketboard/cmd/rocketboard/utils"
 	"log"
 	"net/http"
 	"os"
@@ -46,6 +46,7 @@ func WithEmail(base http.Handler) http.Handler {
 func main() {
 	dbURI := os.Getenv("ROCKET_DATABASE_URI")
 	if dbURI == "" {
+		log.Println("No ROCKET_DATABASE_URI specified, using sqlite3:rocket.db")
 		dbURI = "sqlite3:rocket.db"
 	}
 	repository, err := rocketSql.NewRepository(dbURI)

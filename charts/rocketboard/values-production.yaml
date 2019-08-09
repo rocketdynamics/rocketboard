@@ -33,21 +33,21 @@ oauth2-proxy:
     enabled: true
     path: /oauth2
     hosts:
-      - rocketboard.arachnys.com
+      - rocketboard.example.com
     tls:
-      - secretName: arachnys-wildcard-tls
+      - secretName: example-wildcard-tls
         hosts:
-          - rocketboard.arachnys.com
+          - rocketboard.example.com
 
   config:
-    clientID: aelirhgaoy784iufajw
-    clientSecret: HHyP3BvJBRZNQODbFZhWhpkasdfjlnawei
-    cookieSecret: 0050451aaac4bdd7f5835c41436133b8bf
+    clientID: oauth_client_id
+    clientSecret: client_secret
+    cookieSecret: cookie_seceret
     htpasswdFile: |
       rocketboard:$2y$05$T2OACR4TjxMLqY66FE6UV.dROuGpLTbdPv1cyzIlzk86JxkKuzmH2
 
   extraArgs:
-    oidc-issuer-url: "https://oauth.k8s-dev.arachnys.com"
+    oidc-issuer-url: "https://oauth.example.com"
     provider: "oidc"
     upstream: "http://rocketboard"
     http-address: "0.0.0.0:4180"

@@ -21,8 +21,6 @@ spec:
         app: {{ template "rocketboard.name" . }}
         release: {{ .Release.Name }}
     spec:
-      imagePullSecrets:
-        - name: arachnys-docker
 {{- if index .Values.cockroachdb.enabled }}
       initContainers:
         - name: {{ .Chart.Name }}-initdb

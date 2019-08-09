@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/arachnys/rocketboard/cmd/rocketboard/model"
-	"github.com/arachnys/rocketboard/cmd/rocketboard/utils"
+	"github.com/rocketdynamics/rocketboard/cmd/rocketboard/model"
+	"github.com/rocketdynamics/rocketboard/cmd/rocketboard/utils"
 	"github.com/dustinkirkland/golang-petname"
 	"time"
 )

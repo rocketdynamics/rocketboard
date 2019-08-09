@@ -4,7 +4,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/arachnys/rocketboard/cmd/rocketboard/model"
+	"github.com/rocketdynamics/rocketboard/cmd/rocketboard/model"
 )
 
 func (db *sqlRepository) getObservation(connectionid string) (*model.Observation, error) {

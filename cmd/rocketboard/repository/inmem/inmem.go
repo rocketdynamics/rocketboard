@@ -1,7 +1,7 @@
 package inmem
 
 import (
-	"github.com/arachnys/rocketboard/cmd/rocketboard/model"
+	"github.com/rocketdynamics/rocketboard/cmd/rocketboard/model"
 	"github.com/pkg/errors"
 )
 
