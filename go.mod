@@ -1,18 +1,17 @@
 module github.com/rocketdynamics/rocketboard
 
-go 1.12
+go 1.17
 
 require (
 	github.com/99designs/gqlgen v0.0.0-20180810035430-3575c289486f
 	github.com/agnivade/levenshtein v1.0.0
-	github.com/arachnys/rocketboard v0.0.0-20190206170112-5f9d82fd8c43
 	github.com/dustinkirkland/golang-petname v0.0.0-20170921220637-d3c2ba80e75e
 	github.com/golang/protobuf v1.1.0
 	github.com/gorilla/websocket v1.2.0
 	github.com/inconshreveable/mousetrap v1.0.0
 	github.com/jmoiron/sqlx v0.0.0-20180614180643-0dae4fefe7c0
 	github.com/lib/pq v0.0.0-20180523175426-90697d60dd84
-	github.com/mattn/go-sqlite3 v1.9.0
+	github.com/mattn/go-sqlite3 v1.14.11
 	github.com/nats-io/gnatsd v1.2.0
 	github.com/nats-io/go-nats v1.5.0
 	github.com/nats-io/nuid v1.0.0

@@ -1,0 +1,38 @@
+name: Rocketboard
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Build
+      run: make build
+
+    - name: Build Frontend
+      run: make build/frontend
+
+    - name: Test
+      run: make test
+
+    - name: End to end tests
+      run: make test/e2e
+
+    - name: Archive e2e videos
+      uses: actions/upload-artifact@v2
+      with:
+        name: testrun-basic
+        path: traceshots/testrun-basic.mp4
+
+    - name: Archive e2e videos
+      uses: actions/upload-artifact@v2
+      with:
+        name: testrun-online-users
+        path: traceshots/testrun-online-users.mp4

@@ -27,13 +27,13 @@ test:
 		go test  -ldflags '-linkmode external -extldflags -static -w' ./... -cover
 
 test/e2e: build build/frontend
-	docker run -d --name=rocketboard-test-${TRAVIS_JOB_ID} ${IMAGE_NAME}:${VERSION} rocketboard
+	docker run -d --name=rocketboard-test-${GITHUB_RUN_ID} ${IMAGE_NAME}:${VERSION} rocketboard
 
-	mkdir -p ./traceshots && chown 999 ./traceshots
+	mkdir -p ./traceshots && sudo chmod 777 ./traceshots
 
 	docker run --rm --cap-add=SYS_ADMIN \
 		-v `pwd`/traceshots:/frontend/traceshots \
-		--init --link rocketboard-test-${TRAVIS_JOB_ID}:backend \
+		--init --link rocketboard-test-${GITHUB_RUN_ID}:backend \
 		-e TARGET_URL=http://backend:5000 \
 		${IMAGE_NAME}-frontend:${VERSION} yarn test
 
@@ -41,13 +41,15 @@ test/e2e: build build/frontend
 		-v `pwd`/traceshots:/frontend/traceshots \
 		-w /frontend/traceshots \
 		${IMAGE_NAME}-frontend:${VERSION} \
-		avconv -f image2 -i basic/trace-screenshot-%05d.jpg testrun-basic.mp4
+		ffmpeg -y -framerate 20 -pattern_type glob -i 'basic/trace-screenshot-*.jpg' \
+        -c:v libx264 -r 30 -pix_fmt yuv420p testrun-basic.mp4
 
 	docker run --rm \
 		-v `pwd`/traceshots:/frontend/traceshots \
 		-w /frontend/traceshots \
 		${IMAGE_NAME}-frontend:${VERSION} \
-		avconv -f image2 -i online-users/trace-screenshot-%05d.jpg testrun-online-users.mp4
+		ffmpeg -y -framerate 20 -pattern_type glob -i 'online-users/trace-screenshot-*.jpg' \
+        -c:v libx264 -r 30 -pix_fmt yuv420p testrun-online-users.mp4
 
 publish:
 	docker push ${IMAGE_NAME}:${VERSION}
