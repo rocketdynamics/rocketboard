@@ -7,8 +7,8 @@ on:
     branches: [ master ]
 
 jobs:
-
-  build:
+  tests:
+    name: Tests
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -25,14 +25,14 @@ jobs:
     - name: End to end tests
       run: make test/e2e
 
-    - name: Archive e2e videos
+    - name: Archive testrun-basic video
       uses: actions/upload-artifact@v2
       with:
-        name: testrun-basic
+        name: testrun-basic.mp4
         path: traceshots/testrun-basic.mp4
 
-    - name: Archive e2e videos
+    - name: Archive testrun-online-users video
       uses: actions/upload-artifact@v2
       with:
-        name: testrun-online-users
+        name: testrun-online-users.mp4
         path: traceshots/testrun-online-users.mp4
