@@ -2,8 +2,6 @@ github.com/99designs/gqlgen v0.0.0-20180810035430-3575c289486f h1:JTtXcgfZA4saeS
 github.com/99designs/gqlgen v0.0.0-20180810035430-3575c289486f/go.mod h1:KSQDfLlTTGmzlRgLGm6HeKKKo598l5E2svEM6Nz2Jnw=
 github.com/agnivade/levenshtein v1.0.0 h1:q+77q31bLT5jhN3BHKA1276nUEdbz7XjDa0o5dRKcZ0=
 github.com/agnivade/levenshtein v1.0.0/go.mod h1:CURSv5d9Uaml+FovSIICkLbAUZ9S4RqaHDIsdSBg7lM=
-github.com/arachnys/rocketboard v0.0.0-20190206170112-5f9d82fd8c43 h1:A7Y30Lx3xxJV05xjKUxMTgDeQiLjJWxVvFePiV8NNLM=
-github.com/arachnys/rocketboard v0.0.0-20190206170112-5f9d82fd8c43/go.mod h1:TmaZz6g3GJqQBEcFrPbs+iGptAC3qmNP3bLiSlsjIkc=
 github.com/dustinkirkland/golang-petname v0.0.0-20170921220637-d3c2ba80e75e h1:bRcq7ruHMqCVB/ugLbBylx+LrccNACFDEaqAD/aZ80Q=
 github.com/dustinkirkland/golang-petname v0.0.0-20170921220637-d3c2ba80e75e/go.mod h1:V+Qd57rJe8gd4eiGzZyg4h54VLHmYVVw54iMnlAMrF8=
 github.com/golang/protobuf v1.1.0/go.mod h1:6lQm79b+lXiMfvg/cZm0SGofjICqVBUtrP5yJMmIC1U=
@@ -16,6 +14,8 @@ github.com/lib/pq v0.0.0-20180523175426-90697d60dd84 h1:it29sI2IM490luSc3RAhp5Wu
 github.com/lib/pq v0.0.0-20180523175426-90697d60dd84/go.mod h1:5WUZQaWbwv1U+lTReE5YruASi9Al49XbQIvNi/34Woo=
 github.com/mattn/go-sqlite3 v1.9.0 h1:pDRiWfl+++eC2FEFRy6jXmQlvp4Yh3z1MJKg4UeYM/4=
 github.com/mattn/go-sqlite3 v1.9.0/go.mod h1:FPy6KqzDD04eiIsT53CuJW3U88zkxoIYsOqkbpncsNc=
+github.com/mattn/go-sqlite3 v1.14.11 h1:gt+cp9c0XGqe9S/wAHTL3n/7MqY+siPWgWJgqdsFrzQ=
+github.com/mattn/go-sqlite3 v1.14.11/go.mod h1:NyWgC/yNuGj7Q9rpYnZvas74GogHl5/Z4A/KQRfk6bU=
 github.com/nats-io/gnatsd v1.2.0 h1:WKLzmB8LyP4CiVJuAoZMxdYBurENVX4piS358tjcBhw=
 github.com/nats-io/gnatsd v1.2.0/go.mod h1:nqco77VO78hLCJpIcVfygDP2rPGfsEHkGTUk94uh5DQ=
 github.com/nats-io/go-nats v1.5.0 h1:OrEQSvQQrP+A+9EBBxY86Z4Es6uaUdObZ5UhWHn9b08=

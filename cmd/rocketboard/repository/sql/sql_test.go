@@ -1,6 +1,7 @@
 package sql
 
 import (
+	"fmt"
 	"log"
 	"math/rand"
 	"testing"
@@ -30,7 +31,7 @@ func newTestRepository() *sqlRepository {
 
 	for i := 0; i < 100; i++ {
 		err := db.NewCard(&model.Card{
-			Id:              "test-card-" + string(i),
+			Id:              "test-card-" + fmt.Sprint(i),
 			RetrospectiveId: "test-retro",
 			Column:          "Mixed",
 		})

@@ -1,9 +1,0 @@
-sudo: required
-services:
- - docker
-
-script:
-  - make build
-  - make build/frontend
-  - make test
-  - sudo make test/e2e
