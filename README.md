@@ -1,6 +1,6 @@
 Rocketboard
 ===========
-[![Build Status](https://travis-ci.org/rocketdynamics/rocketboard.svg?branch=master)](https://travis-ci.org/rocketdynamics/rocketboard)
+[![Rocketboard](https://github.com/rocketdynamics/rocketboard/actions/workflows/pipeline.yml/badge.svg)](https://github.com/rocketdynamics/rocketboard/actions/workflows/pipeline.yml)
 
 Experience Rocket Growth™ in your Retrospectives
 
