@@ -56,7 +56,7 @@ describe('Rocketboard', () => {
   it('should allow card creation', async () => {
     waitClick('.column:nth-child(2) .column-header > button')
     await page.waitForSelector('.card-body textarea')
-    await page.waitFor(() => (
+    await page.waitForFunction(() => (
       document.activeElement.tagName === "TEXTAREA"
     ))
     await page.keyboard.type('t');
@@ -69,7 +69,7 @@ describe('Rocketboard', () => {
     })
 
     await waitClick('.reaction-new')
-    await page.waitFor(200)
+    await page.waitForTimeout(200)
     waitClick('.ant-tooltip [aria-label=sauropod]')
     await allPages(async (page) => {
       await page.waitForSelector('.reaction-sauropod')
@@ -79,12 +79,12 @@ describe('Rocketboard', () => {
   it('should allow vote spam', async () => {
     await page.waitForSelector('.reaction-sauropod')
     for( var i = 0; i < 5; i++ ) {
-      page.click('.reaction-sauropod')
-      page2.click('.reaction-sauropod')
+      await page.click('.reaction-sauropod')
+      await page2.click('.reaction-sauropod')
     }
     await allPages(async (page) => {
       await page.waitForSelector('.reaction-sauropod')
-      await page.waitFor(() => (
+      await page.waitForFunction(() => (
         document.querySelector('.reaction-sauropod .card-reaction-count').innerText === "11"
       ))
     })

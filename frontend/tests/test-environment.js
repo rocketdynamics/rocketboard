@@ -65,7 +65,7 @@ class CustomEnvironment extends PuppeteerEnvironment {
 
   async teardown() {
     // Your teardown
-    await this.global.page.waitFor(2000)
+    await this.global.page.waitForTimeout(2000)
     await super.teardown()
   }
 }
