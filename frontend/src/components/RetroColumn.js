@@ -1,5 +1,6 @@
 import React from "react";
-import { compose, graphql } from "react-apollo";
+import { graphql } from '@apollo/client/react/hoc';
+import { flowRight } from "lodash";
 import PropTypes from "prop-types";
 
 import RetroCard from "./RetroCard";
@@ -149,6 +150,8 @@ _RetroColumn.propTypes = {
     layout: PropTypes.string,
 };
 
-export default compose(graphql(UPDATE_MESSAGE, { name: "updateMessage" }))(
+export default flowRight(
+    graphql(UPDATE_MESSAGE, { name: "updateMessage" })
+)(
     _RetroColumn
 );

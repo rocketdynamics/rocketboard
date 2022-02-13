@@ -104,7 +104,7 @@ class RetroCard extends React.PureComponent {
         }
     };
 
-    componentWillReceiveProps(nextProps) {
+    componentDidUpdate(nextProps) {
         const sumVotes = R.compose(R.sum, R.pluck("count"));
 
         const numVotes = sumVotes(this.props.data.votes);

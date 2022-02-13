@@ -1,6 +1,6 @@
 import React from "react";
 import { Link, Route, Switch, withRouter } from "react-router-dom";
-import { graphql } from "react-apollo";
+import { graphql } from '@apollo/client/react/hoc';
 
 import { START_RETROSPECTIVE } from "../queries";
 
@@ -28,7 +28,7 @@ class OnlineUsers extends React.Component {
         };
     }
 
-    componentWillMount() {
+    componentDidMount() {
         this.props.holder.setOnlineUsers = this.setOnlineUsers;
     }
 

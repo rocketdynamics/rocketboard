@@ -1,5 +1,7 @@
 import React from "react";
-import { Query, compose, graphql } from "react-apollo";
+import { graphql } from '@apollo/client/react/hoc';
+import { Query } from "@apollo/client/react/components";
+import { flowRight } from "lodash";
 import * as R from "ramda";
 
 import Column from "./RetroColumn";
@@ -331,6 +333,9 @@ class _Retrospective extends React.PureComponent {
         return (
             <Query query={GET_RETROSPECTIVE} variables={{ id }}>
                 {({ loading, error, data, subscribeToMore }) => {
+                    if (data === undefined) {
+                        data = {};
+                    }
                     if (error) {
                         return (
                             <div>Error</div>
@@ -399,7 +404,7 @@ class _Retrospective extends React.PureComponent {
     }
 }
 
-export default compose(
+export default flowRight(
     graphql(ADD_CARD, { name: "addCard" }),
     graphql(MOVE_CARD, { name: "moveCard" }),
     graphql(NEW_VOTE, { name: "newVote" }),

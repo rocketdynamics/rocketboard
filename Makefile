@@ -10,6 +10,9 @@ build:
 			-t ${IMAGE_NAME}:${VERSION} \
 			.
 
+run: build
+	docker run -p 5000:5000 --rm ${IMAGE_NAME}:${VERSION}
+
 build/frontend:
 	docker build --rm \
 			-t ${IMAGE_NAME}-frontend:${VERSION} \
