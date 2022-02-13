@@ -24,8 +24,15 @@ class OnlineUsers extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            users: []
+            users: [],
+            dirty: 1,
         };
+
+        setInterval(() => {
+            this.setState({
+                dirty: this.state.dirty + 1,
+            });
+        }, 300);
     }
 
     componentDidMount() {
@@ -33,13 +40,16 @@ class OnlineUsers extends React.Component {
     }
 
     setOnlineUsers = (users) => {
+        console.log("set state")
         this.setState({
             users: users
         });
     }
 
     render() {
-        if (!this.state.users || this.state.users.length === 0) return null;
+        if (!this.state.users || this.state.users.length === 0) {
+            return "no users" + this.state.dirty + this.state.users.length;
+        }
         return (
             <Menu.Item
                 key="users"
@@ -116,6 +126,7 @@ class App extends React.Component {
     constructor(props) {
         super(props);
 
+        this.onlineUsers = React.createRef();
         this.onlineUsersCallbackHolder = {
             setOnlineUsers: null
         };
@@ -133,9 +144,9 @@ class App extends React.Component {
                     <h1 className="logo">
                         <Link to="/">Rocketboard</Link>
                     </h1>
-                    <Menu mode="horizontal" className="menu">
+                    <Menu disabledOverflow="true" mode="horizontal" className="menu">
                         <QRModal/>
-                        <OnlineUsers holder={this.onlineUsersCallbackHolder}/>
+                        <OnlineUsers ref={this.onlineUsers} holder={this.onlineUsersCallbackHolder}/>
                         <Menu.Item
                             key="launch"
                             className="action-launch"
@@ -153,7 +164,7 @@ class App extends React.Component {
                     <Switch>
                         <Route path="/:petName/" component={(props) => {
                             const Component = WithPetNameToID(props.match.params.petName)(RetrospectivePage);
-                            return <Component {...props} setOnlineUsersHolder={this.onlineUsersCallbackHolder} />
+                            return <Component {...props} setOnlineUsersHolder={this.onlineUsers} />
                         }}/>
                         <Route path="/" component={HomePage} />
                     </Switch>

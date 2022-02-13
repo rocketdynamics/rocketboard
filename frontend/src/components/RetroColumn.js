@@ -1,6 +1,6 @@
 import React from "react";
 import { graphql } from '@apollo/client/react/hoc';
-import { flowRight } from "lodash";
+import { flowRight, cloneDeep } from "lodash";
 import PropTypes from "prop-types";
 
 import RetroCard from "./RetroCard";
@@ -50,10 +50,10 @@ class _RetroColumn extends React.Component {
                 updateMessage: message,
             },
             update: (proxy, { data: { updateMessage } }) => {
-                const data = proxy.readQuery({
+                const data = cloneDeep(proxy.readQuery({
                     query: GET_RETROSPECTIVE,
                     variables: { id: this.props.retrospectiveId },
-                });
+                }));
 
                 const existingCards = data.retrospectiveById.cards;
                 const targetCardIndex = R.findIndex(R.propEq("id", cardId))(

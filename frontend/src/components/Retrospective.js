@@ -1,7 +1,7 @@
 import React from "react";
 import { graphql } from '@apollo/client/react/hoc';
 import { Query } from "@apollo/client/react/components";
-import { flowRight } from "lodash";
+import { flowRight, clone, cloneDeep } from "lodash";
 import * as R from "ramda";
 
 import Column from "./RetroColumn";
@@ -117,10 +117,10 @@ class _Retrospective extends React.PureComponent {
                         .substr(2),
                 },
                 update: (proxy, { data: { addCardToRetrospective } }) => {
-                    const data = proxy.readQuery({
+                    const data = cloneDeep(proxy.readQuery({
                         query: GET_RETROSPECTIVE,
                         variables: { id },
-                    });
+                    }));
 
                     const columnIndexes = R.pipe(
                         R.pluck("position"),
@@ -143,7 +143,7 @@ class _Retrospective extends React.PureComponent {
                     proxy.writeQuery({
                         query: GET_RETROSPECTIVE,
                         variables: { id },
-                        data,
+                        data: data,
                     });
                 },
             });
@@ -182,10 +182,10 @@ class _Retrospective extends React.PureComponent {
                 moveCard: { index: destination.index },
             },
             update: (proxy, { data: { moveCard } }) => {
-                const data = proxy.readQuery({
+                const data = cloneDeep(proxy.readQuery({
                     query: GET_RETROSPECTIVE,
                     variables: { id },
-                });
+                }));
                 const existingCards = data.retrospectiveById.cards;
                 const targetCardIndex = R.findIndex(R.propEq("id", cardId))(
                     existingCards
@@ -250,10 +250,10 @@ class _Retrospective extends React.PureComponent {
                     },
                 },
                 update: (proxy, { data: { newVote } }) => {
-                    const data = proxy.readQuery({
+                    const data = cloneDeep(proxy.readQuery({
                         query: GET_RETROSPECTIVE,
                         variables: { id },
-                    });
+                    }));
 
                     const existingCards = data.retrospectiveById.cards;
                     const targetCardIndex = R.findIndex(R.propEq("id", cardId))(
@@ -265,14 +265,14 @@ class _Retrospective extends React.PureComponent {
                     )(card.votes);
                     var vote = card.votes[targetVoteIndex];
                     if (vote === undefined) {
-                        vote = newVote;
+                        vote = cloneDeep(newVote);
                         card.votes.push(newVote);
                     }
                     vote.count = newVote.count;
                     proxy.writeQuery({
                         query: GET_RETROSPECTIVE,
                         variables: { id },
-                        data,
+                        data: data,
                     });
                 },
             });
@@ -298,12 +298,12 @@ class _Retrospective extends React.PureComponent {
                     },
                 },
                 update: (proxy, { data: { updateStatus } }) => {
-                    const data = proxy.readQuery({
+                    const data = cloneDeep(proxy.readQuery({
                         query: GET_RETROSPECTIVE,
                         variables: { id },
-                    });
+                    }));
 
-                    const existingCards = data.retrospectiveById.cards;
+                    const existingCards = [...data.retrospectiveById.cards];
                     const targetCardIndex = R.findIndex(R.propEq("id", cardId))(
                         existingCards
                     );
@@ -314,7 +314,7 @@ class _Retrospective extends React.PureComponent {
                     proxy.writeQuery({
                         query: GET_RETROSPECTIVE,
                         variables: { id },
-                        data,
+                        data: data,
                     });
                 },
             });
@@ -345,8 +345,12 @@ class _Retrospective extends React.PureComponent {
                     if (!R.prop(["retrospectiveById"], data)) {
                         data.retrospectiveById = {};
                     } else {
-                        if (this.props.setOnlineUsersHolder.setOnlineUsers !== null) {
-                            this.props.setOnlineUsersHolder.setOnlineUsers(data.retrospectiveById.onlineUsers);
+                        if (this.props.setOnlineUsersHolder.current) {
+                            setTimeout(() => {
+                                console.log("aargh")
+                                this.props.setOnlineUsersHolder.current.setOnlineUsers(data.retrospectiveById.onlineUsers);
+                                this.props.setOnlineUsersHolder.current.forceUpdate();
+                            }, 1000)
                         }
                     }
 
