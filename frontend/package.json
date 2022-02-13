@@ -17,10 +17,10 @@
     "md5": "^2.2.1",
     "qrcode.react": "^0.9.2",
     "ramda": "^0.25.0",
-    "react": "^16.4.0",
+    "react": "^16.9.0",
     "react-apollo": "^2.1.11",
     "react-beautiful-dnd": "^10.0.0",
-    "react-dom": "^16.4.0",
+    "react-dom": "^16.9.0",
     "react-refetch": "^1.0.4",
     "react-router-dom": "^4.1.2",
     "react-scripts": "2.0.3",
@@ -35,7 +35,9 @@
     "fmt": "prettier --write '{*.js,./src/**/*.js}'"
   },
   "devDependencies": {
-    "jest-puppeteer": "^3.3.1",
+    "browserslist": "^4.19.1",
+    "caniuse-lite": "^1.0.30001312",
+    "jest-puppeteer": "^3.9.0",
     "prettier": "^1.14.2",
     "puppeteer": "^13.3.0",
     "redux-devtools": "^3.4.0"
