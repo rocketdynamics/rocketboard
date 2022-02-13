@@ -44,7 +44,7 @@ describe('OnlineUsers', () => {
 
   it('should have 1 online users', async () => {
     await mainPage.waitForSelector('.page-retrospective')
-    await mainPage.waitFor(() =>
+    await mainPage.waitForFunction(() =>
       document.querySelectorAll('.userAvatar').length === 1
     )
   })
@@ -53,7 +53,7 @@ describe('OnlineUsers', () => {
     this.pages[1].goto(retroUrl)
     await this.pages[1].waitForSelector('.page-retrospective')
     await Promise.all(this.pages.slice(0,2).map(async (page) => {
-      await page.waitFor(() =>
+      await page.waitForFunction(() =>
         document.querySelectorAll('.userAvatar').length === 2
       )
     }))
@@ -63,7 +63,7 @@ describe('OnlineUsers', () => {
     this.pages[2].goto(retroUrl)
     await this.pages[2].waitForSelector('.page-retrospective')
     await allPages(async (page) => {
-      await page.waitFor(() =>
+      await page.waitForFunction(() =>
         document.querySelectorAll('.userAvatar').length === 3
       )
     })
@@ -72,7 +72,7 @@ describe('OnlineUsers', () => {
   it('should have 2 online users again', async () => {
     await this.pages[2].close({runBeforeUnload: true})
     await Promise.all(this.pages.slice(0,2).map(async (page) => {
-      await page.waitFor(() =>
+      await page.waitForFunction(() =>
         document.querySelectorAll('.userAvatar').length === 2
       )
     }))

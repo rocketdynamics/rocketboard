@@ -29,7 +29,7 @@ test:
 test/e2e: build build/frontend
 	docker run -d --name=rocketboard-test-${GITHUB_RUN_ID} ${IMAGE_NAME}:${VERSION} rocketboard
 
-	mkdir -p ./traceshots && sudo chmod 777 ./traceshots
+	mkdir -p ./traceshots && chmod 777 ./traceshots
 
 	docker run --rm --cap-add=SYS_ADMIN \
 		-v `pwd`/traceshots:/frontend/traceshots \
