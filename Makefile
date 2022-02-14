@@ -32,7 +32,7 @@ test:
 test/e2e: build build/frontend
 	docker run -d --name=rocketboard-test-${GITHUB_RUN_ID} ${IMAGE_NAME}:${VERSION} rocketboard
 
-	mkdir -p ./traceshots && chmod 777 ./traceshots
+	mkdir -p ./traceshots && chmod 777 ./traceshots && rm -rf ./traceshots/*
 
 	docker run --rm --cap-add=SYS_ADMIN \
 		-v `pwd`/traceshots:/frontend/traceshots \
@@ -40,7 +40,6 @@ test/e2e: build build/frontend
 		-e TARGET_URL=http://backend:5000 \
 		${IMAGE_NAME}-frontend:${VERSION} yarn test
 
-	rm -f traceshots/testrun-basic.mp4
 	docker run --rm \
 		-v `pwd`/traceshots:/frontend/traceshots \
 		-w /frontend/traceshots \
@@ -48,7 +47,6 @@ test/e2e: build build/frontend
 		ffmpeg -y -framerate 20 -pattern_type glob -i 'basic/trace-screenshot-*.jpg' \
         -c:v libx264 -r 30 -pix_fmt yuv420p testrun-basic.mp4
 
-	rm -f traceshots/testrun-online-users.mp4
 	docker run --rm \
 		-v `pwd`/traceshots:/frontend/traceshots \
 		-w /frontend/traceshots \
