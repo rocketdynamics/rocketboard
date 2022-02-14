@@ -10,6 +10,7 @@ import { UPDATE_MESSAGE, GET_RETROSPECTIVE } from "../queries";
 
 import { Droppable, Draggable } from "react-beautiful-dnd";
 import { Button } from "antd";
+import { PlusOutlined } from '@ant-design/icons';
 
 class _RetroColumn extends React.Component {
     constructor(props) {
@@ -93,7 +94,7 @@ class _RetroColumn extends React.Component {
                     <Button
                         onClick={this.handleAdd}
                         type="dashed"
-                        icon="plus"
+                        icon={<PlusOutlined />}
                         disabled={this.state.newCard !== undefined}
                         block
                     />
