@@ -340,12 +340,6 @@ function _Retrospective(props) {
         data.retrospectiveById = {};
     }
 
-    useEffect(() => {
-        if (props.setOnlineUsersHolder.setOnlineUsers && data.retrospectiveById.onlineUsers) {
-            props.setOnlineUsersHolder.setOnlineUsers(data.retrospectiveById.onlineUsers);
-        }
-    });
-
     if (error) {
         return (
             <div>Error</div>

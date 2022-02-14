@@ -1,8 +1,19 @@
 import React, { useEffect, useState } from "react";
-import { Link, Route, Switch, withRouter } from "react-router-dom";
+import {
+  Routes,
+  Route,
+  Link,
+  useNavigate,
+  useParams,
+} from "react-router-dom";
+import { useQuery, useSubscription } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 
-import { START_RETROSPECTIVE } from "../queries";
+import {
+    START_RETROSPECTIVE,
+    GET_RETROSPECTIVE_ID,
+    RETRO_SUBSCRIPTION,
+ } from "../queries";
 
 // Pages
 import HomePage from "./Home";
@@ -19,23 +30,17 @@ import QRCode from 'qrcode.react';
 
 const { Header, Content, Footer } = Layout;
 
-
-function OnlineUsers(props) {
-    const [users, setUsers] = useState([]);
-
-    useEffect(() => {
-        props.setOnlineUsersHolder.setOnlineUsers = setUsers;
+function LiveOnlineUsers({ id }) {
+    var { loading, data } = useSubscription(RETRO_SUBSCRIPTION, {
+        variables: { rId: id },
     });
 
-    console.log("users:", users)
-
-    if (!users || users.length === 0) {
-        console.log("rendering no users")
-        return "no users";
+    if (loading) {
+        return null;
     }
 
-    console.log("rendering users!")
-    return "users!"
+    const users = data.retroChanged.onlineUsers;
+
     return (
         <Menu.Item
             key="users"
@@ -60,6 +65,20 @@ function OnlineUsers(props) {
             })}
         </Menu.Item>
     );
+}
+
+function OnlineUsers(props) {
+    const { petName } = useParams();
+
+    var { loading, data } = useQuery(GET_RETROSPECTIVE_ID, {
+        variables: { petName },
+    });
+
+    if (loading) {
+        return null;
+    }
+
+    return <LiveOnlineUsers id={data.retrospectiveByPetName.id} />
 }
 
 class QRModal extends React.Component {
@@ -107,69 +126,64 @@ class QRModal extends React.Component {
     }
 }
 
-class App extends React.Component {
-    constructor(props) {
-        super(props);
+function App(props) {
+    const navigate = useNavigate();
 
-        this.setOnlineUsersHolder = {
-            setOnlineUsers: null,
-        }
-    }
-
-    onLaunch = async () => {
-        const results = await this.props.startRetrospective();
-        this.props.history.push(`/${results.data.startRetrospective}/`);
+    const onLaunch = async () => {
+        const results = await props.startRetrospective();
+        navigate(`/retrospective/${results.data.startRetrospective}/`);
     };
 
-    render() {
-        return (
-            <Layout className="layout">
-                <Header className="header">
-                    <h1 className="logo">
-                        <Link to="/">Rocketboard</Link>
-                    </h1>
-                    <Menu disabledOverflow="true" mode="horizontal" className="menu">
-                        <QRModal/>
-                        <OnlineUsers setOnlineUsersHolder={this.setOnlineUsersHolder}/>
-                        <Menu.Item
-                            key="launch"
-                            className="action-launch"
-                            onClick={this.onLaunch}
-                        >
-                            Launch into Orbit{" "}
-                            <span role="img" aria-label="rocket">
-                                🚀
-                            </span>
-                        </Menu.Item>
-                    </Menu>
-                </Header>
+    return (
+        <Layout className="layout">
+            <Header className="header">
+                <h1 className="logo">
+                    <Link to="/">Rocketboard</Link>
+                </h1>
+                <Menu disabledOverflow="true" mode="horizontal" className="menu">
+                    <QRModal/>
+                    <Routes>
+                        <Route path="/retrospective/:petName/" element={
+                            <OnlineUsers/>
+                        }/>
+                    </Routes>
+                    <Menu.Item
+                        key="launch"
+                        className="action-launch"
+                        onClick={onLaunch}
+                    >
+                        Launch into Orbit{" "}
+                        <span role="img" aria-label="rocket">
+                            🚀
+                        </span>
+                    </Menu.Item>
+                </Menu>
+            </Header>
 
-                <Content className="content">
-                    <Switch>
-                        <Route path="/:petName/" component={(props) => {
-                            const Component = WithPetNameToID(props.match.params.petName)(RetrospectivePage);
-                            return <Component {...props} setOnlineUsersHolder={this.setOnlineUsersHolder} />
-                        }}/>
-                        <Route path="/" component={HomePage} />
-                    </Switch>
-                </Content>
+            <Content className="content">
+                <Routes>
+                    <Route path="/" element={<HomePage />} />
+                    <Route path="/retrospective/:petName/" element={
+                        <WithPetNameToID component={RetrospectivePage} />
+                    }/>
+                </Routes>
+            </Content>
 
-                <Footer className="footer">
-                    Powered by{" "}
-                    <span role="img" aria-label="beer">
-                        🍺
-                    </span>
-                    ,{" "}
-                    <span role="img" aria-label="coffee">
-                        ☕
-                    </span>{" "}
-                    and NIH Principles
-                </Footer>
-            </Layout>
-        );
-    }
+            <Footer className="footer">
+                Powered by{" "}
+                <span role="img" aria-label="beer">
+                    🍺
+                </span>
+                ,{" "}
+                <span role="img" aria-label="coffee">
+                    ☕
+                </span>{" "}
+                and NIH Principles
+            </Footer>
+        </Layout>
+    );
 }
 
 export default graphql(START_RETROSPECTIVE, { name: "startRetrospective" })(
-    withRouter(App)
+    App
 );

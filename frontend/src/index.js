@@ -13,7 +13,7 @@ import "./index.css";
 
 render(
     <ApolloProvider client={client}>
-        <Router basename="/retrospective/">
+        <Router basename="/">
             <App />
         </Router>
     </ApolloProvider>,
