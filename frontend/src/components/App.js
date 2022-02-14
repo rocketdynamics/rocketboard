@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link, Route, Switch, withRouter } from "react-router-dom";
 import { graphql } from '@apollo/client/react/hoc';
 
@@ -20,61 +20,46 @@ import QRCode from 'qrcode.react';
 const { Header, Content, Footer } = Layout;
 
 
-class OnlineUsers extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            users: [],
-            dirty: 1,
-        };
+function OnlineUsers(props) {
+    const [users, setUsers] = useState([]);
 
-        setInterval(() => {
-            this.setState({
-                dirty: this.state.dirty + 1,
-            });
-        }, 300);
+    useEffect(() => {
+        props.setOnlineUsersHolder.setOnlineUsers = setUsers;
+    });
+
+    console.log("users:", users)
+
+    if (!users || users.length === 0) {
+        console.log("rendering no users")
+        return "no users";
     }
 
-    componentDidMount() {
-        this.props.holder.setOnlineUsers = this.setOnlineUsers;
-    }
-
-    setOnlineUsers = (users) => {
-        console.log("set state")
-        this.setState({
-            users: users
-        });
-    }
-
-    render() {
-        if (!this.state.users || this.state.users.length === 0) {
-            return "no users" + this.state.dirty + this.state.users.length;
-        }
-        return (
-            <Menu.Item
-                key="users"
-                onItemHover={() => {}}
-            >
-                <span style={{paddingRight: "5px"}}>
-                    Online Users:
-                </span>
-                {this.state.users.map((user) => {
-                    return (
-                        <div key={user.user} className={`userAvatar userState${user.state}`}>
-                            <Tooltip trigger="hover" title={user.user}>
-                                <img
-                                    alt={user.user}
-                                    width="38.4"
-                                    height="38.4"
-                                    src={`https://gravatar.com/avatar/${md5(user.user)}?d=identicon`}
-                                />
-                            </Tooltip>
-                        </div>
-                    )
-                })}
-            </Menu.Item>
-        );
-    }
+    console.log("rendering users!")
+    return "users!"
+    return (
+        <Menu.Item
+            key="users"
+            onItemHover={() => {}}
+        >
+            <span style={{paddingRight: "5px"}}>
+                Online Users:
+            </span>
+            {users.map((user) => {
+                return (
+                    <div key={user.user} className={`userAvatar userState${user.state}`}>
+                        <Tooltip trigger="hover" title={user.user}>
+                            <img
+                                alt={user.user}
+                                width="38.4"
+                                height="38.4"
+                                src={`https://gravatar.com/avatar/${md5(user.user)}?d=identicon`}
+                            />
+                        </Tooltip>
+                    </div>
+                )
+            })}
+        </Menu.Item>
+    );
 }
 
 class QRModal extends React.Component {
@@ -126,10 +111,9 @@ class App extends React.Component {
     constructor(props) {
         super(props);
 
-        this.onlineUsers = React.createRef();
-        this.onlineUsersCallbackHolder = {
-            setOnlineUsers: null
-        };
+        this.setOnlineUsersHolder = {
+            setOnlineUsers: null,
+        }
     }
 
     onLaunch = async () => {
@@ -146,7 +130,7 @@ class App extends React.Component {
                     </h1>
                     <Menu disabledOverflow="true" mode="horizontal" className="menu">
                         <QRModal/>
-                        <OnlineUsers ref={this.onlineUsers} holder={this.onlineUsersCallbackHolder}/>
+                        <OnlineUsers setOnlineUsersHolder={this.setOnlineUsersHolder}/>
                         <Menu.Item
                             key="launch"
                             className="action-launch"
@@ -164,7 +148,7 @@ class App extends React.Component {
                     <Switch>
                         <Route path="/:petName/" component={(props) => {
                             const Component = WithPetNameToID(props.match.params.petName)(RetrospectivePage);
-                            return <Component {...props} setOnlineUsersHolder={this.onlineUsers} />
+                            return <Component {...props} setOnlineUsersHolder={this.setOnlineUsersHolder} />
                         }}/>
                         <Route path="/" component={HomePage} />
                     </Switch>

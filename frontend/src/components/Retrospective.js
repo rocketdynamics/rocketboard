@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { graphql } from '@apollo/client/react/hoc';
-import { Query } from "@apollo/client/react/components";
+import { useQuery } from "@apollo/client";
 import { flowRight, clone, cloneDeep } from "lodash";
 import * as R from "ramda";
 
@@ -328,80 +328,77 @@ function _Retrospective(props) {
 
     const id = getRetrospectiveId();
 
+    var { loading, error, data, subscribeToMore } = useQuery(GET_RETROSPECTIVE, {
+        variables: { id },
+    });
+
+    if (data === undefined) {
+        data = {};
+    }
+
+    if (!R.prop(["retrospectiveById"], data)) {
+        data.retrospectiveById = {};
+    }
+
+    useEffect(() => {
+        if (props.setOnlineUsersHolder.setOnlineUsers && data.retrospectiveById.onlineUsers) {
+            props.setOnlineUsersHolder.setOnlineUsers(data.retrospectiveById.onlineUsers);
+        }
+    });
+
+    if (error) {
+        return (
+            <div>Error</div>
+        )
+    }
+
     return (
-        <Query query={GET_RETROSPECTIVE} variables={{ id }}>
-            {({ loading, error, data, subscribeToMore }) => {
-                if (data === undefined) {
-                    data = {};
-                }
-                if (error) {
-                    return (
-                        <div>Error</div>
-                    )
-                }
-
-                if (!R.prop(["retrospectiveById"], data)) {
-                    data.retrospectiveById = {};
-                } else {
-                    if (props.setOnlineUsersHolder.current) {
-                        setTimeout(() => {
-                            console.log("aargh")
-                            props.setOnlineUsersHolder.current.setOnlineUsers(data.retrospectiveById.onlineUsers);
-                            props.setOnlineUsersHolder.current.forceUpdate();
-                        }, 1000)
-                    }
-                }
-
-                return (
-                    <div className="page-retrospective">
-                        <div className={"retrospective-loading" + (loading ? "" : " loading-finished")}>
-                            <pre className="loading-text">
-                                R  O  C  K  E  T  B  O  A  R  D
-                            </pre>
-                        </div>
-                        <_LiveRetrospective
-                            id={id}
-                            subscribe={subscribeToMore}
-                        >
-                            <DragDropContext
-                                onDragEnd={handleMoveCard}
-                                onDragUpdate={cardDragUpdate}
-                            >
-                                <div className="columns-wrapper">
-                                    {DEFAULT_BOARDS.map(columnName => {
-                                        return (
-                                            <Column
-                                                key={columnName}
-                                                retrospectiveId={id}
-                                                isLoading={loading}
-                                                title={columnName}
-                                                colour={
-                                                    DEFAULT_COLOURS[
-                                                        columnName
-                                                    ]
-                                                }
-                                                onNewVote={
-                                                    handleNewVote
-                                                }
-                                                onNewCard={handleAddCard(
-                                                    columnName
-                                                )}
-                                                onSetStatus={
-                                                    handleSetStatus
-                                                }
-                                                cards={getCards(
-                                                    columnName
-                                                )(data)}
-                                            />
-                                        );
-                                    })}
-                                </div>
-                            </DragDropContext>
-                        </_LiveRetrospective>
+        <div className="page-retrospective">
+            <div className={"retrospective-loading" + (loading ? "" : " loading-finished")}>
+                <pre className="loading-text">
+                    R  O  C  K  E  T  B  O  A  R  D
+                </pre>
+            </div>
+            <_LiveRetrospective
+                id={id}
+                subscribe={subscribeToMore}
+            >
+                <DragDropContext
+                    onDragEnd={handleMoveCard}
+                    onDragUpdate={cardDragUpdate}
+                >
+                    <div className="columns-wrapper">
+                        {DEFAULT_BOARDS.map(columnName => {
+                            return (
+                                <Column
+                                    key={columnName}
+                                    retrospectiveId={id}
+                                    isLoading={loading}
+                                    title={columnName}
+                                    colour={
+                                        DEFAULT_COLOURS[
+                                            columnName
+                                        ]
+                                    }
+                                    onNewVote={
+                                        handleNewVote
+                                    }
+                                    onNewCard={handleAddCard(
+                                        columnName
+                                    )}
+                                    onSetStatus={
+                                        handleSetStatus
+                                    }
+                                    cards={getCards(
+                                        columnName
+                                    )(data)}
+                                />
+                            );
+                        })}
                     </div>
-                );
-            }}
-        </Query>
+                </DragDropContext>
+            </_LiveRetrospective>
+        </div>
     );
 }
 
