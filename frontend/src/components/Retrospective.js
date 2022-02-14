@@ -1,5 +1,7 @@
-import React from "react";
-import { Query, compose, graphql } from "react-apollo";
+import React, { useEffect } from "react";
+import { graphql } from '@apollo/client/react/hoc';
+import { useQuery } from "@apollo/client";
+import { flowRight, clone, cloneDeep } from "lodash";
 import * as R from "ramda";
 
 import Column from "./RetroColumn";
@@ -25,17 +27,17 @@ const DEFAULT_COLOURS = {
     Negative: "#ff4d4f",
 };
 
-class _LiveRetrospective extends React.Component {
-    onCardChanged = null;
-    onRetroChanged = null;
+function _LiveRetrospective(props) {
+    var onCardChanged = null;
+    var onRetroChanged = null;
 
-    componentDidMount() {
-        const { id } = this.props;
-        this.onRetroChanged = this.props.subscribe({
+    useEffect(() => {
+        const { id } = props;
+        onRetroChanged = props.subscribe({
             document: RETRO_SUBSCRIPTION,
             variables: { rId: id },
         });
-        this.onCardChanged = this.props.subscribe({
+        onCardChanged = props.subscribe({
             document: CARD_SUBSCRIPTION,
             variables: { rId: id },
             updateQuery: (prev, { subscriptionData: { data } }) => {
@@ -58,52 +60,50 @@ class _LiveRetrospective extends React.Component {
                 };
             },
         });
-    }
+    });
 
-    render() {
-        return this.props.children;
-    }
+    return props.children;
 }
 
-class _Retrospective extends React.PureComponent {
-    isSubscribed = false;
-    heartbeatInterval = null;
-    doHeartbeat = null;
+function _Retrospective(props) {
+    var isSubscribed = false;
+    var heartbeatInterval = null;
+    var doHeartbeat = null;
 
-    componentDidMount() {
-        const id = this.getRetrospectiveId();
-        this.doHeartbeat = () => {
+    const getRetrospectiveId = () => {
+        return props.id;
+    };
+
+    useEffect(() => {
+        const id = getRetrospectiveId();
+        doHeartbeat = () => {
             const state = {
                 "visible": "Visible",
                 "hidden": "Hidden",
             }[document.visibilityState] || "Unknown";
-            this.props.sendHeartbeat({
+            props.sendHeartbeat({
                 variables: {
                     rId: id,
                     state: state,
                 }
             })
         };
-        document.addEventListener("visibilitychange", this.doHeartbeat);
-        this.heartbeatInterval = setInterval(this.doHeartbeat, 5000);
-        this.doHeartbeat();
-    }
+        document.addEventListener("visibilitychange", doHeartbeat);
+        heartbeatInterval = setInterval(doHeartbeat, 5000);
+        doHeartbeat();
 
-    componentWillUnmount() {
-        clearTimeout(this.heartbeatInterval);
-        document.removeEventListener("visibilitychange", this.doHeartbeat);
-    }
+        return () => {
+            clearTimeout(heartbeatInterval);
+            document.removeEventListener("visibilitychange", doHeartbeat);
+        }
+    });
 
-    getRetrospectiveId = () => {
-        return this.props.id;
-    };
-
-    handleAddCard = column => {
+    const handleAddCard = column => {
         return message => {
-            const id = this.getRetrospectiveId();
+            const id = getRetrospectiveId();
             const newCard = { column, message };
 
-            this.props.addCard({
+            props.addCard({
                 variables: {
                     id,
                     ...newCard,
@@ -115,10 +115,10 @@ class _Retrospective extends React.PureComponent {
                         .substr(2),
                 },
                 update: (proxy, { data: { addCardToRetrospective } }) => {
-                    const data = proxy.readQuery({
+                    const data = cloneDeep(proxy.readQuery({
                         query: GET_RETROSPECTIVE,
                         variables: { id },
-                    });
+                    }));
 
                     const columnIndexes = R.pipe(
                         R.pluck("position"),
@@ -141,14 +141,14 @@ class _Retrospective extends React.PureComponent {
                     proxy.writeQuery({
                         query: GET_RETROSPECTIVE,
                         variables: { id },
-                        data,
+                        data: data,
                     });
                 },
             });
         };
     };
 
-    cardDragUpdate = ({ draggableId, destination, source, ...args }) => {
+    const cardDragUpdate = ({ draggableId, destination, source, ...args }) => {
         const cardElem = document.querySelector(`#card-${draggableId}`);
         if (destination) {
             cardElem.style.borderTopColor =
@@ -158,8 +158,8 @@ class _Retrospective extends React.PureComponent {
         }
     };
 
-    handleMoveCard = result => {
-        const id = this.getRetrospectiveId();
+    const handleMoveCard = result => {
+        const id = getRetrospectiveId();
 
         const { draggableId, destination } = result;
         if (!destination) {
@@ -169,7 +169,7 @@ class _Retrospective extends React.PureComponent {
         const cardId = draggableId;
         const column = destination.droppableId;
 
-        this.props.moveCard({
+        props.moveCard({
             variables: {
                 id: cardId,
                 column,
@@ -180,10 +180,10 @@ class _Retrospective extends React.PureComponent {
                 moveCard: { index: destination.index },
             },
             update: (proxy, { data: { moveCard } }) => {
-                const data = proxy.readQuery({
+                const data = cloneDeep(proxy.readQuery({
                     query: GET_RETROSPECTIVE,
                     variables: { id },
-                });
+                }));
                 const existingCards = data.retrospectiveById.cards;
                 const targetCardIndex = R.findIndex(R.propEq("id", cardId))(
                     existingCards
@@ -229,11 +229,11 @@ class _Retrospective extends React.PureComponent {
         });
     };
 
-    handleNewVote = (cardId, emoji) => {
+    const handleNewVote = (cardId, emoji) => {
         return () => {
-            const id = this.getRetrospectiveId();
+            const id = getRetrospectiveId();
 
-            this.props.newVote({
+            props.newVote({
                 variables: {
                     cardId,
                     emoji,
@@ -248,10 +248,10 @@ class _Retrospective extends React.PureComponent {
                     },
                 },
                 update: (proxy, { data: { newVote } }) => {
-                    const data = proxy.readQuery({
+                    const data = cloneDeep(proxy.readQuery({
                         query: GET_RETROSPECTIVE,
                         variables: { id },
-                    });
+                    }));
 
                     const existingCards = data.retrospectiveById.cards;
                     const targetCardIndex = R.findIndex(R.propEq("id", cardId))(
@@ -263,24 +263,24 @@ class _Retrospective extends React.PureComponent {
                     )(card.votes);
                     var vote = card.votes[targetVoteIndex];
                     if (vote === undefined) {
-                        vote = newVote;
+                        vote = cloneDeep(newVote);
                         card.votes.push(newVote);
                     }
                     vote.count = newVote.count;
                     proxy.writeQuery({
                         query: GET_RETROSPECTIVE,
                         variables: { id },
-                        data,
+                        data: data,
                     });
                 },
             });
         };
     };
 
-    handleSetStatus = (status, cardId) => {
+    const handleSetStatus = (status, cardId) => {
         return () => {
-            const id = this.getRetrospectiveId();
-            this.props.updateStatus({
+            const id = getRetrospectiveId();
+            props.updateStatus({
                 variables: {
                     id: cardId,
                     status,
@@ -296,12 +296,12 @@ class _Retrospective extends React.PureComponent {
                     },
                 },
                 update: (proxy, { data: { updateStatus } }) => {
-                    const data = proxy.readQuery({
+                    const data = cloneDeep(proxy.readQuery({
                         query: GET_RETROSPECTIVE,
                         variables: { id },
-                    });
+                    }));
 
-                    const existingCards = data.retrospectiveById.cards;
+                    const existingCards = [...data.retrospectiveById.cards];
                     const targetCardIndex = R.findIndex(R.propEq("id", cardId))(
                         existingCards
                     );
@@ -312,94 +312,91 @@ class _Retrospective extends React.PureComponent {
                     proxy.writeQuery({
                         query: GET_RETROSPECTIVE,
                         variables: { id },
-                        data,
+                        data: data,
                     });
                 },
             });
         };
     };
 
-    getCards = columnName => {
+    const getCards = columnName => {
         return R.pipe(
             R.pathOr([], ["retrospectiveById", "cards"]),
             R.filter(R.propEq("column", columnName))
         );
     };
 
-    render() {
-        const id = this.getRetrospectiveId();
-        return (
-            <Query query={GET_RETROSPECTIVE} variables={{ id }}>
-                {({ loading, error, data, subscribeToMore }) => {
-                    if (error) {
-                        return (
-                            <div>Error</div>
-                        )
-                    }
+    const id = getRetrospectiveId();
 
-                    if (!R.prop(["retrospectiveById"], data)) {
-                        data.retrospectiveById = {};
-                    } else {
-                        if (this.props.setOnlineUsersHolder.setOnlineUsers !== null) {
-                            this.props.setOnlineUsersHolder.setOnlineUsers(data.retrospectiveById.onlineUsers);
-                        }
-                    }
+    var { loading, error, data, subscribeToMore } = useQuery(GET_RETROSPECTIVE, {
+        variables: { id },
+    });
 
-                    return (
-                        <div className="page-retrospective">
-                            <div className={"retrospective-loading" + (loading ? "" : " loading-finished")}>
-                                <pre className="loading-text">
-                                    R  O  C  K  E  T  B  O  A  R  D
-                                </pre>
-                            </div>
-                            <_LiveRetrospective
-                                id={id}
-                                subscribe={subscribeToMore}
-                            >
-                                <DragDropContext
-                                    onDragEnd={this.handleMoveCard}
-                                    onDragUpdate={this.cardDragUpdate}
-                                >
-                                    <div className="columns-wrapper">
-                                        {DEFAULT_BOARDS.map(columnName => {
-                                            return (
-                                                <Column
-                                                    key={columnName}
-                                                    retrospectiveId={id}
-                                                    isLoading={loading}
-                                                    title={columnName}
-                                                    colour={
-                                                        DEFAULT_COLOURS[
-                                                            columnName
-                                                        ]
-                                                    }
-                                                    onNewVote={
-                                                        this.handleNewVote
-                                                    }
-                                                    onNewCard={this.handleAddCard(
-                                                        columnName
-                                                    )}
-                                                    onSetStatus={
-                                                        this.handleSetStatus
-                                                    }
-                                                    cards={this.getCards(
-                                                        columnName
-                                                    )(data)}
-                                                />
-                                            );
-                                        })}
-                                    </div>
-                                </DragDropContext>
-                            </_LiveRetrospective>
-                        </div>
-                    );
-                }}
-            </Query>
-        );
+    if (data === undefined) {
+        data = {};
     }
+
+    if (!R.prop(["retrospectiveById"], data)) {
+        data.retrospectiveById = {};
+    }
+
+    if (error) {
+        return (
+            <div>Error</div>
+        )
+    }
+
+    return (
+        <div className="page-retrospective">
+            <div className={"retrospective-loading" + (loading ? "" : " loading-finished")}>
+                <pre className="loading-text">
+                    R  O  C  K  E  T  B  O  A  R  D
+                </pre>
+            </div>
+            <_LiveRetrospective
+                id={id}
+                subscribe={subscribeToMore}
+            >
+                <DragDropContext
+                    onDragEnd={handleMoveCard}
+                    onDragUpdate={cardDragUpdate}
+                >
+                    <div className="columns-wrapper">
+                        {DEFAULT_BOARDS.map(columnName => {
+                            return (
+                                <Column
+                                    key={columnName}
+                                    retrospectiveId={id}
+                                    isLoading={loading}
+                                    title={columnName}
+                                    colour={
+                                        DEFAULT_COLOURS[
+                                            columnName
+                                        ]
+                                    }
+                                    onNewVote={
+                                        handleNewVote
+                                    }
+                                    onNewCard={handleAddCard(
+                                        columnName
+                                    )}
+                                    onSetStatus={
+                                        handleSetStatus
+                                    }
+                                    cards={getCards(
+                                        columnName
+                                    )(data)}
+                                />
+                            );
+                        })}
+                    </div>
+                </DragDropContext>
+            </_LiveRetrospective>
+        </div>
+    );
 }
 
-export default compose(
+export default flowRight(
     graphql(ADD_CARD, { name: "addCard" }),
     graphql(MOVE_CARD, { name: "moveCard" }),
     graphql(NEW_VOTE, { name: "newVote" }),

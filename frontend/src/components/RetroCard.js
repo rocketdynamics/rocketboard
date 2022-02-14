@@ -40,7 +40,7 @@ class RetroCard extends React.PureComponent {
 
     onKeyDown = (e, data) => {
         if (e.key === "Enter") {
-            this.inputRef.current.textAreaRef.blur();
+            this.inputRef.current.resizableTextArea.textArea.blur();
         }
         return true;
     };
@@ -50,8 +50,8 @@ class RetroCard extends React.PureComponent {
             message: this.props.data.message,
         });
         setTimeout(() => {
-            this.inputRef.current.textAreaRef.focus();
-            this.inputRef.current.textAreaRef.select();
+            this.inputRef.current.resizableTextArea.textArea.focus();
+            this.inputRef.current.resizableTextArea.textArea.select();
         }, 1);
         this.setState({ isEditing: true });
     };
@@ -104,15 +104,15 @@ class RetroCard extends React.PureComponent {
         }
     };
 
-    componentWillReceiveProps(nextProps) {
+    componentDidUpdate(prevProps, prevState, snapshot) {
         const sumVotes = R.compose(R.sum, R.pluck("count"));
 
-        const numVotes = sumVotes(this.props.data.votes);
-        const nextVotes = sumVotes(nextProps.data.votes);
+        const numVotes = sumVotes(prevProps.data.votes);
+        const nextVotes = sumVotes(this.props.data.votes);
 
         if (nextVotes > numVotes) {
-            const votesByEmoji = R.groupBy(R.prop("emoji"), this.props.data.votes);
-            const nextVotesByEmoji = R.groupBy(R.prop("emoji"), nextProps.data.votes);
+            const votesByEmoji = R.groupBy(R.prop("emoji"), prevProps.data.votes);
+            const nextVotesByEmoji = R.groupBy(R.prop("emoji"), this.props.data.votes);
 
             R.mapObjIndexed((i, emoji, votes) => {
                 if (sumVotes(votes[emoji] || []) > sumVotes(votesByEmoji[emoji] || [])) {

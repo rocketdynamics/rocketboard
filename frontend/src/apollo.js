@@ -1,8 +1,6 @@
-import { ApolloClient } from "apollo-client";
-import { WebSocketLink } from "apollo-link-ws";
-import { InMemoryCache } from "apollo-cache-inmemory";
-import { onError } from "apollo-link-error";
-import { ApolloLink } from "apollo-link";
+import { ApolloLink, InMemoryCache, ApolloClient } from '@apollo/client';
+import { WebSocketLink } from "@apollo/client/link/ws";
+import { onError } from "@apollo/client/link/error";
 
 const wsUri = new URL(window.location.href);
 wsUri.protocol = wsUri.protocol.startsWith("https") ? "wss" : "ws";

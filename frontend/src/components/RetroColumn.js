@@ -1,5 +1,6 @@
 import React from "react";
-import { compose, graphql } from "react-apollo";
+import { graphql } from '@apollo/client/react/hoc';
+import { flowRight, cloneDeep } from "lodash";
 import PropTypes from "prop-types";
 
 import RetroCard from "./RetroCard";
@@ -9,6 +10,7 @@ import { UPDATE_MESSAGE, GET_RETROSPECTIVE } from "../queries";
 
 import { Droppable, Draggable } from "react-beautiful-dnd";
 import { Button } from "antd";
+import { PlusOutlined } from '@ant-design/icons';
 
 class _RetroColumn extends React.Component {
     constructor(props) {
@@ -49,10 +51,10 @@ class _RetroColumn extends React.Component {
                 updateMessage: message,
             },
             update: (proxy, { data: { updateMessage } }) => {
-                const data = proxy.readQuery({
+                const data = cloneDeep(proxy.readQuery({
                     query: GET_RETROSPECTIVE,
                     variables: { id: this.props.retrospectiveId },
-                });
+                }));
 
                 const existingCards = data.retrospectiveById.cards;
                 const targetCardIndex = R.findIndex(R.propEq("id", cardId))(
@@ -92,7 +94,7 @@ class _RetroColumn extends React.Component {
                     <Button
                         onClick={this.handleAdd}
                         type="dashed"
-                        icon="plus"
+                        icon={<PlusOutlined />}
                         disabled={this.state.newCard !== undefined}
                         block
                     />
@@ -149,6 +151,8 @@ _RetroColumn.propTypes = {
     layout: PropTypes.string,
 };
 
-export default compose(graphql(UPDATE_MESSAGE, { name: "updateMessage" }))(
+export default flowRight(
+    graphql(UPDATE_MESSAGE, { name: "updateMessage" })
+)(
     _RetroColumn
 );

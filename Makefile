@@ -10,6 +10,9 @@ build:
 			-t ${IMAGE_NAME}:${VERSION} \
 			.
 
+run: build
+	docker run -p 5000:5000 --rm ${IMAGE_NAME}:${VERSION}
+
 build/frontend:
 	docker build --rm \
 			-t ${IMAGE_NAME}-frontend:${VERSION} \
@@ -29,7 +32,7 @@ test:
 test/e2e: build build/frontend
 	docker run -d --name=rocketboard-test-${GITHUB_RUN_ID} ${IMAGE_NAME}:${VERSION} rocketboard
 
-	mkdir -p ./traceshots && chmod 777 ./traceshots
+	mkdir -p ./traceshots && chmod 777 ./traceshots && rm -rf ./traceshots/*
 
 	docker run --rm --cap-add=SYS_ADMIN \
 		-v `pwd`/traceshots:/frontend/traceshots \
