@@ -11,6 +11,7 @@ import {
     GET_RETROSPECTIVE,
     ADD_CARD,
     MOVE_CARD,
+    MERGE_CARD,
     NEW_VOTE,
     UPDATE_STATUS,
     SEND_HEARTBEAT,
@@ -161,72 +162,105 @@ function _Retrospective(props) {
     const handleMoveCard = result => {
         const id = getRetrospectiveId();
 
-        const { draggableId, destination } = result;
-        if (!destination) {
+        const { draggableId, destination, combine } = result;
+        if (!destination && !combine) {
             return;
         }
 
         const cardId = draggableId;
-        const column = destination.droppableId;
+        const column = destination?.droppableId;
+        const combineId = combine?.draggableId;
 
-        props.moveCard({
-            variables: {
-                id: cardId,
-                column,
-                index: destination.index,
-            },
-            optimisticResponse: {
-                __typename: "Mutation",
-                moveCard: { index: destination.index },
-            },
-            update: (proxy, { data: { moveCard } }) => {
-                const data = cloneDeep(proxy.readQuery({
-                    query: GET_RETROSPECTIVE,
-                    variables: { id },
-                }));
-                const existingCards = data.retrospectiveById.cards;
-                const targetCardIndex = R.findIndex(R.propEq("id", cardId))(
-                    existingCards
-                );
-                existingCards[targetCardIndex].column = column;
-                const columnCards = R.filter(
-                    R.propEq("column", column),
-                    data.retrospectiveById.cards
-                );
-                const otherCards = R.filter(c => c.id !== cardId, columnCards);
+        if (column !== undefined) {
+            props.moveCard({
+                variables: {
+                    id: cardId,
+                    column,
+                    index: destination.index,
+                },
+                optimisticResponse: {
+                    __typename: "Mutation",
+                    moveCard: { index: destination.index },
+                },
+                update: (proxy, { data: { moveCard } }) => {
+                    const data = cloneDeep(proxy.readQuery({
+                        query: GET_RETROSPECTIVE,
+                        variables: { id },
+                    }));
+                    const existingCards = data.retrospectiveById.cards;
+                    const targetCardIndex = R.findIndex(R.propEq("id", cardId))(
+                        existingCards
+                    );
+                    existingCards[targetCardIndex].column = column;
+                    const columnCards = R.filter(
+                        R.propEq("column", column),
+                        data.retrospectiveById.cards
+                    );
+                    const otherCards = R.filter(c => c.id !== cardId, columnCards);
 
-                var position = moveCard;
-                if (moveCard.index !== undefined) {
-                    if (otherCards.length === 0) {
-                        position = IDX_SPACING;
-                    } else if (moveCard.index >= otherCards.length) {
-                        position =
-                            otherCards[otherCards.length - 1].position +
-                            IDX_SPACING;
-                    } else if (otherCards[moveCard.index].id === cardId) {
-                        position = otherCards[moveCard.index].position;
-                    } else if (moveCard.index === 0) {
-                        position = otherCards[0].position - IDX_SPACING;
-                    } else {
-                        position =
-                            Math.floor(
-                                otherCards[moveCard.index].position +
-                                    otherCards[moveCard.index - 1].position
-                            ) / 2;
+                    var position = moveCard;
+                    if (moveCard.index !== undefined) {
+                        if (otherCards.length === 0) {
+                            position = IDX_SPACING;
+                        } else if (moveCard.index >= otherCards.length) {
+                            position =
+                                otherCards[otherCards.length - 1].position +
+                                IDX_SPACING;
+                        } else if (otherCards[moveCard.index].id === cardId) {
+                            position = otherCards[moveCard.index].position;
+                        } else if (moveCard.index === 0) {
+                            position = otherCards[0].position - IDX_SPACING;
+                        } else {
+                            position =
+                                Math.floor(
+                                    otherCards[moveCard.index].position +
+                                        otherCards[moveCard.index - 1].position
+                                ) / 2;
+                        }
                     }
-                }
-                existingCards[targetCardIndex].position = position;
-                data.retrospectiveById.cards = R.sortBy(
-                    R.prop("position"),
-                    existingCards
-                );
-                proxy.writeQuery({
-                    query: GET_RETROSPECTIVE,
-                    variables: { id },
-                    data,
-                });
-            },
-        });
+                    existingCards[targetCardIndex].position = position;
+                    data.retrospectiveById.cards = R.sortBy(
+                        R.prop("position"),
+                        existingCards
+                    );
+                    proxy.writeQuery({
+                        query: GET_RETROSPECTIVE,
+                        variables: { id },
+                        data,
+                    });
+                },
+            });
+        } else if (combineId !== undefined) {
+            props.mergeCard({
+                variables: {
+                    id: cardId,
+                    mergedInto: combineId,
+                },
+                optimisticResponse: {
+                    __typename: "Mutation",
+                    mergeCard: { id: combineId },
+                },
+                update: (proxy, { data: { moveCard } }) => {
+                    const data = cloneDeep(proxy.readQuery({
+                        query: GET_RETROSPECTIVE,
+                        variables: { id },
+                    }));
+                    const mergedCard = R.filter(c => c.id === cardId, data.retrospectiveById.cards)[0];
+                    const otherCards = R.filter(c => c.id !== cardId, data.retrospectiveById.cards);
+                    const targetCardIndex = R.findIndex(R.propEq("id", combineId))(
+                        otherCards
+                    );
+                    otherCards[targetCardIndex].mergedCards.push(mergedCard);
+                    data.retrospectiveById.cards = otherCards;
+
+                    proxy.writeQuery({
+                        query: GET_RETROSPECTIVE,
+                        variables: { id },
+                        data,
+                    });
+                },
+            });
+        }
     };
 
     const handleNewVote = (cardId, emoji) => {
@@ -399,6 +433,7 @@ function _Retrospective(props) {
 export default flowRight(
     graphql(ADD_CARD, { name: "addCard" }),
     graphql(MOVE_CARD, { name: "moveCard" }),
+    graphql(MERGE_CARD, { name: "mergeCard" }),
     graphql(NEW_VOTE, { name: "newVote" }),
     graphql(UPDATE_STATUS, { name: "updateStatus" }),
     graphql(SEND_HEARTBEAT, { name: "sendHeartbeat" })

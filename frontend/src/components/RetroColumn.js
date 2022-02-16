@@ -100,7 +100,7 @@ class _RetroColumn extends React.Component {
                     />
                 </div>
 
-                <Droppable droppableId={title}>
+                <Droppable droppableId={title} isCombineEnabled>
                     {(provided, snapshot) => (
                         <div
                             className="column-cards"

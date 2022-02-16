@@ -12,6 +12,7 @@ type rocketboardService interface {
 	GetRetrospectiveByPetName(string) (*model.Retrospective, error)
 	AddCardToRetrospective(string, string, string, string) (string, error)
 	MoveCard(string, string, int) error
+	MergeCard(string, string) error
 	UpdateMessage(string, string) error
 	GetCardsForRetrospective(string) ([]*model.Card, error)
 	GetCardById(string) (*model.Card, error)
@@ -116,6 +117,13 @@ func (r *mutationResolver) MoveCard(ctx context.Context, id string, column strin
 	return c.Position, nil
 }
 
+func (r *mutationResolver) MergeCard(ctx context.Context, id string, mergedInto string) (string, error) {
+	if err := r.s.MergeCard(id, mergedInto); err != nil {
+		return "", err
+	}
+	return mergedInto, nil
+}
+
 func (r *mutationResolver) UpdateMessage(ctx context.Context, id string, message string) (string, error) {
 	if err := r.s.UpdateMessage(id, message); err != nil {
 		return "", err
@@ -152,7 +160,12 @@ func (r *mutationResolver) AddCardToRetrospective(ctx context.Context, rId strin
 	if err != nil {
 		return "", err
 	}
-	c, _ := r.s.GetCardById(id)
+	c, err := r.s.GetCardById(id)
+	if err != nil {
+		panic(err)
+		return "", err
+	}
+
 	r.sendCardToSubs(c)
 	return id, nil
 }

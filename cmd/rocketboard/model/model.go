@@ -27,9 +27,11 @@ type Card struct {
 
 	RetrospectiveId string
 
-	Message string
-	Creator string
-	Column  string
+	Message     string
+	Creator     string
+	Column      string
+	MergedCards []*Card
+	MergedInto  *string `db:"mergedInto"`
 
 	Position int
 }

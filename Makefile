@@ -54,6 +54,13 @@ test/e2e: build build/frontend
 		ffmpeg -y -framerate 20 -pattern_type glob -i 'online-users/trace-screenshot-*.jpg' \
         -c:v libx264 -r 30 -pix_fmt yuv420p testrun-online-users.mp4
 
+	docker run --rm \
+		-v `pwd`/traceshots:/frontend/traceshots \
+		-w /frontend/traceshots \
+		${IMAGE_NAME}-frontend:${VERSION} \
+		ffmpeg -y -framerate 20 -pattern_type glob -i 'merge/trace-screenshot-*.jpg' \
+        -c:v libx264 -r 30 -pix_fmt yuv420p testrun-merge.mp4
+
 	docker rm -f rocketboard-test-${GITHUB_RUN_ID}
 
 publish:

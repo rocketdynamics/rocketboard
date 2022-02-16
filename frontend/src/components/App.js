@@ -44,7 +44,6 @@ function LiveOnlineUsers({ id }) {
     return (
         <Menu.Item
             key="users"
-            onItemHover={() => {}}
         >
             <span style={{paddingRight: "5px"}}>
                 Online Users:
@@ -143,6 +142,7 @@ function App(props) {
                 <Menu disabledOverflow="true" mode="horizontal" className="menu">
                     <QRModal/>
                     <Routes>
+                        <Route path="/" element={null} />
                         <Route path="/retrospective/:petName/" element={
                             <OnlineUsers/>
                         }/>

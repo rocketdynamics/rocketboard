@@ -1,6 +1,7 @@
 import React from "react";
 import * as R from "ramda";
 
+import { Droppable } from "react-beautiful-dnd";
 import { Icon, Input, Tooltip } from "antd";
 import Timer from "./Timer";
 
@@ -167,7 +168,7 @@ class RetroCard extends React.PureComponent {
     };
 
     render() {
-        const { id, votes } = this.props.data;
+        const { id, votes, mergedCards } = this.props.data;
         const { isDragging, onNewVote, onSetStatus } = this.props;
         const isOptimistic = this.props.data.creator === "";
         const sumVotes = R.compose(R.sum, R.pluck("count"));
@@ -191,6 +192,12 @@ class RetroCard extends React.PureComponent {
                     ref={this.inputRef}
                     value={this.state.message}
                 />
+                {mergedCards?.map(nested => (
+                    <span class="nested-card" key={nested.id}><hr />
+                    <p>
+                        {nested.message}
+                    </p></span>
+                ))}
             </div>
         );
         const voteTypes = R.uniq(R.filter((o) => {return o !== undefined}, R.pluck("emoji", votes)));

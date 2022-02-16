@@ -50,6 +50,7 @@ type RootMutationResolver interface {
 	StartRetrospective(ctx context.Context, name *string) (string, error)
 	AddCardToRetrospective(ctx context.Context, id string, column *string, message *string) (string, error)
 	MoveCard(ctx context.Context, id string, column string, index int) (int, error)
+	MergeCard(ctx context.Context, id string, mergedInto string) (string, error)
 	UpdateMessage(ctx context.Context, id string, message string) (string, error)
 	NewVote(ctx context.Context, cardId string, emoji string) (model.Vote, error)
 	UpdateStatus(ctx context.Context, id string, status model.StatusType) (model.Status, error)
@@ -163,6 +164,10 @@ func (ec *executionContext) _Card(ctx context.Context, sel ast.SelectionSet, obj
 			out.Values[i] = ec._Card_creator(ctx, field, obj)
 		case "column":
 			out.Values[i] = ec._Card_column(ctx, field, obj)
+		case "mergedInto":
+			out.Values[i] = ec._Card_mergedInto(ctx, field, obj)
+		case "mergedCards":
+			out.Values[i] = ec._Card_mergedCards(ctx, field, obj)
 		case "statuses":
 			out.Values[i] = ec._Card_statuses(ctx, field, obj)
 		case "votes":
@@ -277,6 +282,55 @@ func (ec *executionContext) _Card_column(ctx context.Context, field graphql.Coll
 	}
 	res := resTmp.(string)
 	return graphql.MarshalString(res)
+}
+
+func (ec *executionContext) _Card_mergedInto(ctx context.Context, field graphql.CollectedField, obj *model.Card) graphql.Marshaler {
+	rctx := graphql.GetResolverContext(ctx)
+	rctx.Object = "Card"
+	rctx.Args = nil
+	rctx.Field = field
+	rctx.PushField(field.Alias)
+	defer rctx.Pop()
+	resTmp := ec.FieldMiddleware(ctx, func(ctx context.Context) (interface{}, error) {
+		return obj.MergedInto, nil
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	if res == nil {
+		return graphql.Null
+	}
+	return graphql.MarshalID(*res)
+}
+
+func (ec *executionContext) _Card_mergedCards(ctx context.Context, field graphql.CollectedField, obj *model.Card) graphql.Marshaler {
+	rctx := graphql.GetResolverContext(ctx)
+	rctx.Object = "Card"
+	rctx.Args = nil
+	rctx.Field = field
+	rctx.PushField(field.Alias)
+	defer rctx.Pop()
+	resTmp := ec.FieldMiddleware(ctx, func(ctx context.Context) (interface{}, error) {
+		return obj.MergedCards, nil
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Card)
+	arr1 := graphql.Array{}
+	for idx1 := range res {
+		arr1 = append(arr1, func() graphql.Marshaler {
+			rctx := graphql.GetResolverContext(ctx)
+			rctx.PushIndex(idx1)
+			defer rctx.Pop()
+			if res[idx1] == nil {
+				return graphql.Null
+			}
+			return ec._Card(ctx, field.Selections, res[idx1])
+		}())
+	}
+	return arr1
 }
 
 func (ec *executionContext) _Card_statuses(ctx context.Context, field graphql.CollectedField, obj *model.Card) graphql.Marshaler {
@@ -588,6 +642,8 @@ func (ec *executionContext) _RootMutation(ctx context.Context, sel ast.Selection
 			out.Values[i] = ec._RootMutation_addCardToRetrospective(ctx, field)
 		case "moveCard":
 			out.Values[i] = ec._RootMutation_moveCard(ctx, field)
+		case "mergeCard":
+			out.Values[i] = ec._RootMutation_mergeCard(ctx, field)
 		case "updateMessage":
 			out.Values[i] = ec._RootMutation_updateMessage(ctx, field)
 		case "newVote":
@@ -744,6 +800,45 @@ func (ec *executionContext) _RootMutation_moveCard(ctx context.Context, field gr
 	}
 	res := resTmp.(int)
 	return graphql.MarshalInt(res)
+}
+
+func (ec *executionContext) _RootMutation_mergeCard(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		var err error
+		arg0, err = graphql.UnmarshalID(tmp)
+		if err != nil {
+			ec.Error(ctx, err)
+			return graphql.Null
+		}
+	}
+	args["id"] = arg0
+	var arg1 string
+	if tmp, ok := rawArgs["mergedInto"]; ok {
+		var err error
+		arg1, err = graphql.UnmarshalID(tmp)
+		if err != nil {
+			ec.Error(ctx, err)
+			return graphql.Null
+		}
+	}
+	args["mergedInto"] = arg1
+	rctx := graphql.GetResolverContext(ctx)
+	rctx.Object = "RootMutation"
+	rctx.Args = args
+	rctx.Field = field
+	rctx.PushField(field.Alias)
+	defer rctx.Pop()
+	resTmp := ec.FieldMiddleware(ctx, func(ctx context.Context) (interface{}, error) {
+		return ec.resolvers.RootMutation().MergeCard(ctx, args["id"].(string), args["mergedInto"].(string))
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	return graphql.MarshalID(res)
 }
 
 func (ec *executionContext) _RootMutation_updateMessage(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
@@ -2366,6 +2461,7 @@ type RootMutation {
     startRetrospective(name: String): String!
     addCardToRetrospective(id: ID!, column: String, message: String): String!
     moveCard(id: ID!, column: String!, index: Int!): Int!
+    mergeCard(id: ID!, mergedInto: ID!): ID!
     updateMessage(id: ID!, message: String!): String!
     newVote(cardId: ID!, emoji: String!): Vote!
     updateStatus(id: ID!, status: StatusType!): Status!
@@ -2413,6 +2509,8 @@ type Card {
     message: String
     creator: String
     column: String
+    mergedInto: ID
+    mergedCards: [Card]
 
     statuses: [Status]
     votes: [Vote]

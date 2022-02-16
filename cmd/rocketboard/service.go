@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
+	"github.com/dustinkirkland/golang-petname"
 	"github.com/rocketdynamics/rocketboard/cmd/rocketboard/model"
 	"github.com/rocketdynamics/rocketboard/cmd/rocketboard/utils"
-	"github.com/dustinkirkland/golang-petname"
 	"time"
 )
 
@@ -16,6 +16,7 @@ type repository interface {
 	NewCard(*model.Card) error
 	UpdateCard(*model.Card) error
 	MoveCard(*model.Card, string, int) error
+	MergeCard(*model.Card, string) error
 	GetCardById(string) (*model.Card, error)
 	GetCardsByRetrospectiveId(string) ([]*model.Card, error)
 
@@ -172,6 +173,15 @@ func (s *rocketboardService) MoveCard(id string, column string, index int) error
 	}
 
 	return s.db.MoveCard(c, column, index)
+}
+
+func (s *rocketboardService) MergeCard(id string, mergedInto string) error {
+	c, err := s.db.GetCardById(id)
+	if err != nil {
+		return err
+	}
+
+	return s.db.MergeCard(c, mergedInto)
 }
 
 func (s *rocketboardService) UpdateMessage(id string, message string) error {

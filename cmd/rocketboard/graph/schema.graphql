@@ -12,6 +12,7 @@ type RootMutation {
     startRetrospective(name: String): String!
     addCardToRetrospective(id: ID!, column: String, message: String): String!
     moveCard(id: ID!, column: String!, index: Int!): Int!
+    mergeCard(id: ID!, mergedInto: ID!): ID!
     updateMessage(id: ID!, message: String!): String!
     newVote(cardId: ID!, emoji: String!): Vote!
     updateStatus(id: ID!, status: StatusType!): Status!
@@ -59,6 +60,8 @@ type Card {
     message: String
     creator: String
     column: String
+    mergedInto: ID
+    mergedCards: [Card]
 
     statuses: [Status]
     votes: [Vote]

@@ -30,6 +30,10 @@ export const GET_RETROSPECTIVE = gql`
                 message
                 column
                 creator
+                mergedCards {
+                    id
+                    message
+                }
                 statuses {
                     id
                     created
@@ -55,6 +59,12 @@ export const ADD_CARD = gql`
 export const MOVE_CARD = gql`
     mutation MoveCard($id: ID!, $column: String!, $index: Int!) {
         moveCard(id: $id, column: $column, index: $index)
+    }
+`;
+
+export const MERGE_CARD = gql`
+    mutation MergeCard($id: ID!, $mergedInto: ID!) {
+        mergeCard(id: $id, mergedInto: $mergedInto)
     }
 `;
 
@@ -97,6 +107,11 @@ export const CARD_SUBSCRIPTION = gql`
             message
             column
             creator
+            mergedInto
+            mergedCards {
+                id
+                message
+            }
             statuses {
                 id
                 created

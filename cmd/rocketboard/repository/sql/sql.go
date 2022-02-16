@@ -72,7 +72,13 @@ var migrations = []string{`
   CREATE UNIQUE INDEX IF NOT EXISTS retro_petname on retrospectives(petname);
   `, `
   CREATE INDEX IF NOT EXISTS cards_retro on cards(retrospectiveid);
-`}
+	`, `
+	ALTER TABLE cards ADD
+    mergedInto TEXT;
+  `, `
+	CREATE INDEX IF NOT EXISTS cards_mergedInto ON cards(mergedInto);
+  `,
+}
 
 // Space elements by 2^15, which allows for 15 divisions before re-sorting
 var IDX_SPACING = int(math.Exp2(15))
@@ -180,6 +186,15 @@ func (db *sqlRepository) reorderColumn(rId string, column string) {
 	}
 }
 
+func (db *sqlRepository) MergeCard(c *model.Card, mergedInto string) error {
+	c.MergedInto = &mergedInto
+	_, err := db.NamedExec(`UPDATE cards
+    SET mergedInto=:mergedInto
+    WHERE id=:id
+  `, c)
+	return err
+}
+
 func (db *sqlRepository) MoveCard(c *model.Card, column string, index int) error {
 	cs := []*model.Card{}
 	tx := db.MustBegin()
@@ -230,13 +245,48 @@ func (db *sqlRepository) UpdateCard(c *model.Card) error {
 func (db *sqlRepository) GetCardById(id string) (*model.Card, error) {
 	var c model.Card
 	err := db.Get(&c, "SELECT * FROM cards WHERE id=$1", id)
+	if err != nil {
+		panic(err)
+		return nil, err
+	}
+	mergedCards := []*model.Card{}
+	err = db.Select(&mergedCards, "SELECT * FROM cards WHERE mergedInto=$1 ORDER BY position ASC", id)
+	c.MergedCards = mergedCards
+	if err != nil {
+		panic(err)
+	}
+
 	return &c, err
 }
 
 func (db *sqlRepository) GetCardsByRetrospectiveId(id string) ([]*model.Card, error) {
-	cs := []*model.Card{}
-	err := db.Select(&cs, "SELECT * FROM cards WHERE retrospectiveid=$1 ORDER BY position ASC", id)
-	return cs, err
+	allCards := []*model.Card{}
+	unmergedCards := []*model.Card{}
+	mergedCards := []*model.Card{}
+	err := db.Select(&allCards, "SELECT * FROM cards WHERE retrospectiveid=$1 ORDER BY position ASC", id)
+
+	cardsById := map[string]*model.Card{}
+	for _, card := range allCards {
+		if card.MergedInto == nil {
+			unmergedCards = append(unmergedCards, card)
+			cardsById[card.Id] = card
+		} else {
+			mergedCards = append(mergedCards, card)
+		}
+	}
+
+	for _, card := range mergedCards {
+		baseCard := cardsById[*card.MergedInto]
+		if baseCard == nil {
+			continue
+		}
+		if baseCard.MergedCards == nil {
+			baseCard.MergedCards = []*model.Card{}
+		}
+		baseCard.MergedCards = append(baseCard.MergedCards, card)
+	}
+
+	return unmergedCards, err
 }
 
 func (db *sqlRepository) NewVote(v *model.Vote) error {
