@@ -2,8 +2,12 @@ import React from "react";
 import * as R from "ramda";
 
 import { Droppable } from "react-beautiful-dnd";
+import { graphql } from '@apollo/client/react/hoc';
+import { flowRight } from "lodash";
 import { Icon, Input, Tooltip } from "antd";
 import Timer from "./Timer";
+
+import { UNMERGE_CARD } from "../queries";
 
 const EMOJI_MAP = {
     "clap": "👏",
@@ -176,6 +180,15 @@ class RetroCard extends React.PureComponent {
 
         const hiddenStyle = { display: "none" };
         const visibleStyle = { display: "block" };
+
+        const unmergeCard = (id) => {
+            this.props.unmergeCard({
+                variables: {
+                    id: id,
+                }
+            })
+        }
+
         let body = (
             <div>
                 <p style={this.state.isEditing ? hiddenStyle : visibleStyle}>
@@ -195,7 +208,7 @@ class RetroCard extends React.PureComponent {
                 <span>
                     {mergedCards?.map(nested => (
                         <span className="nested-card" key={nested.id}><hr />
-                            <p>
+                            <p onClick={() => unmergeCard(nested.id)}>
                                 {nested.message}
                             </p>
                         </span>
@@ -329,4 +342,8 @@ class RetroCard extends React.PureComponent {
     }
 }
 
-export default RetroCard;
+export default flowRight(
+    graphql(UNMERGE_CARD, { name: "unmergeCard" })
+)(
+    RetroCard
+);

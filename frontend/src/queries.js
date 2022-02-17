@@ -68,6 +68,12 @@ export const MERGE_CARD = gql`
     }
 `;
 
+export const UNMERGE_CARD = gql`
+    mutation UnmergeCard($id: ID!) {
+        unmergeCard(id: $id)
+    }
+`;
+
 export const UPDATE_MESSAGE = gql`
     mutation UpdateMessage($id: ID!, $message: String!) {
         updateMessage(id: $id, message: $message)

@@ -13,6 +13,7 @@ type RootMutation {
     addCardToRetrospective(id: ID!, column: String, message: String): String!
     moveCard(id: ID!, column: String!, index: Int!): Int!
     mergeCard(id: ID!, mergedInto: ID!): ID!
+    unmergeCard(id: ID!): ID!
     updateMessage(id: ID!, message: String!): String!
     newVote(cardId: ID!, emoji: String!): Vote!
     updateStatus(id: ID!, status: StatusType!): Status!

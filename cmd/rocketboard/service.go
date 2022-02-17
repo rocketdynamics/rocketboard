@@ -17,6 +17,7 @@ type repository interface {
 	UpdateCard(*model.Card) error
 	MoveCard(*model.Card, string, int) error
 	MergeCard(*model.Card, string) error
+	UnmergeCard(*model.Card) error
 	GetCardById(string) (*model.Card, error)
 	GetCardsByRetrospectiveId(string) ([]*model.Card, error)
 
@@ -182,6 +183,16 @@ func (s *rocketboardService) MergeCard(id string, mergedInto string) error {
 	}
 
 	return s.db.MergeCard(c, mergedInto)
+}
+
+func (s *rocketboardService) UnmergeCard(id string) error {
+	c, err := s.db.GetCardById(id)
+	if err != nil {
+		panic(err)
+		return err
+	}
+
+	return s.db.UnmergeCard(c)
 }
 
 func (s *rocketboardService) UpdateMessage(id string, message string) error {
