@@ -214,6 +214,18 @@ func (db *sqlRepository) MergeCard(c *model.Card, mergedInto string) error {
 	return tx.Commit()
 }
 
+func (db *sqlRepository) UnmergeCard(c *model.Card) error {
+	_, err := db.NamedExec(`UPDATE cards
+    SET mergedInto=NULL
+    WHERE id=:id
+  `, c)
+	if err != nil {
+		panic(err)
+	}
+
+	return err
+}
+
 func (db *sqlRepository) MoveCard(c *model.Card, column string, index int) error {
 	cs := []*model.Card{}
 	tx := db.MustBegin()

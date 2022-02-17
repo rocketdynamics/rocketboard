@@ -2,8 +2,10 @@ package graph
 
 import (
 	"context"
-	"github.com/rocketdynamics/rocketboard/cmd/rocketboard/model"
+	"fmt"
 	"sync"
+
+	"github.com/rocketdynamics/rocketboard/cmd/rocketboard/model"
 )
 
 type rocketboardService interface {
@@ -13,6 +15,7 @@ type rocketboardService interface {
 	AddCardToRetrospective(string, string, string, string) (string, error)
 	MoveCard(string, string, int) error
 	MergeCard(string, string) error
+	UnmergeCard(string) error
 	UpdateMessage(string, string) error
 	GetCardsForRetrospective(string) ([]*model.Card, error)
 	GetCardById(string) (*model.Card, error)
@@ -126,6 +129,30 @@ func (r *mutationResolver) MergeCard(ctx context.Context, id string, mergedInto 
 	c2, _ := r.s.GetCardById(id)
 	r.sendCardToSubs(c2)
 	return mergedInto, nil
+}
+
+func (r *mutationResolver) UnmergeCard(ctx context.Context, id string) (string, error) {
+	c, err := r.s.GetCardById(id)
+	if err != nil {
+		return "", err
+	}
+	oldMergedInto := c.MergedInto
+	if oldMergedInto == nil {
+		return "", fmt.Errorf("Tried to unmerge an unmerged card")
+	}
+
+	if err := r.s.UnmergeCard(id); err != nil {
+		panic(err)
+		return "", err
+	}
+	c.MergedInto = nil
+	r.sendCardToSubs(c)
+
+	// Have to update the card that no longer has this merged in to it
+	parentCard, _ := r.s.GetCardById(*oldMergedInto)
+	r.sendCardToSubs(parentCard)
+
+	return *oldMergedInto, nil
 }
 
 func (r *mutationResolver) UpdateMessage(ctx context.Context, id string, message string) (string, error) {

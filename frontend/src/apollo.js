@@ -34,6 +34,13 @@ const client = new ApolloClient({
                     },
                 },
             },
+            Card: {
+                fields: {
+                    mergedCards: {
+                        merge: false,
+                    }
+                }
+            },
         }
     }),
 });

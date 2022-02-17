@@ -51,6 +51,7 @@ type RootMutationResolver interface {
 	AddCardToRetrospective(ctx context.Context, id string, column *string, message *string) (string, error)
 	MoveCard(ctx context.Context, id string, column string, index int) (int, error)
 	MergeCard(ctx context.Context, id string, mergedInto string) (string, error)
+	UnmergeCard(ctx context.Context, id string) (string, error)
 	UpdateMessage(ctx context.Context, id string, message string) (string, error)
 	NewVote(ctx context.Context, cardId string, emoji string) (model.Vote, error)
 	UpdateStatus(ctx context.Context, id string, status model.StatusType) (model.Status, error)
@@ -644,6 +645,8 @@ func (ec *executionContext) _RootMutation(ctx context.Context, sel ast.Selection
 			out.Values[i] = ec._RootMutation_moveCard(ctx, field)
 		case "mergeCard":
 			out.Values[i] = ec._RootMutation_mergeCard(ctx, field)
+		case "unmergeCard":
+			out.Values[i] = ec._RootMutation_unmergeCard(ctx, field)
 		case "updateMessage":
 			out.Values[i] = ec._RootMutation_updateMessage(ctx, field)
 		case "newVote":
@@ -833,6 +836,35 @@ func (ec *executionContext) _RootMutation_mergeCard(ctx context.Context, field g
 	defer rctx.Pop()
 	resTmp := ec.FieldMiddleware(ctx, func(ctx context.Context) (interface{}, error) {
 		return ec.resolvers.RootMutation().MergeCard(ctx, args["id"].(string), args["mergedInto"].(string))
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	return graphql.MarshalID(res)
+}
+
+func (ec *executionContext) _RootMutation_unmergeCard(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		var err error
+		arg0, err = graphql.UnmarshalID(tmp)
+		if err != nil {
+			ec.Error(ctx, err)
+			return graphql.Null
+		}
+	}
+	args["id"] = arg0
+	rctx := graphql.GetResolverContext(ctx)
+	rctx.Object = "RootMutation"
+	rctx.Args = args
+	rctx.Field = field
+	rctx.PushField(field.Alias)
+	defer rctx.Pop()
+	resTmp := ec.FieldMiddleware(ctx, func(ctx context.Context) (interface{}, error) {
+		return ec.resolvers.RootMutation().UnmergeCard(ctx, args["id"].(string))
 	})
 	if resTmp == nil {
 		return graphql.Null
@@ -2462,6 +2494,7 @@ type RootMutation {
     addCardToRetrospective(id: ID!, column: String, message: String): String!
     moveCard(id: ID!, column: String!, index: Int!): Int!
     mergeCard(id: ID!, mergedInto: ID!): ID!
+    unmergeCard(id: ID!): ID!
     updateMessage(id: ID!, message: String!): String!
     newVote(cardId: ID!, emoji: String!): Vote!
     updateStatus(id: ID!, status: StatusType!): Status!
