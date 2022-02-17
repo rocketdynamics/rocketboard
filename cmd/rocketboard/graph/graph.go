@@ -121,6 +121,10 @@ func (r *mutationResolver) MergeCard(ctx context.Context, id string, mergedInto 
 	if err := r.s.MergeCard(id, mergedInto); err != nil {
 		return "", err
 	}
+	c, _ := r.s.GetCardById(mergedInto)
+	r.sendCardToSubs(c)
+	c2, _ := r.s.GetCardById(id)
+	r.sendCardToSubs(c2)
 	return mergedInto, nil
 }
 

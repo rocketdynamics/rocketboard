@@ -94,9 +94,41 @@ describe('Rocketboard', () => {
     await page.mouse.move(dropBox.x + dropBox.width / 2, dropBox.y + 100, {steps: 10});
     await page.mouse.up();
 
-    await page.waitForSelector('.nested-card')
-    const cardText = await page.evaluate(() => document.querySelector(".column:nth-child(2) .card").innerText)
-    expect(cardText).toEqual(expect.stringContaining('card1'))
-    expect(cardText).toEqual(expect.stringContaining('card2'))
+    await allPages(async (page) => {
+      await page.waitForSelector('.nested-card')
+      const cardText = await page.evaluate(() => document.querySelector(".column:nth-child(2) .card").innerText)
+      expect(cardText).toEqual(expect.stringContaining('card1'))
+      expect(cardText).toEqual(expect.stringContaining('card2'))
+    })
+  })
+
+  it('should nest already nested cards correctly', async() => {
+    waitClick('.column:nth-child(3) .column-header > button')
+    await page.waitForSelector('.card-body textarea')
+    await page.waitForFunction(() => (
+      document.activeElement.tagName === "TEXTAREA"
+    ))
+    await page.keyboard.type('card3');
+    await page.keyboard.press('Enter');
+
+    const card = await page.$('.column:nth-child(2) .card');
+    const dropCard = await page.$('.column:nth-child(3) .card');
+
+    const cardBox = await card.boundingBox();
+    var dropBox = await dropCard.boundingBox();
+    await page.mouse.move(cardBox.x + cardBox.width / 2, cardBox.y + cardBox.height / 2);
+    await page.mouse.down();
+    await page.mouse.move(dropBox.x + dropBox.width / 2, dropBox.y + 100, {steps: 10});
+    dropBox = await dropCard.boundingBox();
+    await page.mouse.move(dropBox.x + dropBox.width / 2, dropBox.y + 100 - cardBox.height / 4, {steps: 5});
+    await page.mouse.up();
+
+    await allPages(async (page) => {
+      await page.waitForSelector('.nested-card:nth-child(2)')
+      const cardText = await page.evaluate(() => document.querySelector(".column:nth-child(3) .card").innerText)
+      expect(cardText).toEqual(expect.stringContaining('card1'))
+      expect(cardText).toEqual(expect.stringContaining('card2'))
+      expect(cardText).toEqual(expect.stringContaining('card3'))
+    })
   })
 })

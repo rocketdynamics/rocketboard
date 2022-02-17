@@ -192,12 +192,15 @@ class RetroCard extends React.PureComponent {
                     ref={this.inputRef}
                     value={this.state.message}
                 />
-                {mergedCards?.map(nested => (
-                    <span class="nested-card" key={nested.id}><hr />
-                    <p>
-                        {nested.message}
-                    </p></span>
-                ))}
+                <span>
+                    {mergedCards?.map(nested => (
+                        <span className="nested-card" key={nested.id}><hr />
+                            <p>
+                                {nested.message}
+                            </p>
+                        </span>
+                    ))}
+                </span>
             </div>
         );
         const voteTypes = R.uniq(R.filter((o) => {return o !== undefined}, R.pluck("emoji", votes)));

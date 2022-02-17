@@ -188,11 +188,30 @@ func (db *sqlRepository) reorderColumn(rId string, column string) {
 
 func (db *sqlRepository) MergeCard(c *model.Card, mergedInto string) error {
 	c.MergedInto = &mergedInto
-	_, err := db.NamedExec(`UPDATE cards
+	tx := db.MustBegin()
+	defer tx.Rollback()
+
+	_, err := tx.NamedExec(`UPDATE cards
     SET mergedInto=:mergedInto
     WHERE id=:id
   `, c)
-	return err
+
+	if err != nil {
+		return err
+	}
+
+	for _, card := range c.MergedCards {
+		card.MergedInto = &mergedInto
+		_, err := tx.NamedExec(`UPDATE cards
+	    SET mergedInto=:mergedInto
+	    WHERE id=:id
+	  `, card)
+		if err != nil {
+			return err
+		}
+	}
+
+	return tx.Commit()
 }
 
 func (db *sqlRepository) MoveCard(c *model.Card, column string, index int) error {

@@ -25,7 +25,17 @@ const client = new ApolloClient({
             },
         }),
     ]),
-    cache: new InMemoryCache(),
+    cache: new InMemoryCache({
+        typePolicies: {
+            Retrospective: {
+                fields: {
+                    cards: {
+                        merge: false,
+                    },
+                },
+            },
+        }
+    }),
 });
 
 export default client;

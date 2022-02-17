@@ -44,8 +44,11 @@ function _LiveRetrospective(props) {
             updateQuery: (prev, { subscriptionData: { data } }) => {
                 const newCard = data.cardChanged;
                 var existingCards = prev.retrospectiveById.cards;
+                const existingCard = R.find(R.propEq("id", newCard.id))(existingCards);
 
-                if (!R.find(R.propEq("id", newCard.id))(existingCards)) {
+                if (newCard.mergedInto) {
+                    existingCards = R.reject(R.propEq("id", newCard.id))(existingCards);
+                } else if (!existingCard) {
                     existingCards= [...existingCards, newCard]
                 }
 
@@ -135,6 +138,7 @@ function _Retrospective(props) {
                         creator: "",
                         votes: [],
                         statuses: [],
+                        mergedCards: [],
                         position: minIndex - IDX_SPACING,
                         ...newCard,
                     });
