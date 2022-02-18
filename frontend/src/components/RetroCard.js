@@ -4,7 +4,9 @@ import * as R from "ramda";
 import { Droppable } from "react-beautiful-dnd";
 import { graphql } from '@apollo/client/react/hoc';
 import { flowRight } from "lodash";
-import { Icon, Input, Tooltip } from "antd";
+import { Popconfirm, Button, Icon, Input, Tooltip } from "antd";
+import { ExportOutlined } from '@ant-design/icons';
+
 import Timer from "./Timer";
 
 import { UNMERGE_CARD } from "../queries";
@@ -208,7 +210,15 @@ class RetroCard extends React.PureComponent {
                 <span>
                     {mergedCards?.map(nested => (
                         <span className="nested-card" key={nested.id}><hr />
-                            <p onClick={() => unmergeCard(nested.id)}>
+                            <Popconfirm
+                                title="Unmerge?"
+                                onConfirm={() => unmergeCard(nested.id)}
+                                okText="Unmerge"
+                                cancelText="Cancel"
+                            >
+                                <ExportOutlined style={{float: "right"}}/>
+                            </Popconfirm>
+                            <p>
                                 {nested.message}
                             </p>
                         </span>

@@ -25,8 +25,8 @@ describe('Rocketboard', () => {
     })
 
     await page.tracing.start({path: './trace-basic.json', screenshots: true})
-    page2.goto(process.env.TARGET_URL)
-    page.goto(process.env.TARGET_URL)
+    await page2.goto(process.env.TARGET_URL)
+    await page.goto(process.env.TARGET_URL)
   })
 
   afterAll(async () => {
@@ -35,9 +35,9 @@ describe('Rocketboard', () => {
   })
 
   it('should launch retrospective', async () => {
-    waitClick('.action-launch')
+    await waitClick('.action-launch')
     await page.waitForSelector('.page-retrospective')
-    page2.goto(page.url())
+    await page2.goto(page.url())
 
     await allPages(async (page) => {
       await page.waitForSelector('.page-retrospective')
@@ -54,7 +54,7 @@ describe('Rocketboard', () => {
   })
 
   it('should allow card creation', async () => {
-    waitClick('.column:nth-child(2) .column-header > button')
+    await waitClick('.column:nth-child(2) .column-header > button')
     await page.waitForSelector('.card-body textarea')
     await page.waitForFunction(() => (
       document.activeElement.tagName === "TEXTAREA"
@@ -70,7 +70,7 @@ describe('Rocketboard', () => {
 
     await waitClick('.reaction-new')
     await page.waitForTimeout(200)
-    waitClick('.ant-tooltip [aria-label=sauropod]')
+    await waitClick('.ant-tooltip [aria-label=sauropod]')
     await allPages(async (page) => {
       await page.waitForSelector('.reaction-sauropod')
     })
