@@ -5,7 +5,7 @@ const PuppeteerEnvironment = require('jest-environment-puppeteer')
 class CustomEnvironment extends PuppeteerEnvironment {
   allPages(callback) {
     return Promise.all(this.pages.map(async (page) => {
-      return callback.call(this, page)
+      return await callback.call(this, page)
     }))
   }
 
@@ -33,7 +33,7 @@ class CustomEnvironment extends PuppeteerEnvironment {
         while(indexString.length < 5) {
           indexString = "0" + indexString
         }
-        fs.writeFile(destination + '/trace-screenshot-'+indexString+'.jpg', snap.args.snapshot, 'base64', function(err) {
+        fs.writeFileSync(destination + '/trace-screenshot-'+indexString+'.jpg', snap.args.snapshot, 'base64', function(err) {
           if (err) {
             console.log('writeFile error', err);
           }
@@ -47,12 +47,8 @@ class CustomEnvironment extends PuppeteerEnvironment {
   bindWaitClick(page) {
     return (
       async (selector, ...args) => {
-        try {
-          await page.waitForSelector(selector, {visible: true})
-          return page.click(selector, ...args)
-        } catch (err) {
-          console.log(err.stack);
-        }
+        await page.waitForSelector(selector)
+        await page.click(selector, ...args)
       }
     )
   }

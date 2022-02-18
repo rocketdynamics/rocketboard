@@ -54,7 +54,7 @@ describe('Rocketboard', () => {
   })
 
   it('should allow card creation', async () => {
-    waitClick('.column:nth-child(2) .column-header > button')
+    await waitClick('.column:nth-child(2) .column-header > button')
     await page.waitForSelector('.card-body textarea')
     await page.waitForFunction(() => (
       document.activeElement.tagName === "TEXTAREA"
@@ -68,7 +68,7 @@ describe('Rocketboard', () => {
       expect(cardText).toEqual('card1')
     })
 
-    waitClick('.column:nth-child(1) .column-header > button')
+    await waitClick('.column:nth-child(1) .column-header > button')
     await page.waitForSelector('.card-body textarea')
     await page.waitForFunction(() => (
       document.activeElement.tagName === "TEXTAREA"
@@ -103,7 +103,7 @@ describe('Rocketboard', () => {
   })
 
   it('should nest already nested cards correctly', async() => {
-    waitClick('.column:nth-child(3) .column-header > button')
+    await waitClick('.column:nth-child(3) .column-header > button')
     await page.waitForSelector('.card-body textarea')
     await page.waitForFunction(() => (
       document.activeElement.tagName === "TEXTAREA"
@@ -129,6 +129,22 @@ describe('Rocketboard', () => {
       expect(cardText).toEqual(expect.stringContaining('card1'))
       expect(cardText).toEqual(expect.stringContaining('card2'))
       expect(cardText).toEqual(expect.stringContaining('card3'))
+    })
+  })
+
+  it('should unmerge correctly', async() => {
+    await waitClick('.nested-card:nth-child(2) .anticon-export')
+    await page.waitForTimeout(500)
+    await waitClick('.ant-popover-buttons .ant-btn-primary')
+
+    await allPages(async (page) => {
+      await page.waitForSelector('.column:nth-child(1) .card-body')
+      const mergedCardText = await page.evaluate(() => document.querySelector(".column:nth-child(3) .card").innerText)
+      expect(mergedCardText).toEqual(expect.stringContaining('card1'))
+      expect(mergedCardText).toEqual(expect.stringContaining('card3'))
+
+      const unmergedCardText = await page.evaluate(() => document.querySelector(".column:nth-child(1) .card").innerText)
+      expect(unmergedCardText).toEqual(expect.stringContaining('card2'))
     })
   })
 })
