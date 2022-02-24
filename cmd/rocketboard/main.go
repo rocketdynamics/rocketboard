@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"github.com/99designs/gqlgen/handler"
 	"github.com/rocketdynamics/rocketboard/cmd/rocketboard/graph"
+	rocketFirestore "github.com/rocketdynamics/rocketboard/cmd/rocketboard/repository/firestore"
 	rocketSql "github.com/rocketdynamics/rocketboard/cmd/rocketboard/repository/sql"
 	"github.com/rocketdynamics/rocketboard/cmd/rocketboard/utils"
 	"log"
@@ -49,12 +50,16 @@ func main() {
 		log.Println("No ROCKET_DATABASE_URI specified, using sqlite3:rocket.db")
 		dbURI = "sqlite3:rocket.db"
 	}
+
 	repository, err := rocketSql.NewRepository(dbURI)
 	if err != nil {
 		log.Fatal(err)
 	}
+	repository2, err := rocketFirestore.NewRepository()
+	if err != nil {
+		log.Fatal(err)
+	}
 	svc := NewRocketboardService(repository)
-	obs := NewObservationStore(repository)
 	graph.InitMessageQueue()
 
 	http.Handle("/query-playground", handler.Playground("Rocketboard", "/query"))
@@ -66,7 +71,7 @@ func main() {
 
 	http.Handle("/query", WithEmail(handler.GraphQL(
 		graph.NewExecutableSchema(graph.Config{
-			Resolvers: graph.NewResolver(svc, obs),
+			Resolvers: graph.NewResolver(svc, repository2),
 		}),
 	)))
 

@@ -70,10 +70,6 @@ func NewRocketboardService(r repository) *rocketboardService {
 	return &rocketboardService{r}
 }
 
-func NewObservationStore(r repository) observationStore {
-	return r
-}
-
 func (s *rocketboardService) StartRetrospective(name string) (string, error) {
 	id := utils.NewUlid()
 

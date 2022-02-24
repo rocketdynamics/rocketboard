@@ -97,8 +97,9 @@ type Status struct {
 }
 
 type UserState struct {
-	User  string
-	State UserStateType
+	User      string
+	State     UserStateType `firestore:"State"`
+	FirstSeen time.Time
 }
 
 type Vote struct {
@@ -119,6 +120,6 @@ type Observation struct {
 	RetrospectiveId string
 	ConnectionId    string
 	State           UserStateType
-	FirstSeen       time.Time
-	LastSeen        time.Time
+	FirstSeen       time.Time `firestore:"FirstSeen,serverTimestamp"`
+	LastSeen        time.Time `firestore:"LastSeen,serverTimestamp"`
 }

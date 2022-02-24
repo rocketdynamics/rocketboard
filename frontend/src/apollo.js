@@ -32,6 +32,9 @@ const client = new ApolloClient({
                     cards: {
                         merge: false,
                     },
+                    onlineUsers: {
+                        merge: false,
+                    }
                 },
             },
             Card: {

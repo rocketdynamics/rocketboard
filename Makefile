@@ -30,15 +30,9 @@ test:
 		go test  -ldflags '-linkmode external -extldflags -static -w' ./... -cover
 
 test/e2e: build build/frontend
-	docker run -d --name=rocketboard-test-${GITHUB_RUN_ID} ${IMAGE_NAME}:${VERSION} rocketboard
-
+	docker-compose down
 	mkdir -p ./traceshots && chmod 777 ./traceshots && rm -rf ./traceshots/*
-
-	docker run --rm --cap-add=SYS_ADMIN \
-		-v `pwd`/traceshots:/frontend/traceshots \
-		--init --link rocketboard-test-${GITHUB_RUN_ID}:backend \
-		-e TARGET_URL=http://backend:5000 \
-		${IMAGE_NAME}-frontend:${VERSION} yarn test
+	docker-compose run --rm tests
 
 	docker run --rm \
 		-v `pwd`/traceshots:/frontend/traceshots \
@@ -60,8 +54,6 @@ test/e2e: build build/frontend
 		${IMAGE_NAME}-frontend:${VERSION} \
 		ffmpeg -y -framerate 20 -pattern_type glob -i 'merge/trace-screenshot-*.jpg' \
         -c:v libx264 -r 30 -pix_fmt yuv420p testrun-merge.mp4
-
-	docker rm -f rocketboard-test-${GITHUB_RUN_ID}
 
 publish:
 	docker push ${IMAGE_NAME}:${VERSION}

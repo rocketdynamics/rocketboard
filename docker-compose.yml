@@ -1,0 +1,35 @@
+version: "3.4"
+services:
+
+  backend:
+    image: rocketdynamics/rocketboard:${VERSION:-latest}
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      FIRESTORE_EMULATOR_HOST: firestore:8509
+    ports:
+    - 5000:5000
+    depends_on:
+    - firestore
+
+  tests:
+    image: rocketdynamics/rocketboard-frontend:${VERSION:-latest}
+    command: yarn test
+    init: true
+    cap_add:
+    - SYS_ADMIN
+    volumes:
+    - ./traceshots:/frontend/traceshots
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: frontend-builder
+    environment:
+      TARGET_URL: http://backend:5000
+    depends_on:
+    - backend
+
+  firestore:
+    image: google/cloud-sdk:latest
+    command: gcloud beta emulators firestore start --host-port=0.0.0.0:8509
