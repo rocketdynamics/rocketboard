@@ -20,19 +20,15 @@ build/frontend:
 			.
 
 test:
-	docker build --rm \
-			-t ${IMAGE_NAME}:${VERSION}-test \
-			--target backend-builder \
-			.
-
-	docker run --rm  \
-		${IMAGE_NAME}:${VERSION}-test \
-		go test  -ldflags '-linkmode external -extldflags -static -w' ./... -cover
+	docker-compose down
+	docker-compose build backend-tests
+	docker-compose run --rm backend-tests
 
 test/e2e: build build/frontend
 	docker-compose down
 	mkdir -p ./traceshots && chmod 777 ./traceshots && rm -rf ./traceshots/*
-	docker-compose run --rm tests
+	docker-compose build frontend-tests
+	docker-compose run --rm frontend-tests
 
 	docker run --rm \
 		-v `pwd`/traceshots:/frontend/traceshots \

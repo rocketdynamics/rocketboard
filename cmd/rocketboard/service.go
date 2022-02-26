@@ -117,6 +117,7 @@ func (s *rocketboardService) NewVote(cardId string, voter string, emoji string) 
 	}
 	vote, err := s.db.GetVoteByCardIdAndVoterAndEmoji(cardId, voter, emoji)
 	if err != nil {
+		return nil, err
 		numEmojis, err := s.db.GetTotalUniqueEmojis(cardId)
 		if err != nil || numEmojis >= 5 {
 			return nil, fmt.Errorf("Cannot create more than 5 emoji reactions")

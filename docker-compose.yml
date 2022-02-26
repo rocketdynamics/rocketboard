@@ -1,6 +1,5 @@
 version: "3.4"
 services:
-
   backend:
     image: rocketdynamics/rocketboard:${VERSION:-latest}
     build:
@@ -13,7 +12,7 @@ services:
     depends_on:
     - firestore
 
-  tests:
+  frontend-tests:
     image: rocketdynamics/rocketboard-frontend:${VERSION:-latest}
     command: yarn test
     init: true
@@ -29,6 +28,18 @@ services:
       TARGET_URL: http://backend:5000
     depends_on:
     - backend
+
+  backend-tests:
+    image: rocketdynamics/rocketboard-tests:${VERSION:-latest}
+    command: go test -v ./... -cover
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: backend-builder
+    environment:
+      FIRESTORE_EMULATOR_HOST: firestore:8509
+    depends_on:
+    - firestore
 
   firestore:
     image: google/cloud-sdk:latest
