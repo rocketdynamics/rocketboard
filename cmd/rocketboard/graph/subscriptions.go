@@ -2,16 +2,19 @@ package graph
 
 import (
 	"context"
-	"github.com/nats-io/gnatsd/server"
-	"github.com/nats-io/go-nats"
-	"github.com/vmihailenco/msgpack"
-	"golang.org/x/time/rate"
 	"log"
 	"os"
 	"time"
 
+	gpubsub "cloud.google.com/go/pubsub"
+	"github.com/nats-io/gnatsd/server"
+	"github.com/nats-io/go-nats"
+	"github.com/vmihailenco/msgpack"
+	"golang.org/x/time/rate"
+
 	"github.com/rocketdynamics/rocketboard/cmd/rocketboard/model"
 	"github.com/rocketdynamics/rocketboard/cmd/rocketboard/pubsub"
+	"github.com/rocketdynamics/rocketboard/cmd/rocketboard/pubsub/gcloudpubsub"
 	rocketNats "github.com/rocketdynamics/rocketboard/cmd/rocketboard/pubsub/nats"
 )
 
@@ -46,7 +49,7 @@ func startLocalNats() {
 	}
 }
 
-func InitMessageQueue() {
+func InitNatsMessageQueue() {
 	var lastErr error
 	nats_addr := os.Getenv("NATS_ADDR")
 	if nats_addr == "" {
@@ -58,8 +61,8 @@ func InitMessageQueue() {
 	for tries := 50; tries > 0; tries -= 1 {
 		nc, err := nats.Connect(nats_addr)
 		lastErr = err
-		pub = nc
-		sub = rocketNats.NatsSubscriber(nc)
+		pub = rocketNats.NewPublisher(nc)
+		sub = rocketNats.NewSubscriber(nc)
 		if err == nil {
 			break
 		}
@@ -67,6 +70,16 @@ func InitMessageQueue() {
 	}
 	if lastErr != nil {
 		log.Fatal("could not connect to nats")
+	}
+}
+
+func InitGcloudMessageQueue() {
+	client, err := gpubsub.NewClient(context.Background(), "rocketboard")
+
+	pub = gcloudpubsub.NewPublisher(client)
+	sub = gcloudpubsub.NewSubscriber(client)
+	if err != nil {
+		log.Fatal("could not connect to gcloud message queue:", err)
 	}
 }
 
@@ -110,11 +123,12 @@ func (r *subscriptionResolver) CardChanged(ctx context.Context, rId string) (<-c
 		r.mu.Unlock()
 	}()
 
-	return sub.CardSubscribe("cards-" + rId)
+	return sub.CardSubscribe(connectionId, "cards-"+rId)
 
 }
 
 func (r *subscriptionResolver) RetroChanged(ctx context.Context, rId string) (<-chan model.Retrospective, error) {
+	connectionId := ctx.Value("connectionId").(string)
 	defer func() {
 		// Send initial retro update incase we missed something
 		r.sendRetroToSubsById(rId)
@@ -125,5 +139,5 @@ func (r *subscriptionResolver) RetroChanged(ctx context.Context, rId string) (<-
 	// 	close()
 	// }()
 
-	return sub.RetroSubscribe("retros-" + rId)
+	return sub.RetroSubscribe(connectionId, "retros-"+rId)
 }

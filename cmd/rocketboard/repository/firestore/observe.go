@@ -58,7 +58,6 @@ func (db *firestoreRepository) Observe(connectionid string, user string, retrosp
 		}
 		return nil
 	})
-	log.Println("observed state", state, userState, changed)
 	return changed, err
 }
 

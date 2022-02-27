@@ -14,7 +14,7 @@ type natsSubscriber struct {
 	nc *nats.Conn
 }
 
-func (s *natsSubscriber) CardSubscribe(channel string) (chan model.Card, error) {
+func (s *natsSubscriber) CardSubscribe(connectionId, channel string) (chan model.Card, error) {
 	cardChan := make(chan model.Card, 100)
 	natsChan := make(chan *nats.Msg, 100)
 	sub, err := s.nc.ChanSubscribe(channel, natsChan)
@@ -38,7 +38,7 @@ func (s *natsSubscriber) CardSubscribe(channel string) (chan model.Card, error) 
 	return cardChan, nil
 }
 
-func (s *natsSubscriber) RetroSubscribe(channel string) (chan model.Retrospective, error) {
+func (s *natsSubscriber) RetroSubscribe(connectionId, channel string) (chan model.Retrospective, error) {
 	retroChan := make(chan model.Retrospective, 100)
 	natsChan := make(chan *nats.Msg, 100)
 	sub, err := s.nc.ChanSubscribe(channel, natsChan)
@@ -62,6 +62,10 @@ func (s *natsSubscriber) RetroSubscribe(channel string) (chan model.Retrospectiv
 	return retroChan, nil
 }
 
-func NatsSubscriber(nc *nats.Conn) pubsub.Subscriber {
+func NewSubscriber(nc *nats.Conn) pubsub.Subscriber {
 	return &natsSubscriber{nc}
+}
+
+func NewPublisher(nc *nats.Conn) pubsub.Publisher {
+	return nc
 }

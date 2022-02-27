@@ -60,7 +60,8 @@ func main() {
 		log.Fatal(err)
 	}
 	svc := NewRocketboardService(repository2)
-	graph.InitMessageQueue()
+	// graph.InitNatsMessageQueue()
+	graph.InitGcloudMessageQueue()
 
 	http.Handle("/query-playground", handler.Playground("Rocketboard", "/query"))
 	http.HandleFunc("/healthcheck", func(w http.ResponseWriter, r *http.Request) {

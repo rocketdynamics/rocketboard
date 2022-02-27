@@ -7,10 +7,12 @@ services:
       dockerfile: Dockerfile
     environment:
       FIRESTORE_EMULATOR_HOST: firestore:8509
+      PUBSUB_EMULATOR_HOST: pubsub:8510
     ports:
     - 5000:5000
     depends_on:
     - firestore
+    - pubsub
 
   frontend-tests:
     image: rocketdynamics/rocketboard-frontend:${VERSION:-latest}
@@ -38,9 +40,15 @@ services:
       target: backend-builder
     environment:
       FIRESTORE_EMULATOR_HOST: firestore:8509
+      PUBSUB_EMULATOR_HOST: pubsub:8510
     depends_on:
     - firestore
+    - pubsub
 
   firestore:
     image: google/cloud-sdk:latest
     command: gcloud beta emulators firestore start --host-port=0.0.0.0:8509
+
+  pubsub:
+    image: google/cloud-sdk:latest
+    command: gcloud beta emulators pubsub start --host-port=0.0.0.0:8510

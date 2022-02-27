@@ -9,6 +9,6 @@ type Publisher interface {
 }
 
 type Subscriber interface {
-	CardSubscribe(channel string) (chan model.Card, error)
-	RetroSubscribe(channel string) (chan model.Retrospective, error)
+	CardSubscribe(connectionId, channel string) (chan model.Card, error)
+	RetroSubscribe(connectionId, channel string) (chan model.Retrospective, error)
 }
