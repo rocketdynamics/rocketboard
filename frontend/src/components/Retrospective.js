@@ -254,7 +254,9 @@ function _Retrospective(props) {
                     const targetCardIndex = R.findIndex(R.propEq("id", combineId))(
                         otherCards
                     );
-                    otherCards[targetCardIndex].mergedCards.push(mergedCard);
+                    if (R.findIndex(R.propEq("id", cardId))(otherCards[targetCardIndex].mergedCards) == -1) {
+                        otherCards[targetCardIndex].mergedCards.push(mergedCard);
+                    }
                     data.retrospectiveById.cards = otherCards;
 
                     proxy.writeQuery({

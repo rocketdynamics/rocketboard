@@ -30,7 +30,7 @@ type Card struct {
 	Message     string
 	Creator     string
 	Column      string
-	MergedCards []*Card
+	MergedCards []*Card `firestore:"-"`
 	MergedInto  *string `db:"mergedInto"`
 
 	Position int

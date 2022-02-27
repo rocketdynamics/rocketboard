@@ -6,7 +6,7 @@ import (
 	"github.com/99designs/gqlgen/handler"
 	"github.com/rocketdynamics/rocketboard/cmd/rocketboard/graph"
 	rocketFirestore "github.com/rocketdynamics/rocketboard/cmd/rocketboard/repository/firestore"
-	rocketSql "github.com/rocketdynamics/rocketboard/cmd/rocketboard/repository/sql"
+	// rocketSql "github.com/rocketdynamics/rocketboard/cmd/rocketboard/repository/sql"
 	"github.com/rocketdynamics/rocketboard/cmd/rocketboard/utils"
 	"log"
 	"net/http"
@@ -51,15 +51,15 @@ func main() {
 		dbURI = "sqlite3:rocket.db"
 	}
 
-	repository, err := rocketSql.NewRepository(dbURI)
-	if err != nil {
-		log.Fatal(err)
-	}
+	// repository, err := rocketSql.NewRepository(dbURI)
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
 	repository2, err := rocketFirestore.NewRepository()
 	if err != nil {
 		log.Fatal(err)
 	}
-	svc := NewRocketboardService(repository)
+	svc := NewRocketboardService(repository2)
 	graph.InitMessageQueue()
 
 	http.Handle("/query-playground", handler.Playground("Rocketboard", "/query"))

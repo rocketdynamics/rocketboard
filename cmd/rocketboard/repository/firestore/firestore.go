@@ -47,7 +47,7 @@ func (db *firestoreRepository) NewRetrospective(r *model.Retrospective) error {
 
 func (db *firestoreRepository) GetRetrospectiveById(id string) (*model.Retrospective, error) {
 	var r model.Retrospective
-	doc, err := db.retros.Doc(r.Id).Get(context.Background())
+	doc, err := db.retros.Doc(id).Get(context.Background())
 	if err != nil {
 		return nil, err
 	}
@@ -85,7 +85,7 @@ func (db *firestoreRepository) NewCard(c *model.Card) error {
 		if err := doc.DataTo(&card); err != nil {
 			return err
 		}
-		if card.Position < min {
+		if card.Column == c.Column && card.Position < min {
 			min = card.Position
 		}
 	}
@@ -233,7 +233,11 @@ func (db *firestoreRepository) GetCardById(id string) (*model.Card, error) {
 		return nil, err
 	}
 
-	results := db.cards.Where("mergedInto", "==", id).OrderBy("Position", firestore.Asc).Documents(context.Background())
+	results := db.cards.
+		Where("MergedInto", "==", id).
+		OrderBy("Position", firestore.Asc).
+		OrderBy("Id", firestore.Asc).
+		Documents(context.Background())
 	mergedCards := []*model.Card{}
 	for {
 		doc, err := results.Next()
