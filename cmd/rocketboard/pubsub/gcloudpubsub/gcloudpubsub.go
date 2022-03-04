@@ -42,11 +42,17 @@ func (s *pubsubPublisher) Publish(channel string, message []byte) error {
 	return nil
 }
 
-func (s *pubsubSubscriber) CardSubscribe(connectionId, channel string) (chan model.Card, error) {
+var cardSubscriptions = map[string]chan model.Card{}
+
+func (s *pubsubSubscriber) CardSubscribe(connectionId, channel string) (chan model.Card, func() error, error) {
+	if cardSubscriptions["card-"+connectionId+"-"+channel] != nil {
+		return cardSubscriptions["card-"+connectionId+"-"+channel], func() error { return nil }, nil
+	}
+
 	cardChan := make(chan model.Card, 100)
 	topic, err := getTopic(s.client, channel)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	sub, err := s.client.CreateSubscription(
 		context.Background(),
@@ -54,7 +60,8 @@ func (s *pubsubSubscriber) CardSubscribe(connectionId, channel string) (chan mod
 		gpubsub.SubscriptionConfig{Topic: topic},
 	)
 	if err != nil {
-		return nil, err
+		log.Println("already exists card")
+		return nil, nil, err
 	}
 	go sub.Receive(context.Background(), func(ctx context.Context, m *gpubsub.Message) {
 		var card model.Card
@@ -65,15 +72,24 @@ func (s *pubsubSubscriber) CardSubscribe(connectionId, channel string) (chan mod
 		cardChan <- card
 		m.Ack()
 	})
+	cardSubscriptions["card-"+connectionId+"-"+channel] = cardChan
 
-	return cardChan, nil
+	return cardChan, func() error {
+		return sub.Delete(context.Background())
+	}, nil
 }
 
-func (s *pubsubSubscriber) RetroSubscribe(connectionId, channel string) (chan model.Retrospective, error) {
+var retroSubscriptions = map[string]chan model.Retrospective{}
+
+func (s *pubsubSubscriber) RetroSubscribe(connectionId, channel string) (chan model.Retrospective, func() error, error) {
+	if retroSubscriptions["retro-"+connectionId+"-"+channel] != nil {
+		return retroSubscriptions["retro-"+connectionId+"-"+channel], func() error { return nil }, nil
+	}
+	log.Println("subscribing", "retro-"+connectionId+"-"+channel)
 	retroChan := make(chan model.Retrospective, 100)
 	topic, err := getTopic(s.client, channel)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	sub, err := s.client.CreateSubscription(
 		context.Background(),
@@ -81,7 +97,8 @@ func (s *pubsubSubscriber) RetroSubscribe(connectionId, channel string) (chan mo
 		gpubsub.SubscriptionConfig{Topic: topic},
 	)
 	if err != nil {
-		return nil, err
+		log.Println("already exists retro")
+		return nil, nil, err
 	}
 	go sub.Receive(context.Background(), func(ctx context.Context, m *gpubsub.Message) {
 		var retro model.Retrospective
@@ -92,8 +109,10 @@ func (s *pubsubSubscriber) RetroSubscribe(connectionId, channel string) (chan mo
 		retroChan <- retro
 		m.Ack()
 	})
-
-	return retroChan, nil
+	retroSubscriptions["retro-"+connectionId+"-"+channel] = retroChan
+	return retroChan, func() error {
+		return sub.Delete(context.Background())
+	}, nil
 }
 
 func NewSubscriber(client *gpubsub.Client) pubsub.Subscriber {

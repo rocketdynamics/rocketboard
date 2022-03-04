@@ -41,6 +41,7 @@ func NewRepository() (*firestoreRepository, error) {
 }
 
 func (db *firestoreRepository) NewRetrospective(r *model.Retrospective) error {
+	fmt.Println("creating retro")
 	_, err := db.retros.Doc(r.Id).Create(context.Background(), r)
 	return err
 }
@@ -262,6 +263,8 @@ func (db *firestoreRepository) GetCardsByRetrospectiveId(id string) ([]*model.Ca
 	allCards := []*model.Card{}
 	unmergedCards := []*model.Card{}
 	mergedCards := []*model.Card{}
+
+	log.Println("getting card")
 
 	results := db.cards.
 		Where("RetrospectiveId", "==", id).

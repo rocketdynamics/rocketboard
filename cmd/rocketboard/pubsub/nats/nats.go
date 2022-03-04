@@ -14,13 +14,13 @@ type natsSubscriber struct {
 	nc *nats.Conn
 }
 
-func (s *natsSubscriber) CardSubscribe(connectionId, channel string) (chan model.Card, error) {
+func (s *natsSubscriber) CardSubscribe(connectionId, channel string) (chan model.Card, func() error, error) {
 	cardChan := make(chan model.Card, 100)
 	natsChan := make(chan *nats.Msg, 100)
 	sub, err := s.nc.ChanSubscribe(channel, natsChan)
 	if err != nil {
 		log.Println("ERROR: Failed to subscribe to card channel")
-		return nil, err
+		return nil, nil, err
 	}
 	go func(natsChan chan *nats.Msg, cardChan chan model.Card) {
 		for msg := range natsChan {
@@ -32,19 +32,21 @@ func (s *natsSubscriber) CardSubscribe(connectionId, channel string) (chan model
 			cardChan <- card
 		}
 		sub.Unsubscribe()
-		close(natsChan)
 	}(natsChan, cardChan)
 
-	return cardChan, nil
+	return cardChan, func() error {
+		close(natsChan)
+		return nil
+	}, nil
 }
 
-func (s *natsSubscriber) RetroSubscribe(connectionId, channel string) (chan model.Retrospective, error) {
+func (s *natsSubscriber) RetroSubscribe(connectionId, channel string) (chan model.Retrospective, func() error, error) {
 	retroChan := make(chan model.Retrospective, 100)
 	natsChan := make(chan *nats.Msg, 100)
 	sub, err := s.nc.ChanSubscribe(channel, natsChan)
 	if err != nil {
 		log.Println("ERROR: Failed to subscribe to retro channel")
-		return nil, err
+		return nil, nil, err
 	}
 	go func(natsChan chan *nats.Msg, retroChan chan model.Retrospective) {
 		for msg := range natsChan {
@@ -56,10 +58,12 @@ func (s *natsSubscriber) RetroSubscribe(connectionId, channel string) (chan mode
 			retroChan <- retro
 		}
 		sub.Unsubscribe()
-		close(natsChan)
 	}(natsChan, retroChan)
 
-	return retroChan, nil
+	return retroChan, func() error {
+		close(natsChan)
+		return nil
+	}, nil
 }
 
 func NewSubscriber(nc *nats.Conn) pubsub.Subscriber {

@@ -76,6 +76,7 @@ class RetroCard extends React.PureComponent {
     };
 
     createVoteEffect = (numVotes, emoji) => {
+        console.log("vote" + numVotes)
         // Prevent lag on effect spam
         if (this.state.effects.length > 100) {
             return;

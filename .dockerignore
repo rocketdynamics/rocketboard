@@ -1,2 +1,5 @@
-**/node_modules/**/*
-**/node_modules/
+/terraform/
+/traceshots/
+/frontend/build/
+/frontend/node_modules/
+/build/

@@ -41,6 +41,7 @@ function _LiveRetrospective(props) {
         onCardChanged = props.subscribe({
             document: CARD_SUBSCRIPTION,
             variables: { rId: id },
+            context: { queryDeduplication: true },
             updateQuery: (prev, { subscriptionData: { data } }) => {
                 const newCard = data.cardChanged;
                 var existingCards = prev.retrospectiveById.cards;
@@ -49,7 +50,7 @@ function _LiveRetrospective(props) {
                 if (newCard.mergedInto) {
                     existingCards = R.reject(R.propEq("id", newCard.id))(existingCards);
                 } else if (!existingCard) {
-                    existingCards= [...existingCards, newCard]
+                    existingCards = [...existingCards, newCard]
                 }
 
                 return {
@@ -65,7 +66,6 @@ function _LiveRetrospective(props) {
             },
         });
     });
-
     return props.children;
 }
 

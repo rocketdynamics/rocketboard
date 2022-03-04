@@ -3,12 +3,25 @@
     "rules": "firestore.rules",
     "indexes": "firestore.indexes.json"
   },
+  "hosting": {
+    "public": "build",
+    "rewrites": [ {
+      "source": "/query",
+      "run": {
+        "serviceId": "rocketboard",
+        "region": "us-central1"
+      }
+    } ]
+  },
   "emulators": {
     "firestore": {
       "port": 8080
     },
     "pubsub": {
       "port": 8085
+    },
+    "hosting": {
+      "enabled": false
     },
     "ui": {
       "enabled": true

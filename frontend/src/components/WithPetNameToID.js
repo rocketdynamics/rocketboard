@@ -3,7 +3,23 @@ import { useQuery } from "@apollo/client";
 import { useParams } from 'react-router-dom';
 import { GET_RETROSPECTIVE_ID } from "../queries";
 
+class ShouldUpdater extends React.Component {
+    constructor(props) {
+        super(props);
+    }
+
+    shouldComponentUpdate(nextProps, nextState) {
+        return this.props.match.params.petName != nextProps.match.params.petName
+    }
+
+    render() {
+        return this.props.children;
+    }
+}
+
 function WithPetNameToID(props) {
+    console.log("topetname")
+    console.log(props)
     const { petName } = useParams();
     const { loading, error, data } = useQuery(GET_RETROSPECTIVE_ID, {
         variables: { petName },
@@ -20,7 +36,7 @@ function WithPetNameToID(props) {
             </div>
         )
     }
-    return (<props.component id={data.retrospectiveByPetName.id}/>);
+    return (<ShouldUpdater><props.component id={data.retrospectiveByPetName.id}/></ShouldUpdater>);
 };
 
 export default WithPetNameToID;

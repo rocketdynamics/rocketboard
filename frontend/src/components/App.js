@@ -31,11 +31,13 @@ import QRCode from 'qrcode.react';
 const { Header, Content, Footer } = Layout;
 
 function LiveOnlineUsers({ id }) {
-    var { loading, data } = useSubscription(RETRO_SUBSCRIPTION, {
+    console.log("subscribe")
+    var { loading, data, error } = useSubscription(RETRO_SUBSCRIPTION, {
         variables: { rId: id },
+        context: { queryDeduplication: true },
     });
 
-    if (loading) {
+    if (loading || error) {
         return null;
     }
 

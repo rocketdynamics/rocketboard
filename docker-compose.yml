@@ -24,7 +24,7 @@ services:
     - ./traceshots:/frontend/traceshots
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.frontend
       target: frontend-builder
     environment:
       TARGET_URL: http://backend:5000

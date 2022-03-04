@@ -109,9 +109,16 @@ func (r *subscriptionResolver) CardChanged(ctx context.Context, rId string) (<-c
 		userLimiters[user] = &CountedLimiter{rate.NewLimiter(10, 100), 1}
 	}
 	r.mu.Unlock()
+	log.Println("new card changed", connectionId)
+
+	channel, cleanup, err := sub.CardSubscribe(connectionId, "cards-"+rId)
+	if err != nil {
+		return nil, err
+	}
 
 	go func() {
 		<-ctx.Done()
+		cleanup()
 		r.o.ClearObservations(connectionId)
 		// Re-send retro to subs to update online users.
 		r.sendRetroToSubsById(rId)
@@ -123,21 +130,28 @@ func (r *subscriptionResolver) CardChanged(ctx context.Context, rId string) (<-c
 		r.mu.Unlock()
 	}()
 
-	return sub.CardSubscribe(connectionId, "cards-"+rId)
+	return channel, err
 
 }
 
 func (r *subscriptionResolver) RetroChanged(ctx context.Context, rId string) (<-chan model.Retrospective, error) {
 	connectionId := ctx.Value("connectionId").(string)
+	log.Println("new retro changed", connectionId)
 	defer func() {
 		// Send initial retro update incase we missed something
 		r.sendRetroToSubsById(rId)
 	}()
 
-	// go func() {
-	// 	<-ctx.Done()
-	// 	close()
-	// }()
+	channel, cleanup, err := sub.RetroSubscribe(connectionId, "retros-"+rId)
+	if err != nil {
+		return nil, err
+	}
 
-	return sub.RetroSubscribe(connectionId, "retros-"+rId)
+	go func() {
+		<-ctx.Done()
+		cleanup()
+		log.Println("close retro changed")
+	}()
+
+	return channel, err
 }

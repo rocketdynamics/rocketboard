@@ -19,8 +19,13 @@ run: build
 build/frontend:
 	docker build --rm \
 			-t ${IMAGE_NAME}-frontend:${VERSION} \
+			-f Dockerfile.frontend \
 			--target=frontend-builder \
 			.
+	docker rm -f frontend-build-tmp
+	docker create --name frontend-build-tmp ${IMAGE_NAME}-frontend:${VERSION}
+	docker cp frontend-build-tmp:/frontend/build/. ./build/
+	docker rm -f frontend-build-tmp
 
 .PHONY: test
 test:

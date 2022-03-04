@@ -80,6 +80,7 @@ func (s *rocketboardService) StartRetrospective(name string) (string, error) {
 		Name:    sanitizeString(name),
 		PetName: petname.Generate(3, "-"),
 	}
+	fmt.Println("starting retro")
 	if err := s.db.NewRetrospective(r); err != nil {
 		return "", err
 	}
