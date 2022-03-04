@@ -6,11 +6,8 @@
   "hosting": {
     "public": "build",
     "rewrites": [ {
-      "source": "/query",
-      "run": {
-        "serviceId": "rocketboard",
-        "region": "us-central1"
-      }
+      "source": "**",
+      "destination": "/index.html"
     } ]
   },
   "emulators": {

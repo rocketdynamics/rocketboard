@@ -2,7 +2,7 @@ import { ApolloLink, InMemoryCache, ApolloClient } from '@apollo/client';
 import { WebSocketLink } from "@apollo/client/link/ws";
 import { onError } from "@apollo/client/link/error";
 
-var wsUri = new URL("https://rocketboard-ntxbgh6iiq-uc.a.run.app");
+var wsUri = new URL("https://rocketboard-ntxbgh6iiq-nw.a.run.app");
 //var wsUri = new URL(window.location.href);
 wsUri.protocol = wsUri.protocol.startsWith("https") ? "wss" : "ws";
 wsUri.pathname = "/query";

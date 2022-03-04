@@ -264,8 +264,6 @@ func (db *firestoreRepository) GetCardsByRetrospectiveId(id string) ([]*model.Ca
 	unmergedCards := []*model.Card{}
 	mergedCards := []*model.Card{}
 
-	log.Println("getting card")
-
 	results := db.cards.
 		Where("RetrospectiveId", "==", id).
 		OrderBy("Position", firestore.Asc).
@@ -285,6 +283,7 @@ func (db *firestoreRepository) GetCardsByRetrospectiveId(id string) ([]*model.Ca
 			return nil, err
 		}
 		allCards = append(allCards, &card)
+		log.Println("allcard")
 		if card.MergedInto == nil {
 			unmergedCards = append(unmergedCards, &card)
 			cardsById[card.Id] = &card

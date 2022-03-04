@@ -84,8 +84,7 @@ func (r *rootResolver) RootQuery() RootQueryResolver {
 }
 
 func (r *retrospectiveResolver) Cards(ctx context.Context, obj *model.Retrospective) ([]*model.Card, error) {
-	cards, _ := r.s.GetCardsForRetrospective(obj.Id)
-	return cards, nil
+	return r.s.GetCardsForRetrospective(obj.Id)
 }
 func (r *retrospectiveResolver) OnlineUsers(ctx context.Context, obj *model.Retrospective) ([]model.UserState, error) {
 	return r.o.GetActiveUsers(obj.Id)
@@ -115,9 +114,9 @@ func (r *mutationResolver) MoveCard(ctx context.Context, id string, column strin
 	if err := r.s.MoveCard(id, column, index); err != nil {
 		return -1, err
 	}
-	c, _ := r.s.GetCardById(id)
+	c, err := r.s.GetCardById(id)
 	r.sendCardToSubs(c)
-	return c.Position, nil
+	return c.Position, err
 }
 
 func (r *mutationResolver) MergeCard(ctx context.Context, id string, mergedInto string) (string, error) {
