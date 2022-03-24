@@ -112,7 +112,6 @@ func (s *rocketboardService) GetVoteByCardIdAndVoterAndEmoji(id string, voter st
 }
 
 func (s *rocketboardService) NewVote(cardId string, voter string, emoji string) (*model.Vote, error) {
-	time.Sleep(2 * time.Second)
 	if !VALID_EMOJIS[emoji] {
 		return nil, fmt.Errorf("Invalid emoji")
 	}
