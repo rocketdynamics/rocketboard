@@ -37,7 +37,7 @@ type repository interface {
 
 type observationStore interface {
 	Observe(string, string, string, string) (bool, error)
-	GetActiveUsers(string) ([]model.UserState, error)
+	GetActiveUsers(string) ([]*model.UserState, error)
 	ClearObservations(string)
 }
 
@@ -80,7 +80,6 @@ func (s *rocketboardService) StartRetrospective(name string) (string, error) {
 		Name:    sanitizeString(name),
 		PetName: petname.Generate(3, "-"),
 	}
-	fmt.Println("starting retro")
 	if err := s.db.NewRetrospective(r); err != nil {
 		return "", err
 	}
@@ -113,6 +112,7 @@ func (s *rocketboardService) GetVoteByCardIdAndVoterAndEmoji(id string, voter st
 }
 
 func (s *rocketboardService) NewVote(cardId string, voter string, emoji string) (*model.Vote, error) {
+	time.Sleep(2 * time.Second)
 	if !VALID_EMOJIS[emoji] {
 		return nil, fmt.Errorf("Invalid emoji")
 	}

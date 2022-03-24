@@ -87,7 +87,7 @@ func (db *firestoreRepository) ClearObservations(connectionid string) {
 	}
 }
 
-func (db *firestoreRepository) GetActiveUsers(retrospectiveId string) ([]model.UserState, error) {
+func (db *firestoreRepository) GetActiveUsers(retrospectiveId string) ([]*model.UserState, error) {
 	results := db.observations.Where(
 		"RetrospectiveId", "==", retrospectiveId,
 	).Where(
@@ -112,9 +112,9 @@ func (db *firestoreRepository) GetActiveUsers(retrospectiveId string) ([]model.U
 		}
 	}
 
-	stateSlice := []model.UserState{}
+	stateSlice := []*model.UserState{}
 	for _, userState := range userStates {
-		stateSlice = append(stateSlice, userState)
+		stateSlice = append(stateSlice, &userState)
 	}
 
 	sort.Slice(stateSlice, func(i, j int) bool {

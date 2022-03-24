@@ -94,12 +94,15 @@ func (r *rootResolver) sendRetroToSubs(retro *model.Retrospective) {
 }
 
 func (r *rootResolver) sendRetroToSubsById(rId string) {
-	retro, _ := r.s.GetRetrospectiveById(rId)
+	retro, err := r.s.GetRetrospectiveById(rId)
+	if err != nil {
+		return
+	}
 	b, _ := msgpack.Marshal(retro)
 	pub.Publish("retros-"+retro.Id, b)
 }
 
-func (r *subscriptionResolver) CardChanged(ctx context.Context, rId string) (<-chan model.Card, error) {
+func (r *subscriptionResolver) CardChanged(ctx context.Context, rId string) (<-chan *model.Card, error) {
 	user := ctx.Value("email").(string)
 	connectionId := ctx.Value("connectionId").(string)
 	r.mu.Lock()
@@ -109,7 +112,6 @@ func (r *subscriptionResolver) CardChanged(ctx context.Context, rId string) (<-c
 		userLimiters[user] = &CountedLimiter{rate.NewLimiter(10, 100), 1}
 	}
 	r.mu.Unlock()
-	log.Println("new card changed", connectionId)
 
 	channel, cleanup, err := sub.CardSubscribe(connectionId, "cards-"+rId)
 	if err != nil {
@@ -134,9 +136,8 @@ func (r *subscriptionResolver) CardChanged(ctx context.Context, rId string) (<-c
 
 }
 
-func (r *subscriptionResolver) RetroChanged(ctx context.Context, rId string) (<-chan model.Retrospective, error) {
+func (r *subscriptionResolver) RetroChanged(ctx context.Context, rId string) (<-chan *model.Retrospective, error) {
 	connectionId := ctx.Value("connectionId").(string)
-	log.Println("new retro changed", connectionId)
 	defer func() {
 		// Send initial retro update incase we missed something
 		r.sendRetroToSubsById(rId)
@@ -150,7 +151,6 @@ func (r *subscriptionResolver) RetroChanged(ctx context.Context, rId string) (<-
 	go func() {
 		<-ctx.Done()
 		cleanup()
-		log.Println("close retro changed")
 	}()
 
 	return channel, err

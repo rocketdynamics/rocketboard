@@ -1,6 +1,7 @@
 schema {
     query: RootQuery
     mutation: RootMutation
+    subscription: Subscription
 }
 
 type RootQuery {

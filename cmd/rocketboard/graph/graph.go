@@ -29,7 +29,7 @@ type rocketboardService interface {
 
 type observationStore interface {
 	Observe(string, string, string, string) (bool, error)
-	GetActiveUsers(string) ([]model.UserState, error)
+	GetActiveUsers(string) ([]*model.UserState, error)
 	ClearObservations(string)
 }
 
@@ -86,7 +86,7 @@ func (r *rootResolver) RootQuery() RootQueryResolver {
 func (r *retrospectiveResolver) Cards(ctx context.Context, obj *model.Retrospective) ([]*model.Card, error) {
 	return r.s.GetCardsForRetrospective(obj.Id)
 }
-func (r *retrospectiveResolver) OnlineUsers(ctx context.Context, obj *model.Retrospective) ([]model.UserState, error) {
+func (r *retrospectiveResolver) OnlineUsers(ctx context.Context, obj *model.Retrospective) ([]*model.UserState, error) {
 	return r.o.GetActiveUsers(obj.Id)
 }
 
@@ -163,25 +163,29 @@ func (r *mutationResolver) UpdateMessage(ctx context.Context, id string, message
 	return message, nil
 }
 
-func (r *mutationResolver) NewVote(ctx context.Context, cardId string, emoji string) (model.Vote, error) {
+func (r *mutationResolver) NewVote(ctx context.Context, cardId string, emoji string) (*model.Vote, error) {
 	voter := ctx.Value("email").(string)
 	r.mu.Lock()
 	limiter := userLimiters[voter]
 	r.mu.Unlock()
 
+	fmt.Println("checking limiter")
 	if limiter != nil && !limiter.Allow() {
 		// If rate limited, just return existing vote (without incrementing)
 		vote, err := r.s.GetVoteByCardIdAndVoterAndEmoji(cardId, voter, emoji)
-		return *vote, err
+		return vote, err
 	}
 
+	fmt.Println("new vote")
 	v, err := r.s.NewVote(cardId, voter, emoji)
 	if err == nil {
+		fmt.Println("get card")
 		c, _ := r.s.GetCardById(cardId)
+		fmt.Println("sending")
 		r.sendCardToSubs(c)
-		return *v, err
+		return v, err
 	} else {
-		return model.Vote{}, err
+		return nil, err
 	}
 }
 
@@ -192,7 +196,6 @@ func (r *mutationResolver) AddCardToRetrospective(ctx context.Context, rId strin
 	}
 	c, err := r.s.GetCardById(id)
 	if err != nil {
-		panic(err)
 		return "", err
 	}
 
@@ -200,15 +203,15 @@ func (r *mutationResolver) AddCardToRetrospective(ctx context.Context, rId strin
 	return id, nil
 }
 
-func (r *mutationResolver) UpdateStatus(ctx context.Context, id string, status model.StatusType) (model.Status, error) {
+func (r *mutationResolver) UpdateStatus(ctx context.Context, id string, status model.StatusType) (*model.Status, error) {
 	sid, err := r.s.SetStatus(id, status)
 	if err != nil {
-		return model.Status{}, err
+		return nil, err
 	}
 
 	s, err := r.s.GetStatusById(sid)
 	if err != nil {
-		return model.Status{}, err
+		return nil, err
 	}
 
 	go func() {
@@ -216,7 +219,7 @@ func (r *mutationResolver) UpdateStatus(ctx context.Context, id string, status m
 		r.sendCardToSubs(c)
 	}()
 
-	return *s, nil
+	return s, nil
 }
 
 func (r *mutationResolver) SendHeartbeat(ctx context.Context, rId string, state string) (string, error) {

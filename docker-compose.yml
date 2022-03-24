@@ -22,12 +22,14 @@ services:
     - SYS_ADMIN
     volumes:
     - ./traceshots:/frontend/traceshots
+    ports:
+    - 3000:3000
     build:
       context: .
       dockerfile: Dockerfile.frontend
       target: frontend-builder
     environment:
-      TARGET_URL: http://backend:5000
+      TARGET_URL: http://localhost:3000
     depends_on:
     - backend
 

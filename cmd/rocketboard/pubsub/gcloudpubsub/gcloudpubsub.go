@@ -42,14 +42,14 @@ func (s *pubsubPublisher) Publish(channel string, message []byte) error {
 	return nil
 }
 
-var cardSubscriptions = map[string]chan model.Card{}
+var cardSubscriptions = map[string]chan *model.Card{}
 
-func (s *pubsubSubscriber) CardSubscribe(connectionId, channel string) (chan model.Card, func() error, error) {
+func (s *pubsubSubscriber) CardSubscribe(connectionId, channel string) (chan *model.Card, func() error, error) {
 	if cardSubscriptions["card-"+connectionId+"-"+channel] != nil {
 		return cardSubscriptions["card-"+connectionId+"-"+channel], func() error { return nil }, nil
 	}
 
-	cardChan := make(chan model.Card, 100)
+	cardChan := make(chan *model.Card, 100)
 	topic, err := getTopic(s.client, channel)
 	if err != nil {
 		return nil, nil, err
@@ -60,7 +60,6 @@ func (s *pubsubSubscriber) CardSubscribe(connectionId, channel string) (chan mod
 		gpubsub.SubscriptionConfig{Topic: topic},
 	)
 	if err != nil {
-		log.Println("already exists card")
 		return nil, nil, err
 	}
 	go sub.Receive(context.Background(), func(ctx context.Context, m *gpubsub.Message) {
@@ -69,7 +68,7 @@ func (s *pubsubSubscriber) CardSubscribe(connectionId, channel string) (chan mod
 		if err != nil {
 			log.Println("ERROR: Failed to unmarshal card message")
 		}
-		cardChan <- card
+		cardChan <- &card
 		m.Ack()
 	})
 	cardSubscriptions["card-"+connectionId+"-"+channel] = cardChan
@@ -79,14 +78,13 @@ func (s *pubsubSubscriber) CardSubscribe(connectionId, channel string) (chan mod
 	}, nil
 }
 
-var retroSubscriptions = map[string]chan model.Retrospective{}
+var retroSubscriptions = map[string]chan *model.Retrospective{}
 
-func (s *pubsubSubscriber) RetroSubscribe(connectionId, channel string) (chan model.Retrospective, func() error, error) {
+func (s *pubsubSubscriber) RetroSubscribe(connectionId, channel string) (chan *model.Retrospective, func() error, error) {
 	if retroSubscriptions["retro-"+connectionId+"-"+channel] != nil {
 		return retroSubscriptions["retro-"+connectionId+"-"+channel], func() error { return nil }, nil
 	}
-	log.Println("subscribing", "retro-"+connectionId+"-"+channel)
-	retroChan := make(chan model.Retrospective, 100)
+	retroChan := make(chan *model.Retrospective, 100)
 	topic, err := getTopic(s.client, channel)
 	if err != nil {
 		return nil, nil, err
@@ -97,7 +95,6 @@ func (s *pubsubSubscriber) RetroSubscribe(connectionId, channel string) (chan mo
 		gpubsub.SubscriptionConfig{Topic: topic},
 	)
 	if err != nil {
-		log.Println("already exists retro")
 		return nil, nil, err
 	}
 	go sub.Receive(context.Background(), func(ctx context.Context, m *gpubsub.Message) {
@@ -106,7 +103,7 @@ func (s *pubsubSubscriber) RetroSubscribe(connectionId, channel string) (chan mo
 		if err != nil {
 			log.Println("ERROR: Failed to unmarshal retro message")
 		}
-		retroChan <- retro
+		retroChan <- &retro
 		m.Ack()
 	})
 	retroSubscriptions["retro-"+connectionId+"-"+channel] = retroChan

@@ -115,6 +115,11 @@ type Vote struct {
 	Count int
 }
 
+type VoteShard struct {
+	Id    string
+	Count int
+}
+
 type Observation struct {
 	User            string
 	RetrospectiveId string

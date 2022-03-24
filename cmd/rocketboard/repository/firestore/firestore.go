@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 	"math"
+	"math/rand"
+	"strconv"
 
 	"cloud.google.com/go/firestore"
 	"github.com/rocketdynamics/rocketboard/cmd/rocketboard/model"
@@ -41,7 +43,6 @@ func NewRepository() (*firestoreRepository, error) {
 }
 
 func (db *firestoreRepository) NewRetrospective(r *model.Retrospective) error {
-	fmt.Println("creating retro")
 	_, err := db.retros.Doc(r.Id).Create(context.Background(), r)
 	return err
 }
@@ -283,7 +284,6 @@ func (db *firestoreRepository) GetCardsByRetrospectiveId(id string) ([]*model.Ca
 			return nil, err
 		}
 		allCards = append(allCards, &card)
-		log.Println("allcard")
 		if card.MergedInto == nil {
 			unmergedCards = append(unmergedCards, &card)
 			cardsById[card.Id] = &card
@@ -306,16 +306,40 @@ func (db *firestoreRepository) GetCardsByRetrospectiveId(id string) ([]*model.Ca
 	return unmergedCards, nil
 }
 
+const NumShards = 10
+
 func (db *firestoreRepository) NewVote(v *model.Vote) error {
-	_, err := db.votes.Doc(v.Id).Set(context.Background(), map[string]interface{}{
-		"Id":      v.Id,
-		"Created": v.Created,
-		"Updated": v.Updated,
-		"CardId":  v.CardId,
-		"Voter":   v.Voter,
-		"Emoji":   v.Emoji,
-		"Count":   firestore.Increment(1),
-	}, firestore.MergeAll)
+	if v.Count == 1 {
+		_, err := db.votes.Doc(v.Id).Set(context.Background(), map[string]interface{}{
+			"Id":      v.Id,
+			"Created": v.Created,
+			"Updated": v.Updated,
+			"CardId":  v.CardId,
+			"Voter":   v.Voter,
+			"Emoji":   v.Emoji,
+		}, firestore.MergeAll)
+		if err != nil {
+			return fmt.Errorf("Failed to create vote %w", err)
+		}
+		shardsRef := db.votes.Doc(v.Id).Collection("countShards")
+		for num := 0; num < NumShards; num++ {
+			shard := model.VoteShard{strconv.Itoa(num), 0}
+			if _, err := shardsRef.Doc(strconv.Itoa(num)).Create(context.Background(), &shard); err != nil {
+				return fmt.Errorf("Error creating shards: %w", err)
+			}
+
+		}
+	}
+
+	shardId := strconv.Itoa(rand.Intn(NumShards))
+	docRef := db.votes.Doc(v.Id)
+	shardRef := docRef.Collection("countShards").Doc(shardId)
+	_, err := shardRef.Update(context.Background(), []firestore.Update{
+		{Path: "Count", Value: firestore.Increment(1)},
+	})
+	if err != nil {
+		return fmt.Errorf("Failed to create vote %w", err)
+	}
 	return err
 }
 
@@ -334,6 +358,20 @@ func (db *firestoreRepository) GetVotesByCardId(id string) ([]*model.Vote, error
 		if err := doc.DataTo(&vote); err != nil {
 			return nil, err
 		}
+
+		shards := doc.Ref.Collection("countShards").Documents(context.Background())
+		for {
+			shard, err := shards.Next()
+			if err == iterator.Done {
+				break
+			}
+			if err != nil {
+				return nil, fmt.Errorf("failed getting shard: %v", err)
+			}
+
+			vote.Count += int(shard.Data()["Count"].(int64))
+		}
+
 		vs = append(vs, &vote)
 	}
 
@@ -356,6 +394,20 @@ func (db *firestoreRepository) GetVoteByCardIdAndVoterAndEmoji(id string, voter 
 			return nil, err
 		}
 		doc.DataTo(&v)
+
+		shards := doc.Ref.Collection("countShards").Documents(context.Background())
+		for {
+			shard, err := shards.Next()
+			if err == iterator.Done {
+				break
+			}
+			if err != nil {
+				return nil, fmt.Errorf("failed getting shard: %v", err)
+			}
+
+			v.Count += int(shard.Data()["Count"].(int64))
+		}
+
 		break
 	}
 	return &v, nil
