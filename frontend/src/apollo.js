@@ -2,7 +2,10 @@ import { ApolloLink, InMemoryCache, ApolloClient } from '@apollo/client';
 import { WebSocketLink } from "@apollo/client/link/ws";
 import { onError } from "@apollo/client/link/error";
 
-const wsUri = new URL(window.location.href);
+var wsUri = new URL("https://rocketboard-ntxbgh6iiq-nw.a.run.app");
+if (window.location.hostname == "localhost") {
+    wsUri = new URL(window.location.href);
+}
 wsUri.protocol = wsUri.protocol.startsWith("https") ? "wss" : "ws";
 wsUri.pathname = "/query";
 wsUri.hash = "";
@@ -32,6 +35,9 @@ const client = new ApolloClient({
                     cards: {
                         merge: false,
                     },
+                    onlineUsers: {
+                        merge: false,
+                    }
                 },
             },
             Card: {

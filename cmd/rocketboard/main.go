@@ -3,16 +3,26 @@ package main
 import (
 	"context"
 	"encoding/base64"
-	"github.com/99designs/gqlgen/handler"
-	"github.com/rocketdynamics/rocketboard/cmd/rocketboard/graph"
-	rocketSql "github.com/rocketdynamics/rocketboard/cmd/rocketboard/repository/sql"
-	"github.com/rocketdynamics/rocketboard/cmd/rocketboard/utils"
 	"log"
 	"net/http"
 	"os"
 	"regexp"
 	"strings"
+
+	"github.com/99designs/gqlgen/handler"
+	"github.com/gorilla/websocket"
+	"github.com/rocketdynamics/rocketboard/cmd/rocketboard/graph"
+	rocketFirestore "github.com/rocketdynamics/rocketboard/cmd/rocketboard/repository/firestore"
+	// rocketSql "github.com/rocketdynamics/rocketboard/cmd/rocketboard/repository/sql"
+	"github.com/rocketdynamics/rocketboard/cmd/rocketboard/utils"
 )
+
+func WithCors(base http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		(w).Header().Set("Access-Control-Allow-Origin", "*")
+		base.ServeHTTP(w, r)
+	})
+}
 
 func WithEmail(base http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -49,13 +59,18 @@ func main() {
 		log.Println("No ROCKET_DATABASE_URI specified, using sqlite3:rocket.db")
 		dbURI = "sqlite3:rocket.db"
 	}
-	repository, err := rocketSql.NewRepository(dbURI)
+
+	// repository, err := rocketSql.NewRepository(dbURI)
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	repository2, err := rocketFirestore.NewRepository()
 	if err != nil {
 		log.Fatal(err)
 	}
-	svc := NewRocketboardService(repository)
-	obs := NewObservationStore(repository)
-	graph.InitMessageQueue()
+	svc := NewRocketboardService(repository2)
+	// graph.InitNatsMessageQueue()
+	graph.InitGcloudMessageQueue()
 
 	http.Handle("/query-playground", handler.Playground("Rocketboard", "/query"))
 	http.HandleFunc("/healthcheck", func(w http.ResponseWriter, r *http.Request) {
@@ -64,11 +79,20 @@ func main() {
 		w.Write([]byte("OK"))
 	})
 
-	http.Handle("/query", WithEmail(handler.GraphQL(
+	gqlHandler := handler.GraphQL(
 		graph.NewExecutableSchema(graph.Config{
-			Resolvers: graph.NewResolver(svc, obs),
+			Resolvers: graph.NewResolver(svc, repository2),
 		}),
-	)))
+		handler.WebsocketUpgrader(websocket.Upgrader{
+			CheckOrigin: func(r *http.Request) bool {
+				return true
+			},
+			ReadBufferSize:  1024,
+			WriteBufferSize: 1024,
+		}),
+	)
+
+	http.Handle("/query", WithCors(WithEmail(gqlHandler)))
 
 	http.HandleFunc("/retrospective/", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "./public/index.html")

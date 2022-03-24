@@ -1,8 +1,8 @@
-schema: graph/schema.graphql
+schema: cmd/rocketboard/graph/schema.graphql
 exec:
-  filename: graph/generated.go
+  filename: cmd/rocketboard/graph/generated.go
 model:
-  filename: graph/models_gen.go
+  filename: cmd/rocketboard/graph/models_gen.go
 models:
   Retrospective:
     model: github.com/rocketdynamics/rocketboard/cmd/rocketboard/model.Retrospective

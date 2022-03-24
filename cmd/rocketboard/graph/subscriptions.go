@@ -2,15 +2,20 @@ package graph
 
 import (
 	"context"
-	"github.com/nats-io/gnatsd/server"
-	"github.com/nats-io/go-nats"
-	"github.com/vmihailenco/msgpack"
-	"golang.org/x/time/rate"
 	"log"
 	"os"
 	"time"
 
+	gpubsub "cloud.google.com/go/pubsub"
+	"github.com/nats-io/gnatsd/server"
+	"github.com/nats-io/go-nats"
+	"github.com/vmihailenco/msgpack"
+	"golang.org/x/time/rate"
+
 	"github.com/rocketdynamics/rocketboard/cmd/rocketboard/model"
+	"github.com/rocketdynamics/rocketboard/cmd/rocketboard/pubsub"
+	"github.com/rocketdynamics/rocketboard/cmd/rocketboard/pubsub/gcloudpubsub"
+	rocketNats "github.com/rocketdynamics/rocketboard/cmd/rocketboard/pubsub/nats"
 )
 
 type Update struct {
@@ -23,7 +28,8 @@ type CountedLimiter struct {
 	Count int
 }
 
-var nc *nats.Conn
+var pub pubsub.Publisher
+var sub pubsub.Subscriber
 
 var subChannels = make(map[string]map[string]chan model.Card)
 var userLimiters = make(map[string]*CountedLimiter)
@@ -43,8 +49,8 @@ func startLocalNats() {
 	}
 }
 
-func InitMessageQueue() {
-	var err error
+func InitNatsMessageQueue() {
+	var lastErr error
 	nats_addr := os.Getenv("NATS_ADDR")
 	if nats_addr == "" {
 		log.Println("No NATS_ADDR specified, starting local nats")
@@ -53,36 +59,50 @@ func InitMessageQueue() {
 	}
 
 	for tries := 50; tries > 0; tries -= 1 {
-		nc, err = nats.Connect(nats_addr)
+		nc, err := nats.Connect(nats_addr)
+		lastErr = err
+		pub = rocketNats.NewPublisher(nc)
+		sub = rocketNats.NewSubscriber(nc)
 		if err == nil {
 			break
 		}
 		time.Sleep(100 * time.Millisecond)
 	}
-	if err != nil {
+	if lastErr != nil {
 		log.Fatal("could not connect to nats")
+	}
+}
+
+func InitGcloudMessageQueue() {
+	client, err := gpubsub.NewClient(context.Background(), "rocketboard")
+
+	pub = gcloudpubsub.NewPublisher(client)
+	sub = gcloudpubsub.NewSubscriber(client)
+	if err != nil {
+		log.Fatal("could not connect to gcloud message queue:", err)
 	}
 }
 
 func (r *rootResolver) sendCardToSubs(c *model.Card) {
 	b, _ := msgpack.Marshal(c)
-	nc.Publish("cards-"+c.RetrospectiveId, b)
+	pub.Publish("cards-"+c.RetrospectiveId, b)
 }
 
 func (r *rootResolver) sendRetroToSubs(retro *model.Retrospective) {
 	b, _ := msgpack.Marshal(retro)
-	nc.Publish("retros-"+retro.Id, b)
+	pub.Publish("retros-"+retro.Id, b)
 }
 
 func (r *rootResolver) sendRetroToSubsById(rId string) {
-	retro, _ := r.s.GetRetrospectiveById(rId)
+	retro, err := r.s.GetRetrospectiveById(rId)
+	if err != nil {
+		return
+	}
 	b, _ := msgpack.Marshal(retro)
-	nc.Publish("retros-"+retro.Id, b)
+	pub.Publish("retros-"+retro.Id, b)
 }
 
-func (r *subscriptionResolver) CardChanged(ctx context.Context, rId string) (<-chan model.Card, error) {
-	cardChan := make(chan model.Card, 100)
-
+func (r *subscriptionResolver) CardChanged(ctx context.Context, rId string) (<-chan *model.Card, error) {
 	user := ctx.Value("email").(string)
 	connectionId := ctx.Value("connectionId").(string)
 	r.mu.Lock()
@@ -93,25 +113,14 @@ func (r *subscriptionResolver) CardChanged(ctx context.Context, rId string) (<-c
 	}
 	r.mu.Unlock()
 
-	natsChan := make(chan *nats.Msg, 100)
-	sub, err := nc.ChanSubscribe("cards-"+rId, natsChan)
+	channel, cleanup, err := sub.CardSubscribe(connectionId, "cards-"+rId)
 	if err != nil {
-		log.Println("ERROR: Failed to subscribe to card channel")
 		return nil, err
 	}
-	go func(natsChan chan *nats.Msg, cardChan chan model.Card) {
-		for msg := range natsChan {
-			var card model.Card
-			err := msgpack.Unmarshal(msg.Data, &card)
-			if err != nil {
-				log.Println("ERROR: Failed to unmarshal card message")
-			}
-			cardChan <- card
-		}
-	}(natsChan, cardChan)
 
 	go func() {
 		<-ctx.Done()
+		cleanup()
 		r.o.ClearObservations(connectionId)
 		// Re-send retro to subs to update online users.
 		r.sendRetroToSubsById(rId)
@@ -121,41 +130,28 @@ func (r *subscriptionResolver) CardChanged(ctx context.Context, rId string) (<-c
 			delete(userLimiters, user)
 		}
 		r.mu.Unlock()
-		sub.Unsubscribe()
-		close(natsChan)
 	}()
 
-	return cardChan, nil
+	return channel, err
+
 }
 
-func (r *subscriptionResolver) RetroChanged(ctx context.Context, rId string) (<-chan model.Retrospective, error) {
-	retroChan := make(chan model.Retrospective, 100)
+func (r *subscriptionResolver) RetroChanged(ctx context.Context, rId string) (<-chan *model.Retrospective, error) {
+	connectionId := ctx.Value("connectionId").(string)
+	defer func() {
+		// Send initial retro update incase we missed something
+		r.sendRetroToSubsById(rId)
+	}()
 
-	natsChan := make(chan *nats.Msg, 100)
-	sub, err := nc.ChanSubscribe("retros-"+rId, natsChan)
+	channel, cleanup, err := sub.RetroSubscribe(connectionId, "retros-"+rId)
 	if err != nil {
-		log.Println("ERROR: Failed to subscribe to card channel")
 		return nil, err
 	}
-	go func(natsChan chan *nats.Msg, retroChan chan model.Retrospective) {
-		for msg := range natsChan {
-			var retro model.Retrospective
-			err = msgpack.Unmarshal(msg.Data, &retro)
-			if err != nil {
-				log.Println("ERROR: Failed to unmarshal retro message")
-			}
-			retroChan <- retro
-		}
-	}(natsChan, retroChan)
-
-	// Send initial retro update incase we missed something
-	r.sendRetroToSubsById(rId)
 
 	go func() {
 		<-ctx.Done()
-		sub.Unsubscribe()
-		close(natsChan)
+		cleanup()
 	}()
 
-	return retroChan, nil
+	return channel, err
 }

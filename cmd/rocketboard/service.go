@@ -37,7 +37,7 @@ type repository interface {
 
 type observationStore interface {
 	Observe(string, string, string, string) (bool, error)
-	GetActiveUsers(string) ([]model.UserState, error)
+	GetActiveUsers(string) ([]*model.UserState, error)
 	ClearObservations(string)
 }
 
@@ -68,10 +68,6 @@ func sanitizeString(str string) string {
 
 func NewRocketboardService(r repository) *rocketboardService {
 	return &rocketboardService{r}
-}
-
-func NewObservationStore(r repository) observationStore {
-	return r
 }
 
 func (s *rocketboardService) StartRetrospective(name string) (string, error) {

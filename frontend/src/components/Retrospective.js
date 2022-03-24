@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { graphql } from '@apollo/client/react/hoc';
-import { useQuery } from "@apollo/client";
+import { useQuery, useSubscription } from "@apollo/client";
 import { flowRight, clone, cloneDeep } from "lodash";
 import * as R from "ramda";
 
@@ -29,18 +29,49 @@ const DEFAULT_COLOURS = {
 };
 
 function _LiveRetrospective(props) {
-    var onCardChanged = null;
-    var onRetroChanged = null;
+    const { id } = props;
 
+    var onCardChanged = null;
+
+    useSubscription(CARD_SUBSCRIPTION, {
+        variables: { rId: id },
+        context: { queryDeduplication: true },
+        onSubscriptionData: ({ client, subscriptionData: { data } }) => {
+            const prev = client.readQuery({
+                query: GET_RETROSPECTIVE,
+                variables: { id },
+            });
+            const newCard = data.cardChanged;
+            var existingCards = prev.retrospectiveById.cards;
+            const existingCard = R.find(R.propEq("id", newCard.id))(existingCards);
+
+            if (newCard.mergedInto) {
+                existingCards = R.reject(R.propEq("id", newCard.id))(existingCards);
+            } else if (!existingCard) {
+                existingCards = [...existingCards, newCard]
+            }
+
+            client.writeQuery({
+                query: GET_RETROSPECTIVE,
+                variables: { id },
+                data: {
+                    ...prev,
+                    retrospectiveById: {
+                        ...prev.retrospectiveById,
+                        cards: R.sortBy(
+                            R.prop("position"),
+                            existingCards
+                        ),
+                    },
+                },
+            });
+        },
+    })
     useEffect(() => {
-        const { id } = props;
-        onRetroChanged = props.subscribe({
-            document: RETRO_SUBSCRIPTION,
-            variables: { rId: id },
-        });
         onCardChanged = props.subscribe({
             document: CARD_SUBSCRIPTION,
             variables: { rId: id },
+            context: { queryDeduplication: true },
             updateQuery: (prev, { subscriptionData: { data } }) => {
                 const newCard = data.cardChanged;
                 var existingCards = prev.retrospectiveById.cards;
@@ -49,7 +80,7 @@ function _LiveRetrospective(props) {
                 if (newCard.mergedInto) {
                     existingCards = R.reject(R.propEq("id", newCard.id))(existingCards);
                 } else if (!existingCard) {
-                    existingCards= [...existingCards, newCard]
+                    existingCards = [...existingCards, newCard]
                 }
 
                 return {
@@ -65,7 +96,6 @@ function _LiveRetrospective(props) {
             },
         });
     });
-
     return props.children;
 }
 
@@ -254,7 +284,9 @@ function _Retrospective(props) {
                     const targetCardIndex = R.findIndex(R.propEq("id", combineId))(
                         otherCards
                     );
-                    otherCards[targetCardIndex].mergedCards.push(mergedCard);
+                    if (R.findIndex(R.propEq("id", cardId))(otherCards[targetCardIndex].mergedCards) == -1) {
+                        otherCards[targetCardIndex].mergedCards.push(mergedCard);
+                    }
                     data.retrospectiveById.cards = otherCards;
 
                     proxy.writeQuery({

@@ -1,6 +1,11 @@
 /rocketboard
-vendor/
-traceshots/
+/build/
+/vendor/
+/traceshots/
+/frontend/node_modules/
+/frontend/build/
+/*.log
+/terraform/.terraform
 *.db
 
 .DS_Store

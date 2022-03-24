@@ -30,7 +30,7 @@ type Card struct {
 	Message     string
 	Creator     string
 	Column      string
-	MergedCards []*Card
+	MergedCards []*Card `firestore:"-"`
 	MergedInto  *string `db:"mergedInto"`
 
 	Position int
@@ -97,8 +97,9 @@ type Status struct {
 }
 
 type UserState struct {
-	User  string
-	State UserStateType
+	User      string
+	State     UserStateType `firestore:"State"`
+	FirstSeen time.Time
 }
 
 type Vote struct {
@@ -114,11 +115,16 @@ type Vote struct {
 	Count int
 }
 
+type VoteShard struct {
+	Id    string
+	Count int
+}
+
 type Observation struct {
 	User            string
 	RetrospectiveId string
 	ConnectionId    string
 	State           UserStateType
-	FirstSeen       time.Time
-	LastSeen        time.Time
+	FirstSeen       time.Time `firestore:"FirstSeen,serverTimestamp"`
+	LastSeen        time.Time `firestore:"LastSeen,serverTimestamp"`
 }
